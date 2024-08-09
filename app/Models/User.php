@@ -62,29 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
-     public function teachers()
+     public function posts()
     {
-        return $this->hasMany(Teacher::class);
+        return $this->hasMany(Post::class);
     }
-    public function category()
-    {
-        return $this->hasMany(Category::class);
-    }
-
-    public function income()
-    {
-        return $this->hasMany(Income::class);
-    }
-    public function expense()
-    {
-        return $this->hasMany(Expense::class);
-    }
-     public function operation()
-    {
-        return $this->hasMany(Operation::class);
-    }
-     public function emails()
-    {
-        return $this->hasMany(EmailManagement::class);
-    }
+    
 }

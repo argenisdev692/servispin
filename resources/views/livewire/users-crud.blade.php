@@ -52,11 +52,12 @@
                             <table class="w-full whitespace-no-wrap">
                                 <thead>
                                     <tr
-                                        class="text-xs font-semibold tracking-wide text-left text-white uppercase border-b dark:border-gray-700 bg-blue-600 dark:text-gray-400 dark:bg-gray-800">
+                                        class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-blue-600 dark:text-gray-400 dark:bg-gray-800">
                                         <th class="px-4 py-3">Nro</th>
                                         <th class="px-4 py-3">Name</th>
                                         <th class="px-4 py-3">Username</th>
                                         <th class="px-4 py-3">Email</th>
+                                        <th class="px-4 py-3">Date</th>
                                         <th class="px-4 py-3">Role</th>
                                         @can('manage admin')
                                             <th class="px-4 py-3">Action</th>
@@ -65,7 +66,7 @@
                                 </thead>
                                 <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
                                     @forelse($data as $item)
-                                        <tr class="text-gray-700  uppercase dark:text-gray-400">
+                                        <tr class="text-gray-700 text-center  dark:text-gray-400">
                                             <td class="px-4 py-3 text-center">
 
                                                 {{ $loop->iteration }}
@@ -74,13 +75,16 @@
                                             <td class="px-4 py-3 text-sm">
                                                 {{ $item->name }}
                                             </td>
-                                            <td class="px-4 py-3 text-xs">
+                                            <td class="px-4 py-3 text-sm">
                                                 {{ $item->username }}
                                             </td>
-                                            <td class="px-4 py-3 text-xs">
+                                            <td class="px-4 py-3 text-sm">
                                                 {{ $item->email }}
                                             </td>
-                                            <td class="px-4 py-3 text-xs">
+                                            <td class="px-4 py-3 text-sm">
+                                                {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm">
                                                 @if ($item->role_name === 'Admin')
                                                     <span
                                                         class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
@@ -107,9 +111,12 @@
                                                     <button wire:click="edit({{ $item->id }})"
                                                         class="bg-blue-600 duration-500 ease-in-out hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"><i
                                                             class="fa-solid fa-pen-to-square"></i></button>
-                                                    <button wire:click="delete({{ $item->id }})"
+                                                    <button wire:click="$emit('deleteData',{{ $item->id }})"
                                                         class="bg-red-600 duration-500 ease-in-out hover:bg-red-700 text-white font-bold py-2 px-4 rounded"><i
                                                             class="fa-solid fa-trash"></i></button>
+
+
+
 
                                                 </td>
                                             @endcan
@@ -147,13 +154,14 @@
                                         <div
                                             class="flex flex-shrink-0 items-center justify-between rounded-t-md border-b-2 border-neutral-100 border-opacity-100 p-4 dark:border-opacity-50">
                                             <!--Modal title-->
+                                            <div class="text-center"></div>
                                             <h5 class="text-xl font-medium leading-normal text-neutral-800 dark:text-neutral-200"
                                                 id="exampleModalLabel">
-                                                User
+                                                Users Managament
                                             </h5>
                                             <!--Close button-->
                                             <button type="button" wire:click="closeModal()"
-                                                class="box-content rounded-none border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
+                                                class="p-0.5 bg-red-600 duration-500 ease-in-out hover:bg-red-700 text-white rounded-full box-content  border-none hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
                                                 data-te-modal-dismiss aria-label="Close">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -162,6 +170,8 @@
                                                         d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
+
+
                                         </div>
                                         <form autocomplete="off">
                                             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -188,17 +198,7 @@
                                                             <span class="text-red-500">{{ $message }}</span>
                                                         @enderror
                                                     </div>
-                                                    <div class="mb-4">
-                                                        <label for="exampleFormControlInput1"
-                                                            class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-                                                        <input type="password" id="password" autocomplete="off"
-                                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                                            id="exampleFormControlInput1" required maxlength="20"
-                                                            placeholder="Enter Password" wire:model="password">
-                                                        @error('password')
-                                                            <span class="text-red-500">{{ $message }}</span>
-                                                        @enderror
-                                                    </div>
+
                                                     <div class="mb-4">
                                                         <label for="exampleFormControlInput2"
                                                             class="block text-gray-700 text-sm font-bold mb-2">Email</label>
@@ -210,18 +210,52 @@
                                                             <span class="text-red-500">{{ $message }}</span>
                                                         @enderror
                                                     </div>
+                                                    <div class="mb-4">
+                                                        <label for="exampleFormControlInput1"
+                                                            class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                                                        <div class="relative mb-2">
+                                                            <div class="input-container">
+                                                                <div
+                                                                    class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
 
+
+                                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                                        aria-hidden="true"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="currentColor"
+                                                                        viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                                        <path
+                                                                            d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z" />
+                                                                    </svg>
+
+                                                                </div>
+
+                                                                <input type="password" id="password"
+                                                                    wire:model="password" required autocomplete="off"
+                                                                    autofocus autocomplete="off" id="input-group-1"
+                                                                    class="bg-gray-50 border border-gray-300 px-5 py-3 mt-2 mb-2 text-gray-900 text-sm rounded-lg focus:ring-indigo-500
+                                 focus:border-indigo-500 block w-full pl-10  p-2.5  dark:border-gray-700  dark:focus:border-indigo-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                                                                    placeholder="Password">
+                                                                <span id="toggle-password" class="password-toggle"
+                                                                    onclick="togglePasswordVisibility()">
+                                                                    <i class=" text-gray-500 fa-regular fa-eye"></i>
+                                                                </span>
+                                                            </div>
+                                                            @error('password')
+                                                                <span class="text-red-500">{{ $message }}</span>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
                                                     <div class="mb-4">
                                                         <label for="exampleFormControlInput2"
                                                             class="block text-gray-700 text-sm font-bold mb-2">Role
                                                         </label>
                                                         <select wire:model="role"
                                                             class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-white form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray">
-                                                            <option value="">
-
-                                                            </option>
+                                                            <option value="">Select Role</option>
                                                             @foreach ($rolesRender as $item)
-                                                                <option value="{{ $item->id }}">
+                                                                <option value="{{ $item->id }}"
+                                                                    @if ($item->id === $role) selected @endif>
                                                                     {{ $item->name }}
                                                                 </option>
                                                             @endforeach
@@ -238,7 +272,7 @@
                                                     <button type="button" wire:click.prevent="store()"
                                                         wire:loading.attr="disabled" wire:target="store"
                                                         class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-green-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150 sm:text-sm sm:leading-5">
-                                                        Save
+                                                        Register
                                                     </button>
                                                 </span>
                                                 <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
@@ -269,30 +303,113 @@
 
 </div>
 
+<style>
+    .relative {
+        position: relative;
+    }
 
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 10px;
+        /* Ajusta esto según tu diseño */
+        cursor: pointer;
+    }
+</style>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.querySelector('#password');
+        const toggleButton = document.querySelector('#toggle-password');
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.innerHTML = '<i class="far fa-eye-slash"></i>'; // Cambia el icono a ojo tachado
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.innerHTML = '<i class="far fa-eye"></i>'; // Cambia el icono a ojo
+        }
+    }
+</script>
 
 <script>
-    Livewire.on('deleteData', catId => {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Livewire.emitTo('income-categories', 'delete', catId)
-                Swal.fire(
-                    'Deleted!',
-                    'Your Data has been deleted.',
-                    'success'
-                )
-            }
-        })
-    })
+    document.addEventListener('DOMContentLoaded', function() {
+        Livewire.on('deleteData', function(id) {
+            Swal.fire({
+                title: 'Are you sure you want to delete all of this user records?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.emitTo('users-crud', 'delete',
+                        id); // Envía el Id al método delete
+                    Swal.fire(
+                        'Deleted!',
+                        'Your Data has been deleted.',
+                        'success'
+                    );
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Livewire.on('deleteUserOperations', function(id) {
+            Swal.fire({
+                title: 'Are you sure you want to delete this item?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.emitTo('users-crud', 'deleteOperations',
+                        id); // Envía el Id al método delete
+                    Swal.fire(
+                        'Deleted!',
+                        'Your Data has been deleted.',
+                        'success'
+                    );
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    .password-input-container {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.querySelector('#password');
+        const toggleButton = document.querySelector('#toggle-password');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.innerHTML = '<i class="fa-regular fa-eye-slash"></i>'; // Cambia el icono a ojo tachado
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.innerHTML = '<i class="fa-regular fa-eye"></i>'; // Cambia el icono a ojo
+        }
+    }
 </script>
