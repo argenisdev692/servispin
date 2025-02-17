@@ -208,11 +208,11 @@
                             <ul class="flex flex-wrap justify-center">
                                 <li>
                                     <a class="mx-3 main-btn gradient-btn"
-                                        href="javascript:abrirWhatsApp('+34603105307')"> <i
+                                        href="javascript:abrirWhatsApp('+34643940970')"> <i
                                             class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
                                 </li>
                                 <li>
-                                    <a class="mx-3 main-btn video-popup" href="tel:+34603105307">Llamar Ahora <i
+                                    <a class="mx-3 main-btn " href="tel:+34643940970">Llamar Ahora <i
                                             class="fa-solid fa-phone ml-2"></i></a>
                                 </li>
                             </ul>
@@ -331,6 +331,21 @@
                             </div>
                             <!-- services content -->
                         </div>
+                        <div class="w-full md:w-1/2">
+                            <div class="block mx-4 services-content sm:flex">
+                                <div class="services-icon">
+                                    <i class="fa-solid fa-tv"></i>
+                                </div>
+                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
+                                    <h4 class="services-title">Televisores OLED, LED, LCD</h4>
+                                    <p class="text">
+                                        Instalación de soportes de pared, configuración de mandos y canales, sustitución
+                                        de tiras LED y más. ¡Tu televisor en las mejores manos!
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- services content -->
+                        </div>
                         <!-- services content -->
                     </div>
                 </div>
@@ -399,9 +414,6 @@
                             <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
                                 Garantía
                                 en todas nuestras reparaciones.</li>
-
-
-                        </ul>
 
 
 
@@ -590,11 +602,11 @@
                         </p>
                         <ul class="flex flex-wrap justify-center">
                             <li>
-                                <a class="mx-3 main-btn gradient-btn"href="javascript:abrirWhatsApp('+34603105307')">
+                                <a class="mx-3 main-btn gradient-btn"href="javascript:abrirWhatsApp('+34643940970')">
                                     <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
                             </li>
                             <li>
-                                <a class="mx-3 main-btn video-popup" href="tel:+34603105307">Llamar Ahora <i
+                                <a class="mx-3 main-btn video-popup" href="tel:+34643940970">Llamar Ahora <i
                                         class="fa-solid fa-phone ml-2"></i></a>
                             </li>
                         </ul>
@@ -862,20 +874,27 @@
                     <div class="w-full sm:w-7/12 md:w-1/2 lg:w-1/3">
                         <div class="mb-8 footer-newsletter">
                             <h6 class="footer-title">Horario de Apertura</h6>
-                            <ul>
+                            <ul class="mb-8">
                                 <li>Lun a Vie: 7:00 AM – 9:00 PM</li>
                                 <li>Sáb: 9:00 AM – 9:00 PM</li>
                                 <li>Dom: 9:00 AM – 8:00 PM</li>
-                                <li><br>
-                                    <a
-                                        class="mx-3 main-btn gradient-btn"href="javascript:abrirWhatsApp('+34603105307')">
-                                        <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
-                                </li>
                             </ul>
-
-
+                            <div class="flex flex-col gap-4 footer-buttons-container">
+                                <!--  Added  flex-col and gap-4 -->
+                                <div>
+                                    <a class="main-btn gradient-btn w-full text-center"
+                                        href="javascript:abrirWhatsApp('+34643940970')">
+                                        <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
+                                </div>
+                                <div>
+                                    <a class="main-btn  w-full text-center" href="tel:+34643940970"><i
+                                            class="fa-solid fa-phone "></i> Llamar
+                                        Ahora </a>
+                                </div>
+                            </div>
 
                         </div>
+
                         <!-- footer newsletter -->
                     </div>
                 </div>
@@ -891,7 +910,7 @@
                     <div class="w-full">
                         <div class="py-6 text-center">
                             <p class="text-white">
-                                &copy; {{ date('Y') }} <a class="text-blue-500 duration-300 hover:text-blue-700"
+                                © {{ date('Y') }} <a class="text-blue-500 duration-300 hover:text-blue-700"
                                     rel="nofollow" href="#home">SERVISPIN</a>. Todos los derechos
                                 reservados.
 
@@ -905,7 +924,30 @@
         </div>
         <!-- footer copyright -->
     </footer>
+    <!--====== FOOTER PART ENDS ======-->
 
+    <style>
+        .footer-buttons-container {
+            display: flex;
+            flex-direction: column;
+            /* Default: Stack buttons vertically */
+            gap: 0.75rem;
+            /* Tailwind's gap-3 equivalent */
+        }
+
+        @media (min-width: 768px) {
+            .footer-buttons-container {
+                flex-direction: row;
+                /*  Side by Side on larger screens*/
+            }
+
+            .footer-buttons-container a {
+                width: auto;
+                flex: 1;
+                /* Equal width for buttons on larger screens*/
+            }
+        }
+    </style>
     <!--====== FOOTER PART ENDS ======-->
 
 
