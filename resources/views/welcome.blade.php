@@ -155,7 +155,7 @@
 
                                     <li class="nav-item">
                                         <a class="page-scroll" target="_blank"
-                                            href="https://app.acuityscheduling.com/schedule.php?owner=17717436">Agendar
+                                            href="{{ route('appointments.book') }}">Agendar
                                             Cita</a>
                                     </li>
                                     <li class="nav-item">
@@ -167,18 +167,24 @@
                             <div class="items-center justify-end hidden navbar-social lg:flex">
                                 <span class="mr-4 font-bold text-gray-900 uppercase">FOLLOW US</span>
                                 <ul class="flex footer-social">
-                                    <li>
-                                        <a href="#"><i class="lni-facebook-filled"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="lni-instagram-original"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="#"><i class="lni-linkedin-original"></i></a>
-                                    </li>
+                                    @if ($companyData && $companyData->social_media_facebook)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_facebook }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="lni-facebook-filled"></i></a>
+                                        </li>
+                                    @endif
+                                    @if ($companyData && $companyData->social_media_twitter)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_twitter }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+                                        </li>
+                                    @endif
+                                    @if ($companyData && $companyData->social_media_instagram)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_instagram }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="lni-instagram-original"></i></a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </div>
                         </nav>
@@ -191,7 +197,8 @@
         </div>
         <!-- navgition -->
 
-        <div id="home" class="relative z-10 header-hero" style="background-image: url(files/images/header-bg.jpg)">
+        <div id="home" class="relative z-10 header-hero"
+            style="background-image: url(files/images/header-bg.jpg)">
             <div class="container">
                 <div class="justify-center row">
                     <div class="w-full lg:w-5/6 xl:w-2/3">
@@ -205,17 +212,20 @@
                                 la
                                 garantía de que tu equipo estará en las mejores manos.
                             </p>
-                            <ul class="flex flex-wrap justify-center">
-                                <li>
-                                    <a class="mx-3 main-btn gradient-btn"
-                                        href="javascript:abrirWhatsApp('+34643940970')"> <i
-                                            class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
-                                </li>
-                                <li>
-                                    <a class="mx-3 main-btn " href="tel:+34643940970">Llamar Ahora <i
-                                            class="fa-solid fa-phone ml-2"></i></a>
-                                </li>
-                            </ul>
+                            @if ($companyData && $companyData->phone)
+                                <ul class="flex flex-wrap justify-center">
+                                    <li>
+                                        <a class="mx-3 main-btn gradient-btn"
+                                            href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
+                                            <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="mx-3 main-btn" href="tel:{{ $companyData->phone }}">Llamar Ahora <i
+                                                class="fa-solid fa-phone ml-2"></i></a>
+                                    </li>
+                                </ul>
+                            @endif
                         </div>
                         <!-- header content -->
                     </div>
@@ -600,16 +610,19 @@
                         <p class="mb-6 text-white">
                             Agenda tu cita y recibe asesoramiento experto.
                         </p>
-                        <ul class="flex flex-wrap justify-center">
-                            <li>
-                                <a class="mx-3 main-btn gradient-btn"href="javascript:abrirWhatsApp('+34643940970')">
-                                    <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
-                            </li>
-                            <li>
-                                <a class="mx-3 main-btn video-popup" href="tel:+34643940970">Llamar Ahora <i
-                                        class="fa-solid fa-phone ml-2"></i></a>
-                            </li>
-                        </ul>
+                        @if ($companyData && $companyData->phone)
+                            <ul class="flex flex-wrap justify-center">
+                                <li>
+                                    <a class="mx-3 main-btn gradient-btn"
+                                        href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
+                                        <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
+                                </li>
+                                <li>
+                                    <a class="mx-3 main-btn" href="tel:{{ $companyData->phone }}">Llamar Ahora <i
+                                            class="fa-solid fa-phone ml-2"></i></a>
+                                </li>
+                            </ul>
+                        @endif
                     </div>
                     <!-- slider-content -->
                 </div>
@@ -725,24 +738,19 @@
     <!--====== MAP START ======-->
 
     <section class=" bg-gray-100 client-logo-area">
-
-
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3527.4891578227844!2d-15.446540325810773!3d27.856240418910957!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!2sServiSpin%20Vecindario!5e0!3m2!1ses!2spt!4v1708740894900!5m2!1ses!2spt"
-            width="100%" height="350" style="border:0;" allowfullscreen="" loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"></iframe>
-
-        <!-- row -->
-
-        <!-- container -->
+        @if ($companyData && $companyData->address_google_map)
+            <iframe src="{{ $companyData->address_google_map }}" width="100%" height="350" style="border:0;"
+                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        @else
+            <p>Map could not be loaded.</p>
+        @endif
     </section>
 
     <!--====== MAP PART ENDS ======-->
 
 
     <!--====== CONTACT PART START ======-->
-    @livewire('contact-form')
-
+    @include('contact.form')
     <!--====== CONTACT PART ENDS ======-->
 
     <!--====== CITIES START ======-->
@@ -812,22 +820,35 @@
                     <div class="w-full">
                         <div class="items-end justify-between block mb-8 footer-logo-support md:flex">
                             <div class="flex items-end footer-logo">
-                                <a class="mt-8" href="index.html"><img src="files/images/logo.png"
-                                        style="width: 100px;" alt="Logo" /></a>
+                                <a class="mt-8" href="#home">
+                                    @if ($companyData && $companyData->logo_path)
+                                        <img src="{{ asset($companyData->logo_path) }}" style="width: 100px;"
+                                            alt="Logo" />
+                                    @else
+                                        <img src="{{ asset('files/images/logo.png') }}" style="width: 100px;"
+                                            alt="Logo" />
+                                    @endif
+                                </a>
 
                                 <ul class="flex mt-8 ml-8 footer-social">
-                                    <li>
-                                        <a href="javascript:void(0)"><i class="lni-facebook-filled"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)"><i class="fa-brands fa-x-twitter"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)"><i class="lni-instagram-original"></i></a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)"><i class="lni-linkedin-original"></i></a>
-                                    </li>
+                                    @if ($companyData && $companyData->social_media_facebook)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_facebook }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="lni-facebook-filled"></i></a>
+                                        </li>
+                                    @endif
+                                    @if ($companyData && $companyData->social_media_twitter)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_twitter }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
+                                        </li>
+                                    @endif
+                                    @if ($companyData && $companyData->social_media_instagram)
+                                        <li>
+                                            <a href="{{ $companyData->social_media_instagram }}" target="_blank"
+                                                rel="noopener noreferrer"><i class="lni-instagram-original"></i></a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </div>
                             <!-- footer logo -->
@@ -863,8 +884,7 @@
                             <h6 class="footer-title">Soporte</h6>
                             <ul>
                                 <li><a class="page-scroll" href="#contact">Contacto</a></li>
-                                <li><a target="_blank"
-                                        href="https://app.acuityscheduling.com/schedule.php?owner=17717436">Agendar
+                                <li><a target="_blank" href="{{ route('appointments.book') }}">Agendar
                                         Cita</a></li>
 
                             </ul>
@@ -879,19 +899,22 @@
                                 <li>Sáb: 9:00 AM – 9:00 PM</li>
                                 <li>Dom: 9:00 AM – 8:00 PM</li>
                             </ul>
-                            <div class="flex flex-col gap-4 footer-buttons-container">
-                                <!--  Added  flex-col and gap-4 -->
-                                <div>
-                                    <a class="main-btn gradient-btn w-full text-center"
-                                        href="javascript:abrirWhatsApp('+34643940970')">
-                                        <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
+                            @if ($companyData && $companyData->phone)
+                                <div class="flex flex-col gap-4 footer-buttons-container">
+                                    <div>
+                                        <a class="main-btn gradient-btn w-full text-center"
+                                            href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
+                                            <i class="fa-brands fa-whatsapp"
+                                                style="margin-right: 7px"></i>Whatsapp</a>
+                                    </div>
+                                    <div>
+                                        <a class="main-btn  w-full text-center"
+                                            href="tel:{{ $companyData->phone }}"><i class="fa-solid fa-phone "></i>
+                                            Llamar
+                                            Ahora </a>
+                                    </div>
                                 </div>
-                                <div>
-                                    <a class="main-btn  w-full text-center" href="tel:+34643940970"><i
-                                            class="fa-solid fa-phone "></i> Llamar
-                                        Ahora </a>
-                                </div>
-                            </div>
+                            @endif
 
                         </div>
 
@@ -910,8 +933,16 @@
                     <div class="w-full">
                         <div class="py-6 text-center">
                             <p class="text-white">
-                                © {{ date('Y') }} <a class="text-blue-500 duration-300 hover:text-blue-700"
-                                    rel="nofollow" href="#home">SERVISPIN</a>. Todos los derechos
+                                © {{ date('Y') }}
+                                @if ($companyData)
+                                    <a class="text-blue-500 duration-300 hover:text-blue-700" rel="nofollow"
+                                        href="#home">
+                                        {{ $companyData->company_name }}
+                                    </a>
+                                @else
+                                    SERVISPIN
+                                @endif
+                                . Todos los derechos
                                 reservados.
 
                             </p>
@@ -985,7 +1016,8 @@
 
     <script>
         function abrirWhatsApp(numero) {
-            const url = `https://wa.me/${numero}`;
+            const cleanedNumber = numero.replace(/\+/g, '').replace(/\s/g, '');
+            const url = `https://wa.me/${cleanedNumber}`;
             window.open(url, '_blank'); // Abre la ventana de WhatsApp en una pestaña nueva
         }
     </script>

@@ -17,59 +17,88 @@
           <div class="justify-center row">
               <div class="w-full lg:w-2/3">
                   <div class="contact-form">
-                      <form id="contact-form" action="files/contact.php" method="post" data-toggle="validator"
-                          autocomplete="off">
+                      <form wire:submit.prevent="submit" id="contact-form" autocomplete="off">
                           <div class="row">
                               <div class="w-full md:w-1/2">
                                   <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" name="name" placeholder="Nombre"
+                                      <input type="text" wire:model="name" placeholder="Nombre"
                                           data-error="Nombre es obligatorio." required="required" />
-                                      <div class="help-block with-errors text-red"></div>
+                                      <div class="help-block with-errors text-red">
+                                          @error('name')
+                                              {{ $message }}
+                                          @enderror
+                                      </div>
                                   </div>
                                   <!-- single form -->
                               </div>
                               <div class="w-full md:w-1/2">
                                   <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="email" name="email" placeholder=" Email"
+                                      <input type="email" wire:model="email" placeholder=" Email"
                                           data-error="Valid email is required." required="required" />
-                                      <div class="help-block with-errors"></div>
+                                      <div class="help-block with-errors">
+                                          @error('email')
+                                              {{ $message }}
+                                          @enderror
+                                      </div>
                                   </div>
                                   <!-- single form -->
                               </div>
                               <div class="w-full md:w-1/2">
                                   <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" name="subject" placeholder="Asunto"
+                                      <input type="text" wire:model="subject" placeholder="Asunto"
                                           data-error="Asunto es obligatorio" required="required" />
-                                      <div class="help-block with-errors"></div>
+                                      <div class="help-block with-errors">
+                                          @error('subject')
+                                              {{ $message }}
+                                          @enderror
+                                      </div>
                                   </div>
                                   <!-- single form -->
                               </div>
                               <div class="w-full md:w-1/2">
                                   <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" name="phone" placeholder="Teléfono "
+                                      <input type="text" wire:model="phone" placeholder="Teléfono "
                                           data-error="Teléfono es obligatorio" required="required" />
-                                      <div class="help-block with-errors"></div>
+                                      <div class="help-block with-errors">
+                                          @error('phone')
+                                              {{ $message }}
+                                          @enderror
+                                      </div>
                                   </div>
                                   <!-- single form -->
                               </div>
                               <div class="w-full">
                                   <div class="mx-4 mb-6 single-form form-group">
-                                      <textarea rows="5" placeholder="Mensaje" name="message" data-error="Please, leave us a message."
+                                      <textarea rows="5" placeholder="Mensaje" wire:model="message" data-error="Please, leave us a message."
                                           required="required"></textarea>
-                                      <div class="help-block with-errors"></div>
+                                      <div class="help-block with-errors">
+                                          @error('message')
+                                              {{ $message }}
+                                          @enderror
+                                      </div>
                                   </div>
                                   <!-- single form -->
                               </div>
-                              <p class="mx-4 form-message"></p>
+                              @if (session()->has('success'))
+                                  <div class="w-full">
+                                      <div class="mx-4 p-3 bg-green-100 text-green-800 rounded">
+                                          {{ session('success') }}
+                                      </div>
+                                  </div>
+                              @endif
+                              @if (session()->has('error'))
+                                  <div class="w-full">
+                                      <div class="mx-4 p-3 bg-red-100 text-red-800 rounded">
+                                          {{ session('error') }}
+                                      </div>
+                                  </div>
+                              @endif
                               <div class="w-full">
                                   <div class="mx-4 mt-2 text-center single-form form-group">
-                                      <button wire:click.prevent="submit()"
-                                          class="main-btn gradient-btn focus:outline-none" wire:loading.attr="disabled"
-                                          wire:target="submit,password">
-
+                                      <button type="submit" class="main-btn gradient-btn focus:outline-none"
+                                          wire:loading.attr="disabled" wire:target="submit">
                                           {{ __('Enviar Mensaje') }}
                                       </button>
-
                                   </div>
                                   <!-- single form -->
                               </div>

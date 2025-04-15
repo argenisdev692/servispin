@@ -4,6 +4,8 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
+use App\Models\CompanyData;
+use Exception;
 
 class ContactForm extends Component
 {
@@ -23,37 +25,44 @@ class ContactForm extends Component
             'message' => 'required',
         ]);
 
-        // Enviar el correo electrónico
-        $data = [
-            'name' => $this->name,
-            'email' => $this->email,
-            'subject' => $this->subject,
-            'message' => $this->message,
-            'phone' => $this->phone,
-        ];
+        try {
+            // Get company data for the admin email
+            $companyData = CompanyData::first();
+            
+            if (!$companyData || !$companyData->email) {
+                // Fallback admin email if company data isn't set
+                $adminEmail = 'info@servispin.com';
+            } else {
+                $adminEmail = $companyData->email;
+            }
 
-        //SEND EMAIL FORM CONTACT
-        
-\Mail::send('emails.contactMailForm', array(
-    'name' => $this->name,
-    'email' => $this->email,
-    'subject' => $this->subject,
-    'message2' => $this->message,
-    'phone' => $this->phone,
-    
-), function($message) {
-    $emailAdmin = "aiosrealestate2023@gmail.com";
+            // Data array for the email
+            $data = [
+                'name' => $this->name,
+                'email' => $this->email,
+                'subject' => $this->subject,
+                'message2' => $this->message,
+                'phone' => $this->phone,
+            ];
 
-    $message->from($emailAdmin,'ServiSpin');
-    $message->to($this->email)->subject($this->subject);
-});
-// END SEND EMAIL FORM CONTACT
+            // Send email to admin
+            Mail::send('emails.contactMailForm', $data, function($message) use ($adminEmail) {
+                $message->from($this->email, $this->name);
+                $message->to($adminEmail)->subject('Contacto Web: ' . $this->subject);
+            });
 
-        // Restablecer los campos del formulario
-        $this->resetForm();
+            // Restablecer los campos del formulario
+            $this->resetForm();
 
-        // Mostrar un mensaje de éxito al usuario
-        session()->flash('success', 'El formulario se ha enviado correctamente.');
+            // Mostrar un mensaje de éxito al usuario
+            session()->flash('success', 'El formulario se ha enviado correctamente. Nos pondremos en contacto con usted pronto.');
+        } catch (Exception $e) {
+            // Log error
+            \Log::error('Error sending contact form email: ' . $e->getMessage());
+            
+            // Show error message to user
+            session()->flash('error', 'No pudimos enviar su mensaje. Por favor intente de nuevo más tarde o contáctenos directamente por teléfono.');
+        }
     }
 
     private function resetForm()
@@ -62,6 +71,7 @@ class ContactForm extends Component
         $this->email = '';
         $this->subject = '';
         $this->message = '';
+        $this->phone = '';
     }
 
     public function render()

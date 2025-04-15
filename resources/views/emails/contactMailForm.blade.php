@@ -173,7 +173,8 @@
                                                             <tr>
                                                                 <td style="line-height: 24px; font-size: 16px; margin: 0;"
                                                                     align="left">
-                                                                    <img class="w-40" src="img/logo2.png"
+                                                                    <img class="w-40"
+                                                                        src="https://www.servispin.net/files/images/logo.png"
                                                                         style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 96px; border-style: none; border-width: 0;"
                                                                         width="96">
                                                                 </td>
@@ -208,7 +209,7 @@
                                                                             <span style="font-color:green;">Asunto :
                                                                                 {{ $subject }}</span>
                                                                             <br>
-                                                                            <span style="font-color:green;">Asunto :
+                                                                            <span style="font-color:green;">Teléfono :
                                                                                 {{ $phone }}</span>
                                                                         </strong>
                                                                     </h1>
@@ -228,7 +229,7 @@
                                                                     <p class=""
                                                                         style="line-height: 24px; font-size: 16px; width: 100%; margin: 0;"
                                                                         align="left">
-                                                                        {{ $messageform }}
+                                                                        {{ $message2 }}
                                                                     </p>
                                                                     <table class="s-4 w-full" role="presentation"
                                                                         border="0" cellpadding="0"
@@ -240,21 +241,6 @@
                                                                                     align="left" width="100%"
                                                                                     height="16">
                                                                                     &#160;
-                                                                                </td>
-                                                                            </tr>
-                                                                        </tbody>
-                                                                    </table>
-                                                                    <table class="btn btn-primary p-3 fw-700"
-                                                                        role="presentation" border="0"
-                                                                        cellpadding="0" cellspacing="0"
-                                                                        style="border-radius: 6px; border-collapse: separate !important; font-weight: 700 !important;">
-                                                                        <tbody>
-                                                                            <tr>
-                                                                                <td style="line-height: 24px; font-size: 16px; border-radius: 6px; font-weight: 700 !important; margin: 0;"
-                                                                                    align="center" bgcolor="#0d6efd">
-                                                                                    <a href="" target="_blank"
-                                                                                        style="color: #ffffff; font-size: 16px; font-family: Helvetica, Arial, sans-serif; text-decoration: none; border-radius: 6px; line-height: 20px; display: block; font-weight: 700 !important; white-space: nowrap; background-color: #16a34a; padding: 12px; border: 1px solid #16a34a;">Visit
-                                                                                        Website</a>
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
@@ -282,7 +268,8 @@
                                                             <tr>
                                                                 <td style="line-height: 24px; font-size: 16px; margin: 0;"
                                                                     align="left">
-                                                                    <img class="w-40" src="img/logo2.png"
+                                                                    <img class="w-40"
+                                                                        src="https://www.servispin.net/files/images/logo.png"
                                                                         style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 160px; border-style: none; border-width: 0;"
                                                                         width="160">
                                                                 </td>

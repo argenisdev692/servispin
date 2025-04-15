@@ -83,9 +83,37 @@
                  </template>
              </li>
 
+             {{-- Appointment Calendar Link --}}
+             <li class="relative px-6 py-3">
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.appointment.calendar.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.appointment.calendar.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                         </path>
+                     </svg>
+                     <span class="ml-4">Calendario Citas</span>
+                 </a>
+             </li>
+
+             <!-- Holidays/Exceptions Management Link -->
+             <li class="relative px-6 py-3">
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.availability-exceptions.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.availability-exceptions.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M9 3v2m6-2v2M9 19h6m-6 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                         </path>
+                     </svg>
+                     <span class="ml-4">Días Festivos</span>
+                 </a>
+             </li>
+
              @can('manage admin')
                  <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('users') ? 'dark:text-gray-100 text-gray-800' : '' }}"
                          href="{{ route('users') }}">
 
 
@@ -95,6 +123,42 @@
                                  d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z" />
                          </svg>
                          <span class="ml-4">Users</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('brands.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('brands.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 8V5a2 2 0 012-2z">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Brands</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('services.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('services.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M13 10V3L4 14h7v7l9-11h-7z">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Services</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('company-data.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('company-data.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Company Data</span>
                      </a>
                  </li>
              @endcan
@@ -193,23 +257,74 @@
                  </template>
              </li>
 
-
-
-
-
-
-
+             {{-- Appointment Calendar Link (Mobile) --}}
              <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                     href="{{ route('users') }}">
-                     <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em"
-                         viewBox="0 0 640 512">
-                         <path
-                             d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z" />
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.appointment.calendar.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.appointment.calendar.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                         </path>
                      </svg>
-                     <span class="ml-4">Users</span>
+                     <span class="ml-4">Calendario Citas</span>
                  </a>
              </li>
+
+             <!-- Holidays/Exceptions Management Link -->
+             <li class="relative px-6 py-3">
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.availability-exceptions.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.availability-exceptions.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M9 3v2m6-2v2M9 19h6m-6 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                         </path>
+                     </svg>
+                     <span class="ml-4">Días Festivos</span>
+                 </a>
+             </li>
+
+             @can('manage admin')
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('users') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('users') }}">
+                         {{-- Existing Users Icon (Mobile) --}}
+                         <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em"
+                             viewBox="0 0 640 512">
+                             <path
+                                 d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z" />
+                         </svg>
+                         <span class="ml-4">Users</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('brands.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('brands.index') }}">
+                         {{-- Heroicon: tag (Mobile) --}}
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 8V5a2 2 0 012-2z">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Brands</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('company-data.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('company-data.index') }}">
+                         {{-- Existing Company Data Icon (Mobile) --}}
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Company Data</span>
+                     </a>
+                 </li>
+             @endcan
          </ul>
 
      </div>
