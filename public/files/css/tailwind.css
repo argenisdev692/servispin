@@ -1362,6 +1362,32 @@ p {
         0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+.cta-gradient-btn {
+    /* --- Gradiente Verde --- */
+    background-image: linear-gradient(
+        to right,
+        #10b981 0%,
+        /* Verde inicial */ #34d399 50%,
+        /* Verde central (más brillante) */ #10b981 100%
+            /* Verde final (igual al inicial) */
+    );
+    /* --- Tamaño para animación --- */
+    background-size: 200% auto;
+    /* --- Ocultar exceso de fondo --- */
+    overflow: hidden;
+
+    /* --- Transición Suave (Recomendado añadir para que el efecto no sea brusco) --- */
+    transition: background-position 0.5s ease, box-shadow 0.3s ease;
+}
+
+.cta-gradient-btn:hover {
+    /* --- Mueve el fondo a la derecha --- */
+    background-position: right center;
+    /* --- Sombra (igual que el original) --- */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 .title {
     line-height: 55px;
     margin-bottom: 1rem;

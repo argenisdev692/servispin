@@ -100,7 +100,35 @@
         border-radius: 7px;
     }
 
+    @media screen and (max-width: 640px) {
+        .header-content ul {
+            flex-direction: column;
+            width: 100%;
+            padding: 0 20px;
+        }
 
+        .header-content ul li {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .header-content ul li a {
+            width: 100%;
+            display: block;
+            text-align: center;
+            margin: 0;
+        }
+    }
+
+    @media screen and (min-width: 641px) {
+        .header-content ul li {
+            margin: 0 8px;
+        }
+
+        .header-content ul li a {
+            min-width: 160px;
+        }
+    }
 
     @media screen and (max-width: 768px) {
         #titleResponsive {
@@ -215,14 +243,22 @@
                             @if ($companyData && $companyData->phone)
                                 <ul class="flex flex-wrap justify-center">
                                     <li>
-                                        <a class="mx-3 main-btn gradient-btn"
+                                        <a class="main-btn gradient-btn"
                                             href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
                                             <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="mx-3 main-btn" href="tel:{{ $companyData->phone }}">Llamar Ahora <i
-                                                class="fa-solid fa-phone ml-2"></i></a>
+                                        <a class="main-btn cta-gradient-btn" target="_blank"
+                                            href="{{ route('appointments.book') }}">
+                                            <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
+                                            Cita
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="main-btn" href="tel:{{ $companyData->phone }}">
+                                            Llamar Ahora <i class="fa-solid fa-phone ml-2"></i>
+                                        </a>
                                     </li>
                                 </ul>
                             @endif
@@ -611,17 +647,26 @@
                             Agenda tu cita y recibe asesoramiento experto.
                         </p>
                         @if ($companyData && $companyData->phone)
-                            <ul class="flex flex-wrap justify-center">
-                                <li>
-                                    <a class="mx-3 main-btn gradient-btn"
+                            <div class="flex flex-col gap-4 footer-buttons-container">
+                                <div>
+                                    <a class="main-btn gradient-btn w-full text-center"
                                         href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
                                         <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
-                                </li>
-                                <li>
-                                    <a class="mx-3 main-btn" href="tel:{{ $companyData->phone }}">Llamar Ahora <i
-                                            class="fa-solid fa-phone ml-2"></i></a>
-                                </li>
-                            </ul>
+                                </div>
+                                <div>
+                                    <a class="main-btn  w-full text-center" href="tel:{{ $companyData->phone }}"><i
+                                            class="fa-solid fa-phone "></i>
+                                        Llamar
+                                        Ahora </a>
+                                </div>
+                                <div>
+                                    <a class="main-btn cta-gradient-btn w-full text-center" target="_blank"
+                                        href="{{ route('appointments.book') }}">
+                                        <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
+                                        Cita
+                                    </a>
+                                </div>
+                            </div>
                         @endif
                     </div>
                     <!-- slider-content -->
@@ -819,7 +864,7 @@
                 <div class="row">
                     <div class="w-full">
                         <div class="items-end justify-between block mb-8 footer-logo-support md:flex">
-                            <div class="flex items-end footer-logo">
+                            <div class="flex items-end footer-logo md:justify-start justify-center w-full">
                                 <a class="mt-8" href="#home">
                                     @if ($companyData && $companyData->logo_path)
                                         <img src="{{ asset($companyData->logo_path) }}" style="width: 100px;"
@@ -913,6 +958,13 @@
                                             Llamar
                                             Ahora </a>
                                     </div>
+                                    <div>
+                                        <a class="main-btn cta-gradient-btn w-full text-center" target="_blank"
+                                            href="{{ route('appointments.book') }}">
+                                            <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
+                                            Cita
+                                        </a>
+                                    </div>
                                 </div>
                             @endif
 
@@ -966,16 +1018,55 @@
             /* Tailwind's gap-3 equivalent */
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 768px) and (max-width: 1023px) {
             .footer-buttons-container {
                 flex-direction: row;
-                /*  Side by Side on larger screens*/
+                /*  Side by Side on medium screens*/
             }
 
             .footer-buttons-container a {
                 width: auto;
                 flex: 1;
-                /* Equal width for buttons on larger screens*/
+                /* Equal width for buttons on medium screens*/
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .footer-buttons-container {
+                flex-wrap: wrap;
+                flex-direction: row;
+            }
+
+            .footer-buttons-container>div {
+                width: 48%;
+                margin-bottom: 0.75rem;
+            }
+
+            .footer-buttons-container>div:last-child {
+                width: 100%;
+            }
+        }
+
+        /* Center footer elements on small screens */
+        @media (max-width: 767px) {
+
+            .footer-link,
+            .footer-newsletter,
+            .footer-logo {
+                text-align: center;
+            }
+
+            .footer-link ul,
+            .footer-newsletter ul {
+                text-align: center;
+            }
+
+            .footer-title {
+                text-align: center;
+            }
+
+            .footer-logo {
+                justify-content: center;
             }
         }
     </style>
