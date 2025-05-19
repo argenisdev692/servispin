@@ -380,11 +380,24 @@
                                 // Format phone number display with Spanish formatting if possible
                                 if (data.phone) {
                                     let formattedPhone = data.phone;
-                                    // If it's just a Spanish number without country code, add +34
-                                    if (data.phone.startsWith('6') || data.phone.startsWith('7') ||
-                                        data.phone.startsWith('8') || data.phone.startsWith('9')) {
-                                        formattedPhone = '+34 ' + data.phone;
+                                    // Remove any existing formatting
+                                    let cleanNumber = formattedPhone.replace(/\D/g, '');
+
+                                    // If it's a Spanish number (starts with 6,7,8,9)
+                                    if (cleanNumber.match(/^[6-9]/)) {
+                                        // If it doesn't have country code, add it
+                                        if (!cleanNumber.startsWith('34')) {
+                                            cleanNumber = '34' + cleanNumber;
+                                        }
+                                        // Format as +34 XXX XX XX XX
+                                        formattedPhone = '+' + cleanNumber.replace(
+                                            /(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4');
+                                    } else if (cleanNumber.startsWith('34')) {
+                                        // If it already has country code, just format it
+                                        formattedPhone = '+' + cleanNumber.replace(
+                                            /(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4');
                                     }
+
                                     $('#display_phone').html(
                                         `<a href="tel:${data.phone}" class="text-blue-600 hover:underline">${formattedPhone}</a>`
                                     );

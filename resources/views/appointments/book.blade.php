@@ -119,8 +119,11 @@
                                         <option value="">Seleccione un servicio</option>
                                         @foreach ($services as $service)
                                             <option value="{{ $service->id }}" data-duration="{{ $service->duration }}">
-                                                {{ $service->name }} ({{ $service->duration }} minutos -
-                                                €{{ number_format($service->price, 2) }})
+                                                {{ $service->name }}
+                                                @if ($service->price > 0)
+                                                    ({{ $service->duration }} minutos -
+                                                    €{{ number_format($service->price, 2) }})
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
