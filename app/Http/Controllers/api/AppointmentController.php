@@ -236,7 +236,7 @@ class AppointmentController extends Controller
             // If successful, return JSON response
             return response()->json([
                 'success' => true,
-                'message' => 'Cita creada correctamente',
+                'message' => 'Cita creada correctamente. Será contactado para confirmar la cita y/o solicitar más detalles.',
                 'data' => $appointment->load('service') // Load service relationship
             ], 201);
 

@@ -876,7 +876,9 @@
                     }) => {
                         /* ... success/error handling ... */
                         if (ok) {
-                            showAlert(alertSuccess, body.message || 'Cita creada correctamente.');
+                            showAlert(alertSuccess, body.message ||
+                                'Cita creada correctamente. Será contactado para confirmar la cita y/o solicitar más detalles.'
+                            );
                             bookingForm.reset();
                             fp.clear();
                             if (iti) iti.setNumber('');

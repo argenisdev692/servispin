@@ -162,8 +162,44 @@ class AvailabilityController extends Controller
 
         $appointments = Appointment::where('start_time', '>=', $dayStart)
             ->where('start_time', '<=', $dayEnd)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED])
             ->get();
+        
+        // Define buffer time (4 hours = 240 minutes)
+        $bufferMinutes = 240;
+        
+        // Map appointments with their buffer times for easier reference
+        $appointmentBuffers = [];
+        foreach ($appointments as $appointment) {
+            $appointmentStart = Carbon::parse($appointment->start_time)->setTimezone($targetTimezone);
+            $appointmentEnd = Carbon::parse($appointment->end_time)->setTimezone($targetTimezone);
+            
+            // Calculate buffer start and end times (4 hours before and after)
+            $bufferStart = $appointmentStart->copy()->subMinutes($bufferMinutes);
+            $bufferEnd = $appointmentEnd->copy()->addMinutes($bufferMinutes);
+            
+            $appointmentBuffers[] = [
+                'appointment_id' => $appointment->id,
+                'original_start' => $appointmentStart->format('Y-m-d H:i:s'),
+                'original_end' => $appointmentEnd->format('Y-m-d H:i:s'),
+                'buffer_start' => $bufferStart,
+                'buffer_end' => $bufferEnd
+            ];
+        }
+        
+        // Log appointment buffers for debugging
+        if (count($appointmentBuffers) > 0) {
+            $loggableBuffers = array_map(function($buffer) {
+                return [
+                    'appointment_id' => $buffer['appointment_id'],
+                    'original_start' => $buffer['original_start'],
+                    'original_end' => $buffer['original_end'],
+                    'buffer_start' => $buffer['buffer_start']->format('Y-m-d H:i:s'),
+                    'buffer_end' => $buffer['buffer_end']->format('Y-m-d H:i:s')
+                ];
+            }, $appointmentBuffers);
+            \Log::debug("Appointment Buffers for date {$date}:", $loggableBuffers);
+        }
         
         $timeSlots = [];
         $currentTime = $startTime->copy(); // Use copy() for Carbon
@@ -172,35 +208,41 @@ class AvailabilityController extends Controller
         $slotDuration = 30; // minutos
         
         while ($currentTime->copy()->addMinutes($serviceDuration) <= $endTime) {
-            $slot = [
-                'start_time' => $currentTime->format('H:i'),
-                'end_time' => $currentTime->copy()->addMinutes($serviceDuration)->format('H:i'),
-                'available' => true
-            ];
+            $slotStart = $currentTime->copy();
+            $slotEnd = $currentTime->copy()->addMinutes($serviceDuration);
             
-            // Verificar si este slot está disponible
-            foreach ($appointments as $appointment) {
-                // Parse appointment times and convert to the target timezone for comparison
-                $appointmentStart = Carbon::parse($appointment->start_time)->setTimezone($targetTimezone);
-                $appointmentEnd = Carbon::parse($appointment->end_time)->setTimezone($targetTimezone);
+            // Flag to check if slot is available
+            $isAvailable = true;
+            
+            // Check if this slot is within any appointment buffer zone
+            foreach ($appointmentBuffers as $buffer) {
+                $bufferStart = $buffer['buffer_start'];
+                $bufferEnd = $buffer['buffer_end'];
                 
-                // Si hay solapamiento, el slot no está disponible
+                // Check if the current slot overlaps with the appointment's buffer zone
                 if (
-                    ($currentTime >= $appointmentStart && $currentTime < $appointmentEnd) ||
-                    ($currentTime->copy()->addMinutes($serviceDuration) > $appointmentStart && 
-                     $currentTime->copy()->addMinutes($serviceDuration) <= $appointmentEnd) ||
-                    ($currentTime <= $appointmentStart && 
-                     $currentTime->copy()->addMinutes($serviceDuration) >= $appointmentEnd)
+                    // The slot starts during the buffer
+                    ($slotStart >= $bufferStart && $slotStart <= $bufferEnd) ||
+                    // The slot ends during the buffer
+                    ($slotEnd >= $bufferStart && $slotEnd <= $bufferEnd) ||
+                    // The slot contains the entire buffer
+                    ($slotStart <= $bufferStart && $slotEnd >= $bufferEnd)
                 ) {
-                    $slot['available'] = false;
+                    $isAvailable = false;
                     break;
                 }
             }
             
-            if ($slot['available']) {
-                $timeSlots[] = $slot;
+            // Only add slot if it's available
+            if ($isAvailable) {
+                $timeSlots[] = [
+                    'start_time' => $slotStart->format('H:i'),
+                    'end_time' => $slotEnd->format('H:i'),
+                    'available' => true
+                ];
             }
             
+            // Move to next slot
             $currentTime->addMinutes($slotDuration);
         }
         
@@ -218,10 +260,8 @@ class AvailabilityController extends Controller
                     // Send the full ISO 8601 time string including target timezone offset
                     'time' => $slotTime->format('Y-m-d H:i:s'), 
                     'formatted_time' => $slotTime->format('H:i'), // Changed from 'h:i A' to 24-hour format
-                    'available' => $slot['available']
+                    'available' => true // All slots in the array are available now
                 ];
-            })->filter(function($slot) {
-                return $slot['available'];
             })->values()->all()
         ]);
     }

@@ -92,34 +92,6 @@ class DatabaseSeeder extends Seeder
         ]);
         // END COMPANY DATA
 
-        // Crear reglas de disponibilidad
-        $this->command->info('Seeding availability rules...');
-        // Lunes a viernes: 9:00 - 18:00
-        for ($day = 1; $day <= 5; $day++) {
-            \App\Models\AvailabilityRule::create([
-                'day_of_week' => $day,
-                'start_time' => '09:00:00',
-                'end_time' => '18:00:00',
-                'is_available' => true,
-            ]);
-        }
-
-        // Sábado: 10:00 - 14:00
-        \App\Models\AvailabilityRule::create([
-            'day_of_week' => 6,
-            'start_time' => '10:00:00',
-            'end_time' => '14:00:00',
-            'is_available' => true,
-        ]);
-
-        // Domingo: No disponible
-        \App\Models\AvailabilityRule::create([
-            'day_of_week' => 0,
-            'start_time' => '00:00:00',
-            'end_time' => '00:00:00',
-            'is_available' => false,
-        ]);
-
         $this->call([
             ServiceSeeder::class,
             AvailabilityRuleSeeder::class,
