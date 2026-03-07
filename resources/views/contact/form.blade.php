@@ -1,91 +1,72 @@
   <!--====== CONTACT PART START ======-->
-  <section id="contact" class="contact-area py-120">
-      <div class="container">
-          <div class="justify-center row">
-              <div class="w-full mx-4 lg:w-1/2">
-                  <div class="pb-10 text-center section-title">
-                      <h4 class="title" id="titleResponsive">No dude en contactarnos</h4>
-                      <p class="text">
-                          ¡Estamos aquí para ayudarte! No dudes en contactarnos para cualquier servicio de reparación
-                          de lavadoras, secadoras y electrodomésticos en general. Tu satisfacción es nuestra prioridad
-                      </p>
-                  </div>
-                  <!-- section title -->
-              </div>
+  <section id="contact" class="py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center mb-16">
+              <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">No dude en contactarnos</h2>
+              <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                  ¡Estamos aquí para ayudarte! No dudes en contactarnos para cualquier servicio de reparación
+                  de lavadoras, secadoras y electrodomésticos en general. Tu satisfacción es nuestra prioridad
+              </p>
           </div>
-          <!-- row -->
-          <div class="justify-center row">
-              <div class="w-full lg:w-2/3">
-                  <div class="contact-form">
-                      <form id="contact-form" autocomplete="off">
-                          @csrf
-                          <div class="row">
-                              <div class="w-full md:w-1/2">
-                                  <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" id="name" name="name" placeholder="Nombre"
-                                          data-error="Nombre es obligatorio." required="required" />
-                                      <div class="help-block with-errors text-red error-name"></div>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
-                              <div class="w-full md:w-1/2">
-                                  <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="email" id="email" name="email" placeholder=" Email"
-                                          data-error="Email es obligatorio." required="required" />
-                                      <div class="help-block with-errors error-email"></div>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
-                              <div class="w-full md:w-1/2">
-                                  <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" id="subject" name="subject" placeholder="Asunto"
-                                          data-error="Asunto es obligatorio" required="required" />
-                                      <div class="help-block with-errors error-subject"></div>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
-                              <div class="w-full md:w-1/2">
-                                  <div class="mx-4 mb-6 single-form form-group">
-                                      <input type="text" id="phone" name="phone" placeholder="Teléfono "
-                                          data-error="Teléfono es obligatorio" required="required" />
-                                      <div class="help-block with-errors error-phone"></div>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
-                              <div class="w-full">
-                                  <div class="mx-4 mb-6 single-form form-group">
-                                      <textarea rows="5" id="message" placeholder="Mensaje" name="message" data-error="Please, leave us a message."
-                                          required="required"></textarea>
-                                      <div class="help-block with-errors error-message"></div>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
-                              <!-- form messages -->
-                              <div class="w-full mx-4 mb-4 form-message-container" style="display: none;">
-                                  <div class="alert-message"></div>
-                              </div>
-                              <div class="w-full">
-                                  <div class="mx-4 mt-2 text-center single-form form-group">
-                                      <button type="submit" id="submit-btn"
-                                          class="main-btn gradient-btn focus:outline-none">
-                                          <span class="normal-text">{{ __('Enviar Mensaje') }}</span>
-                                          <span class="loading-spinner hidden" style="display: none;">
-                                              <i class="fa fa-spinner" id="spinner-icon"></i> Enviando...
-                                          </span>
-                                      </button>
-                                  </div>
-                                  <!-- single form -->
-                              </div>
+
+          <div class="max-w-3xl mx-auto">
+              <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+                  <form id="contact-form" autocomplete="off">
+                      @csrf
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                              <input type="text" id="name" name="name" placeholder="Nombre"
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                  data-error="Nombre es obligatorio." required="required" />
+                              <div class="help-block with-errors text-red-500 text-sm mt-2 error-name"></div>
                           </div>
-                          <!-- row -->
-                      </form>
-                  </div>
-                  <!-- row -->
+
+                          <div>
+                              <input type="email" id="email" name="email" placeholder="Email"
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                  data-error="Email es obligatorio." required="required" />
+                              <div class="help-block with-errors text-red-500 text-sm mt-2 error-email"></div>
+                          </div>
+
+                          <div>
+                              <input type="text" id="subject" name="subject" placeholder="Asunto"
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                  data-error="Asunto es obligatorio" required="required" />
+                              <div class="help-block with-errors text-red-500 text-sm mt-2 error-subject"></div>
+                          </div>
+
+                          <div>
+                              <input type="text" id="phone" name="phone" placeholder="Teléfono"
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                                  data-error="Teléfono es obligatorio" required="required" />
+                              <div class="help-block with-errors text-red-500 text-sm mt-2 error-phone"></div>
+                          </div>
+
+                          <div class="md:col-span-2">
+                              <textarea rows="5" id="message" placeholder="Mensaje" name="message"
+                                  class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
+                                  data-error="Please, leave us a message." required="required"></textarea>
+                              <div class="help-block with-errors text-red-500 text-sm mt-2 error-message"></div>
+                          </div>
+
+                          <div class="md:col-span-2 form-message-container" style="display: none;">
+                              <div class="alert-message"></div>
+                          </div>
+
+                          <div class="md:col-span-2 text-center">
+                              <button type="submit" id="submit-btn"
+                                  class="bg-gradient-to-r from-cyan-500 to-blue-700 text-white px-12 py-4 rounded-full font-semibold hover:shadow-lg hover:scale-105 transition-all focus:outline-none cursor-pointer">
+                                  <span class="normal-text">{{ __('Enviar Mensaje') }}</span>
+                                  <span class="loading-spinner hidden" style="display: none;">
+                                      <i class="fa fa-spinner" id="spinner-icon"></i> Enviando...
+                                  </span>
+                              </button>
+                          </div>
+                      </div>
+                  </form>
               </div>
           </div>
-          <!-- row -->
       </div>
-      <!-- container -->
   </section>
   <!--====== CONTACT PART ENDS ======-->
 
@@ -500,7 +481,6 @@
           display: inline-block;
       }
 
-      /* International Telephone Input styles */
       .iti {
           width: 100%;
           display: block;
@@ -508,5 +488,22 @@
 
       .iti__flag-container {
           z-index: 10;
+      }
+
+      .iti input {
+          width: 100%;
+          padding: 1rem 1.5rem;
+          padding-left: 80px;
+          background-color: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.75rem;
+          transition: all 0.3s ease;
+      }
+
+      .iti input:focus {
+          outline: none;
+          ring: 2px;
+          ring-color: #06b6d4;
+          border-color: transparent;
       }
   </style>

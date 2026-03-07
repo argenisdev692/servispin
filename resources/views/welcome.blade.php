@@ -9,14 +9,13 @@
         content="Las Palmas de Gran Canaria, Telde, Santa Lucía de Tirajana, Arucas, Gran Canaria, Islas Canarias, turismo, viaje, lugares de interés, vacaciones, turismo en Gran Canaria">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#0EA5E9" />
     <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
     <link rel="manifest" href="img/favicon/site.webmanifest">
 
-    <title> SERVISPIN | Servicio De Reparación De Lavadoras Y Secadoras a "DOMICILIO"
-        en GRAN CANARIA!</title>
+    <title>SERVISPIN | Servicio De Reparación De Lavadoras Y Secadoras a "DOMICILIO" en GRAN CANARIA!</title>
 
     <!-- Google Tag Manager -->
     <script>
@@ -37,17 +36,12 @@
     </script>
     <!-- End Google Tag Manager -->
 
-
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-
-    <!-- Scripts -->
-
-    <!-- Styles -->
     <!--====== Slick css ======-->
     <link rel="stylesheet" href="files/css/slick.css" />
 
@@ -58,7 +52,7 @@
     <link rel="stylesheet" href="files/css/magnific-popup.css" />
 
     <!--====== tailwind css ======-->
-    <link rel="stylesheet" href="files/css/tailwind.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVMDBD4L5Z"></script>
@@ -73,687 +67,973 @@
         gtag('config', 'G-PVMDBD4L5Z');
     </script>
 
-
-
 </head>
+
 <style>
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
     body {
-        font-family: 'Roboto', sans-serif;
+        overflow-x: hidden;
     }
 
     ::-webkit-scrollbar {
-        width: 12px;
+        width: 10px;
     }
 
     ::-webkit-scrollbar-track {
-        background-color: #e5e7eb;
-        border-radius: 9px;
+        background-color: #1e293b;
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: #6b7280;
-        border-radius: 7px;
+        background: linear-gradient(135deg, #0ea5e9, #1e40af);
+        border-radius: 10px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background-color: #3b82f6;
-        border-radius: 7px;
+        background: linear-gradient(135deg, #0284c7, #1e3a8a);
     }
 
-    @media screen and (max-width: 640px) {
-        .header-content ul {
-            flex-direction: column;
-            width: 100%;
-            padding: 0 20px;
-        }
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
 
-        .header-content ul li {
-            width: 100%;
-            margin-bottom: 15px;
-        }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
 
-        .header-content ul li a {
-            width: 100%;
-            display: block;
-            text-align: center;
-            margin: 0;
+    .glass-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 40px 0 rgba(14, 165, 233, 0.3);
+    }
+
+    .gradient-bg {
+        background: linear-gradient(135deg, #0ea5e9 0%, #1e40af 100%);
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #0ea5e9, #1e40af);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .mesh-gradient {
+        background: radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+    }
+
+    .floating-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
         }
     }
 
-    @media screen and (min-width: 641px) {
-        .header-content ul li {
-            margin: 0 8px;
-        }
+    .pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
 
-        .header-content ul li a {
-            min-width: 160px;
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.8);
         }
     }
 
-    @media screen and (max-width: 768px) {
-        #titleResponsive {
-            font-size: 26px;
+    .navbar-sticky {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        background: transparent;
+    }
+
+    .navbar-sticky .nav-link {
+        color: white;
+        transition: color 0.3s ease;
+    }
+
+    .navbar-sticky.scrolled {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-sticky.scrolled .nav-link {
+        color: #334155;
+    }
+
+    .navbar-sticky.scrolled .mobile-menu-icon {
+        color: #334155;
+    }
+
+    .mobile-menu-icon {
+        color: white;
+        transition: color 0.3s ease;
+    }
+
+    .hover-card {
+        position: relative;
+        height: 400px;
+        border-radius: 24px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .hover-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+        z-index: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    .hover-card:hover::before {
+        opacity: 0.95;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.9) 0%, rgba(30, 64, 175, 0.95) 100%);
+    }
+
+    .hover-card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .hover-card:hover .hover-card-image {
+        transform: scale(1.1);
+    }
+
+    .hover-card-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 32px;
+        z-index: 2;
+        transform: translateY(0);
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .hover-card:hover .hover-card-content {
+        transform: translateY(-20px);
+    }
+
+    .hover-card-title {
+        color: white;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .hover-card-icon {
+        font-size: 48px;
+        color: white;
+        margin-bottom: 16px;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .hover-card:hover .hover-card-icon {
+        transform: scale(1.2) rotate(5deg);
+    }
+
+    .hover-card-description {
+        color: white;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        line-height: 1.6;
+    }
+
+    .hover-card:hover .hover-card-description {
+        opacity: 1;
+        max-height: 200px;
+        margin-bottom: 16px;
+    }
+
+    .hover-card-cta {
+        display: inline-flex;
+        align-items: center;
+        color: white;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .hover-card:hover .hover-card-cta {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .hover-card-cta i {
+        margin-left: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .hover-card:hover .hover-card-cta i {
+        transform: translateX(5px);
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+        .services-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+
+        .hover-card {
+            height: 350px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hover-card {
+            height: 320px;
+        }
+
+        .hover-card-title {
+            font-size: 24px;
+        }
+
+        .hover-card-icon {
+            font-size: 40px;
+        }
+    }
+
+    .marquee {
+        display: flex;
+        overflow: hidden;
+        user-select: none;
+    }
+
+    .marquee-content {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-around;
+        min-width: 100%;
+        animation: scroll 30s linear infinite;
+    }
+
+    @keyframes scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-100%);
+        }
+    }
+
+    .marquee-content:hover {
+        animation-play-state: paused;
+    }
+
+    .brand-logo {
+        filter: grayscale(100%);
+        opacity: 0.6;
+        transition: all 0.3s ease;
+    }
+
+    .brand-logo:hover {
+        filter: grayscale(0%);
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .masonry-item img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    @media (max-width: 1024px) {
+        .masonry-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .masonry-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .masonry-item img {
+            height: 200px;
+        }
+    }
+
+    .service-icon {
+        font-size: 56px;
+        color: #0ea5e9;
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .glass-card:hover .service-icon {
+        transform: translateY(-5px) scale(1.05);
+        color: #0284c7;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0ea5e9 0%, #1e40af 100%);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 9999px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 9999px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+    }
+
+    .whatsapp-float {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #10b981, #34d399);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+
+    .whatsapp-float:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 30px rgba(16, 185, 129, 0.6);
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        50% {
+            box-shadow: 0 4px 30px rgba(16, 185, 129, 0.7);
+        }
+    }
+
+    .hero-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+    }
+
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.85) 0%, rgba(30, 64, 175, 0.85) 100%);
+        z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+        .hero-video {
+            display: none;
+        }
+        
+        .hero-background {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%);
+        }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .animated-gradient-text {
+        background: linear-gradient(
+            90deg,
+            #ffffff 0%,
+            #e0f2fe 25%,
+            #bae6fd 50%,
+            #e0f2fe 75%,
+            #ffffff 100%
+        );
+        background-size: 200% auto;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradient-animation 4s ease infinite;
+        font-weight: 800;
+    }
+
+    @keyframes gradient-animation {
+        0%, 100% {
+            background-position: 0% center;
+        }
+        50% {
+            background-position: 100% center;
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 1s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .subtitle-fade {
+        animation: fadeIn 1.2s ease-out 0.3s forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .badges-fade {
+        animation: fadeIn 1.5s ease-out 0.6s forwards;
+        opacity: 0;
+    }
+
+    .buttons-fade {
+        animation: fadeInUp 1.8s ease-out 0.9s forwards;
+        opacity: 0;
     }
 </style>
-</head>
 
-<body class="antialiased">
+<body class="antialiased bg-slate-50">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PHXST37L" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <!--====== HEADER PART START ======-->
 
-    <header class="header-area">
-        <div class="navigation">
-            <div class="container">
-                <div class="row">
-                    <div class="w-full">
-                        <nav class="flex items-center justify-between navbar navbar-expand-md">
-                            <a class="mr-4 navbar-brand" href="#home">
-                                <img src="files/images/logo.png" style="width: 100px;" alt="Logo" />
-                            </a>
+    <!--====== NAVBAR START ======-->
+    <nav class="navbar-sticky" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <a href="#home" class="flex items-center">
+                    @if ($companyData && $companyData->logo_path)
+                        <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN Logo" />
+                    @else
+                        <img src="files/images/logo.png" class="h-12 w-auto" alt="SERVISPIN Logo" />
+                    @endif
+                </a>
 
-                            <button class="block navbar-toggler focus:outline-none md:hidden" type="button"
-                                data-toggle="collapse" data-target="#navbarOne" aria-controls="navbarOne"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                                <span class="toggler-icon"></span>
-                            </button>
-
-                            <!-- justify-center hidden md:flex collapse navbar-collapse sub-menu-bar -->
-                            <div class="absolute left-0 z-30 hidden w-full px-5 py-3 duration-300 bg-white shadow md:opacity-100 md:w-auto collapse navbar-collapse md:block top-100 mt-full md:static md:bg-transparent md:shadow-none"
-                                id="navbarOne">
-                                <ul
-                                    class="items-center content-start mr-auto lg:justify-center md:justify-end navbar-nav md:flex">
-                                    <!-- flex flex-row mx-auto my-0 navbar-nav -->
-                                    <li class="nav-item active">
-                                        <a class="page-scroll" href="#home">Inicio</a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="#ourservices">Servicios</a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="#testimonial">Testimonios</a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="page-scroll" target="_blank"
-                                            href="{{ route('appointments.book') }}">Agendar
-                                            Cita</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll" href="#contact">Contacto</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="items-center justify-end hidden navbar-social lg:flex">
-                                <span class="mr-4 font-bold text-gray-900 uppercase">FOLLOW US</span>
-                                <ul class="flex footer-social">
-                                    @if ($companyData && $companyData->social_media_facebook)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_facebook }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="lni-facebook-filled"></i></a>
-                                        </li>
-                                    @endif
-                                    @if ($companyData && $companyData->social_media_twitter)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_twitter }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
-                                        </li>
-                                    @endif
-                                    @if ($companyData && $companyData->social_media_instagram)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_instagram }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="lni-instagram-original"></i></a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </div>
-                        </nav>
-                        <!-- navbar -->
-                    </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link font-medium transition-colors">Inicio</a>
+                    <a href="#ourservices" class="nav-link font-medium transition-colors">Servicios</a>
+                    <a href="#testimonial" class="nav-link font-medium transition-colors">Testimonios</a>
+                    <a href="#contact" class="nav-link font-medium transition-colors">Contacto</a>
+                    <a href="{{ route('appointments.book') }}" target="_blank" class="btn-secondary text-sm px-6 py-3">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Agendar Cita
+                    </a>
                 </div>
-                <!-- row -->
+
+                <button class="md:hidden mobile-menu-icon" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
             </div>
-            <!-- container -->
-        </div>
-        <!-- navgition -->
 
-        <div id="home" class="relative z-10 header-hero"
-            style="background-image: url(files/images/header-bg.jpg)">
-            <div class="container">
-                <div class="justify-center row">
-                    <div class="w-full lg:w-5/6 xl:w-2/3">
-                        <div class="pt-48 pb-64 text-center header-content">
-                            <h3 class="mb-5 text-3xl font-semibold leading-tight text-gray-900 md:text-5xl">
-                                Trabajamos en toda Gran Canaria: Expertos en el cuidado de tus electrodomésticos
-                            </h3>
-                            <p class="px-5 mb-10 text-xl text-gray-700">
-                                Somos tu mejor opción para el cuidado de tus electrodomésticos en <b>Las Palmas y sus
-                                    alrededores.</b> Ofrecemos un servicio técnico de confianza, rápido y eficiente, con
-                                la
-                                garantía de que tu equipo estará en las mejores manos.
-                            </p>
-                            @if ($companyData && $companyData->phone)
-                                <ul class="flex flex-wrap justify-center">
-                                    <li>
-                                        <a class="main-btn gradient-btn"
-                                            href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
-                                            <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="main-btn cta-gradient-btn" target="_blank"
-                                            href="{{ route('appointments.book') }}">
-                                            <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
-                                            Cita
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="main-btn" href="tel:{{ $companyData->phone }}">
-                                            Llamar Ahora <i class="fa-solid fa-phone ml-2"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            @endif
-                        </div>
-                        <!-- header content -->
-                    </div>
-                </div>
-                <!-- row -->
-            </div>
-            <!-- container -->
-            <div class="absolute bottom-0 z-20 w-full h-auto -mb-1 header-shape">
-                <img src="files/images/header-shape.svg" alt="shape" />
-            </div>
-        </div>
-        <!-- header content -->
-    </header>
-
-    <!--====== HEADER PART ENDS ======-->
-
-
-
-    <!--====== SERVICES PART START ======-->
-
-    <section id="service" class="relative services-area py-120">
-        <div class="container">
-            <div class="flex">
-                <div class="w-full mx-4 lg:w-1/2">
-                    <div class="pb-10 section-title">
-                        <h4 class="title" id="titleResponsive">Nuestros Servicios</h4>
-                        <p class="text">
-                            Nuestro mayor compromiso es el cuidado de tus electrodomésticos. Sentimos una profunda
-                            pasión por ayudarte a mantenerlos en perfecto estado, para que puedas disfrutarlos al máximo
-                            durante muchos años.
-                        </p>
-                    </div>
-                    <!-- section title -->
-                </div>
-            </div>
-            <!-- row -->
-            <div class="flex">
-                <div class="w-full lg:w-2/3">
-                    <div class="row">
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-solid fa-power-off"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Lavadoras</h4>
-                                    <p class="text">
-                                        Ofrecemos una amplia gama de servicios para tu lavadora, garantizando su
-                                        correcto funcionamiento y prolongando su vida útil.
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-solid fa-clock-rotate-left"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Lavavajillas</h4>
-                                    <p class="text">
-                                        Ofrecemos reparación, limpieza, mantenimiento y sustitución de piezas para
-                                        lavavajillas. ¡Tu lavavajillas en las mejores manos!
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-regular fa-sun"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Secadoras</h4>
-                                    <p class="text">
-                                        Extendemos la vida de tu secadora. Disfruta de un funcionamiento óptimo por más
-                                        tiempo gracias a nuestros servicios especializados.
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-solid fa-fan"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Aire Acondicionados</h4>
-                                    <p class="text">
-                                        Venta e instalación de aires acondicionados, industriales y residenciales.
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-solid fa-snowflake"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Neveras de Hosteleria</h4>
-                                    <p class="text">
-                                        Contamos con técnicos expertos en neveras de
-                                        hostelería y con las herramientas y repuestos necesarios para realizar cualquier
-                                        tipo de reparación.
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <div class="block mx-4 services-content sm:flex">
-                                <div class="services-icon">
-                                    <i class="fa-solid fa-tv"></i>
-                                </div>
-                                <div class="mb-8 ml-0 services-content media-body sm:ml-3">
-                                    <h4 class="services-title">Televisores OLED, LED, LCD</h4>
-                                    <p class="text">
-                                        Instalación de soportes de pared, configuración de mandos y canales, sustitución
-                                        de tiras LED y más. ¡Tu televisor en las mejores manos!
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- services content -->
-                        </div>
-                        <!-- services content -->
-                    </div>
-                </div>
-                <!-- row -->
-            </div>
-            <!-- row -->
-        </div>
-        <!-- row -->
-        </div>
-        <!-- container -->
-        <div class="services-image">
-            <div class="image">
-                <img src="files/images/services.png" alt="Services" />
-            </div>
-        </div>
-        <!-- services image -->
-    </section>
-
-    <!--====== SERVICES PART ENDS ======-->
-
-    <!--====== OUR SERVICES PART START ======-->
-
-    <section id="ourservices" class="bg-white pricing-area py-120" style="margin-top:-140px;">
-        <div class="container">
-            <div class="justify-center row">
-                <div class="w-full mx-4 lg:w-1/2">
-                    <div class="pb-10 text-center section-title">
-                        <h4 class="title" id="titleResponsive">Tu aliado para soluciones personalizadas</h4>
-                        <p class="text">
-                            No importa cuál sea el problema, nuestro equipo de expertos técnicos está altamente
-                            capacitado para diagnosticar y reparar cualquier avería de forma rápida y eficiente
-                        </p>
-                    </div>
-                    <!-- section title -->
-                </div>
-            </div>
-            <div class="container mx-auto " id="">
-                <div class="flex flex-wrap">
-                    <div class="w-full md:w-1/2" style="max-width: 600px;">
-                        <img src="files/images/services10.png" alt="Imagen" class="rounded"
-                            style=" object-fit: cover;">
-                    </div>
-
-                    <div class="w-full md:w-1/2 p-4">
-
-                        <ul class="list-disc p-4 space-y-4" style="line-height: 33px">
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Instalación de Electrodomésticos</li>
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Diagnóstico preciso de averías.</li>
-
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Reparación de todas las marcas de lavadoras, secadoras y lavavajillas.</li>
-
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Uso de
-                                repuestos originales y de alta calidad.
-                            </li>
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Servicio
-                                técnico a domicilio en Gran Canaria.</li>
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Venta de
-                                repuestos y accesorios.</li>
-
-                            <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                                Garantía
-                                en todas nuestras reparaciones.</li>
-
-
-
-
-                    </div>
+            <div class="hidden md:hidden mt-4" id="mobile-menu">
+                <div class="flex flex-col space-y-3">
+                    <a href="#home" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Inicio</a>
+                    <a href="#ourservices" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Servicios</a>
+                    <a href="#testimonial" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Testimonios</a>
+                    <a href="#contact" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Contacto</a>
+                    <a href="{{ route('appointments.book') }}" target="_blank" class="btn-secondary text-sm text-center">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Agendar Cita
+                    </a>
                 </div>
             </div>
         </div>
-        <!-- container -->
-    </section>
+    </nav>
+    <!--====== NAVBAR END ======-->
 
-    <!--====== OUR SERVICES PART ENDS ======-->
-
-
-    <!--====== BRANDS PART START ======-->
-    <section>
-        <div class="container">
-            <div class="justify-center row ">
-                <div class="w-full mx-4 lg:w-1/2">
-                    <div class="pb-10 text-center section-title">
-                        <h4 class="title" id="titleResponsive">Garantía de satisfacción</h4>
-                        <p class="text">
-                            Trabajamos con las mejores marcas del mercado, como LG, Samsung, Bosch, Whirlpool, General
-                            Electric,
-                            entre otras. Esto nos permite asegurar la calidad de nuestras reparaciones y la
-                            disponibilidad de repuestos originales.
-                        </p>
-                    </div>
-                    <!-- section title -->
+    <!--====== HERO SECTION START ======-->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Video Background -->
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="files/images/video-hero.mp4" type="video/mp4">
+            Tu navegador no soporta videos HTML5.
+        </video>
+        
+        <!-- Overlay Gradient -->
+        <div class="hero-background"></div>
+        
+        <div class="hero-content container mx-auto px-4 py-32 text-center">
+            <div class="glass-effect max-w-4xl mx-auto rounded-3xl p-8 md:p-12">
+                @if ($companyData && $companyData->logo_path)
+                    <img src="{{ asset($companyData->logo_path) }}" class="h-16 w-auto mx-auto mb-8 fade-in-up" alt="SERVISPIN" />
+                @else
+                    <img src="files/images/logo.png" class="h-16 w-auto mx-auto mb-8 fade-in-up" alt="SERVISPIN" />
+                @endif
+                
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight animated-gradient-text fade-in-up">
+                    Reparación de Electrodomésticos en Gran Canaria
+                </h1>
+                
+                <p class="text-lg md:text-xl text-white/90 mb-4 subtitle-fade">
+                    Servicio técnico profesional a domicilio. 24/7 disponible
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-4 text-sm md:text-base text-white/80 mb-8 badges-fade">
+                    <span><i class="fa-solid fa-medal mr-2 text-amber-400"></i>10 años experiencia</span>
+                    <span><i class="fa-solid fa-users mr-2 text-emerald-400"></i>200+ clientes satisfechos</span>
+                    <span><i class="fa-solid fa-shield-check mr-2 text-cyan-400"></i>Garantía total</span>
                 </div>
-            </div>
 
-
-            <div class="galeria2">
-                <img src="files/images/gallery/logo-1.png" alt="logo marca 1">
-                <img src="files/images/gallery/logo-2.png" alt="logo marca 2">
-                <img src="files/images/gallery/logo-3.png" alt="logo marca 3">
-                <img src="files/images/gallery/logo-4.png" alt="logo marca 4">
-                <img src="files/images/gallery/logo-5.png" alt="logo marca 5">
-                <img src="files/images/gallery/logo-6.png" alt="logo marca 7">
-                <img src="files/images/gallery/logo-7.png" alt="logo marca 8">
-                <img src="files/images/gallery/logo-9.png" alt="logo marca 9">
-                <img src="files/images/gallery/logo-10.png" alt="logo marca 10">
-                <img src="files/images/gallery/logo-11.png" class="logoge" alt="logo marca 11">
-                <img src="files/images/gallery/logo-12.png" alt="logo marca 12">
-                <img src="files/images/gallery/logo-13.png" alt="logo marca 13">
-                <img src="files/images/gallery/logo-14.png" alt="logo marca 14">
-                <img src="files/images/gallery/logo-15.png" alt="logo marca 15">
-                <img src="files/images/gallery/logo-16.png" alt="logo marca 16">
-                <img src="files/images/gallery/logo-17.png" alt="logo marca 17">
-                <img src="files/images/gallery/logo-18.png" alt="logo marca 18">
-                <img src="files/images/gallery/logo-19.png" alt="logo marca 19">
-                <img src="files/images/gallery/logo-20.png" alt="logo marca 20">
-                <img src="files/images/gallery/logo-21.png" alt="logo marca 21">
-                <img src="files/images/gallery/logo-22.png" alt="logo marca 22">
-                <img src="files/images/gallery/logo-23.png" alt="logo marca 23">
-                <img src="files/images/gallery/logo-24.png" alt="logo marca 24">
-                <img src="files/images/gallery/logo-25.png" alt="logo marca 25">
-                <img src="files/images/gallery/logo-26.png" alt="logo marca 26">
-                <img src="files/images/gallery/logo-27.png" alt="logo marca 27">
-                <img src="files/images/gallery/logo-28.png" alt="logo marca 28">
-                <img src="files/images/gallery/logo-29.png" alt="logo marca 29">
-                <img src="files/images/gallery/logo-30.png" alt="logo marca 30">
-
-                <img src="files/images/gallery/logo-32.png" alt="logo marca 32">
+                @if ($companyData && $companyData->phone)
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center buttons-fade">
+                        <a href="javascript:abrirWhatsApp('+34643940970')" class="btn-secondary w-full sm:w-auto">
+                            <i class="fa-brands fa-whatsapp mr-2"></i>Contactar por WhatsApp
+                        </a>
+                        <a href="{{ route('appointments.book') }}" target="_blank" class="bg-white text-cyan-600 hover:bg-slate-100 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
+                            <i class="fa-solid fa-calendar-days mr-2"></i>Agendar Cita Ahora
+                        </a>
+                        <a href="tel:+34643940970" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
+                            <i class="fa-solid fa-phone mr-2"></i>Llamar Ahora
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
-    <style>
-        .galeria2 {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
+    <!--====== HERO SECTION END ======-->
 
-        .galeria2 img {
+    <!--====== SERVICES BENTO GRID START ======-->
+    <section id="ourservices" class="py-24 bg-slate-50 mesh-gradient">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                    Nuestros Servicios
+                </h2>
+                <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                    Tu electrodoméstico en las mejores manos. Servicio profesional y garantizado.
+                </p>
+            </div>
 
-
-            margin: 13px;
-
-            width: 120px;
-            height: 45px;
-        }
-
-
-
-        .galeria2 img:hover {
-            border-color: #000;
-        }
-    </style>
-
-    <!--====== BRANDS PART END ======-->
-    <!--====== GALLERY PART START ======-->
-    <section id="" class="testimonial-area py-120">
-        <div class="container">
-            <div class="justify-center row">
-                <div class="w-full mx-4 lg:w-1/2">
-                    <div class="pb-10 text-center section-title">
-                        <h4 class="title" id="titleResponsive">Galería</h4>
-                        <p class="text">
-                            Desde la recepción hasta el área de trabajo, te mostramos donde se lleva a cabo la magia.
-                            Conoce a los técnicos expertos que se encargarán de tu electrodoméstico.
+            <div class="services-grid">
+                <!-- Lavadoras -->
+                <div class="hover-card">
+                    <img src="https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&q=80" 
+                         alt="Reparación de Lavadoras" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-solid fa-power-off hover-card-icon"></i>
+                        <h3 class="hover-card-title">Lavadoras</h3>
+                        <p class="hover-card-description">
+                            Reparación, mantenimiento y limpieza profesional. Repuestos originales garantizados. Servicio rápido y eficiente a domicilio.
                         </p>
-                    </div>
-                    <!-- section title -->
-                </div>
-            </div>
-            <!-- row -->
-
-            <div class="row justify-center mx-auto">
-                <div class="w-full">
-                    <div class="galeria">
-                        <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOWoWrubP2JwHHRK6MpybXSc7oj5vibrICYrQDG"
-                            target="_blank">
-                            <img src="files/images/gallery/gallery-1.jpg" alt="imagen 1">
-                        </a>
-
-                        <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNrRdbPld5LVJfHUwWuxlnHJgJAnMU5yrb8IC0h"
-                            target="_blank">
-                            <img src="files/images/gallery/gallery-2.jpg" alt="imagen 2">
-                        </a>
-                        <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNdxqeySRg95GuHTwcukzp18MG5brKxOfCQcpzs"
-                            target="_blank">
-                            <img src="files/images/gallery/gallery-3.jpg" alt="imagen 3">
-                        </a>
-
-                        <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipMI9qEVfR7QzgqcUs14MESQpnDWamjW0s0hIZJK"
-                            target="_blank">
-                            <img src="files/images/gallery/gallery-4.jpg" alt="imagen 4">
-                        </a>
-                        <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOCEyCE9bDlnQrluwgYUMym9Luq4hF0Rh1pDOuA"
-                            target="_blank">
-                            <img src="files/images/gallery/gallery-5.jpg" alt="imagen 5">
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
-                    <style>
-                        .galeria {
-                            display: flex;
-                            flex-wrap: wrap;
-                            justify-content: center;
-                            align-items: center;
-                        }
+                </div>
 
-                        .galeria img {
-                            margin: 10px;
-                            border: 1px solid #ddd;
-                            border-radius: 10%;
-                            width: 200px;
-                            height: 200px;
-                        }
+                <!-- Aire Acondicionado -->
+                <div class="hover-card">
+                    <img src="files/images/aire-acondicionados.png" 
+                         alt="Aire Acondicionado" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-solid fa-fan hover-card-icon"></i>
+                        <h3 class="hover-card-title">Aire Acondicionado</h3>
+                        <p class="hover-card-description">
+                            Venta, instalación y mantenimiento. Industriales y residenciales. Servicio especializado con garantía total.
+                        </p>
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
 
-                        .galeria img:hover {
-                            border-color: #000;
-                        }
-                    </style>
-                    <!-- row -->
+                <!-- Lavavajillas -->
+                <div class="hover-card">
+                    <img src="files/images/lavavajillas.png" 
+                         alt="Reparación de Lavavajillas" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-solid fa-clock-rotate-left hover-card-icon"></i>
+                        <h3 class="hover-card-title">Lavavajillas</h3>
+                        <p class="hover-card-description">
+                            Reparación experta, limpieza profunda y sustitución de piezas. ¡Tu lavavajillas como nuevo!
+                        </p>
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Secadoras -->
+                <div class="hover-card">
+                    <img src="files/images/secadoras.png" 
+                         alt="Reparación de Secadoras" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-regular fa-sun hover-card-icon"></i>
+                        <h3 class="hover-card-title">Secadoras</h3>
+                        <p class="hover-card-description">
+                            Extendemos la vida de tu secadora. Mantenimiento preventivo y reparaciones garantizadas.
+                        </p>
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Neveras de Hostelería -->
+                <div class="hover-card">
+                    <img src="files/images/neveras-hosteleria.png" 
+                         alt="Neveras de Hostelería" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-solid fa-snowflake hover-card-icon"></i>
+                        <h3 class="hover-card-title">Neveras de Hostelería</h3>
+                        <p class="hover-card-description">
+                            Técnicos especializados con herramientas y repuestos para cualquier reparación comercial.
+                        </p>
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Televisores -->
+                <div class="hover-card">
+                    <img src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80" 
+                         alt="Televisores" 
+                         class="hover-card-image" />
+                    <div class="hover-card-content">
+                        <i class="fa-solid fa-tv hover-card-icon"></i>
+                        <h3 class="hover-card-title">Televisores OLED, LED, LCD</h3>
+                        <p class="hover-card-description">
+                            Instalación, configuración, reparación de tiras LED y más. Servicio técnico especializado.
+                        </p>
+                        <a href="#contact" class="hover-card-cta">
+                            Ver más <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-            <!-- row -->
         </div>
-        <!-- container -->
     </section>
+    <!--====== SERVICES BENTO GRID END ======-->
 
-
-
-    <!--====== GALLERY PART ENDS ======-->
-
-    <!--=====  CALL TO ACTION PART START =====-->
-
-    <section id="call-to-action" class="relative overflow-hidden bg-blue-600 call-to-action">
-        <div class="absolute top-0 left-0 w-1/2 h-full call-action-image">
-            <img src="files/images/call-to-action.png" alt="call-to-action" />
-        </div>
-
-        <div class="container-fluid">
-            <div class="justify-end row">
-                <div class="w-full lg:w-1/2">
-                    <div class="py-32 mx-auto text-center call-action-content">
-                        <h2 class="mb-5 text-5xl font-semibold leading-tight text-white">
-                            No lo dejes para mañana
-                        </h2>
-                        <p class="mb-6 text-white">
-                            Agenda tu cita y recibe asesoramiento experto.
-                        </p>
-                        @if ($companyData && $companyData->phone)
-                            <div class="flex flex-col gap-4 footer-buttons-container">
-                                <div>
-                                    <a class="main-btn gradient-btn w-full text-center"
-                                        href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
-                                        <i class="fa-brands fa-whatsapp" style="margin-right: 7px"></i>Whatsapp</a>
-                                </div>
-                                <div>
-                                    <a class="main-btn  w-full text-center" href="tel:{{ $companyData->phone }}"><i
-                                            class="fa-solid fa-phone "></i>
-                                        Llamar
-                                        Ahora </a>
-                                </div>
-                                <div>
-                                    <a class="main-btn cta-gradient-btn w-full text-center" target="_blank"
-                                        href="{{ route('appointments.book') }}">
-                                        <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
-                                        Cita
-                                    </a>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                    <!-- slider-content -->
+    <!--====== ADDITIONAL SERVICES START ======-->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <img src="files/images/services10.png" alt="Servicios Adicionales" class="rounded-2xl shadow-2xl" />
+                </div>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                        Tu aliado para soluciones personalizadas
+                    </h2>
+                    <p class="text-lg text-slate-600 mb-8">
+                        No importa cuál sea el problema, nuestro equipo de expertos técnicos está altamente capacitado para diagnosticar y reparar cualquier avería de forma rápida y eficiente.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Instalación de Electrodomésticos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Diagnóstico preciso de averías</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Reparación de todas las marcas de lavadoras, secadoras y lavavajillas</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Uso de repuestos originales y de alta calidad</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Servicio técnico a domicilio en Gran Canaria</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Venta de repuestos y accesorios</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Garantía en todas nuestras reparaciones</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <!-- row -->
         </div>
-        <!-- container -->
     </section>
-    <!--=====  END CALL TO ACTION PART START =====-->
-    <!--====== WHY CHOOSE US PART START ======-->
-    <br><br><br><br>
-    <div class="container mx-auto " id="">
-        <div class="flex flex-wrap">
-            <div class="w-full md:w-1/2">
-                <img src="files/images/choose-us.png" alt="Imagen" class="rounded">
-            </div>
-            <div class="w-full md:w-1/2 p-4">
-                <h4 class="title" id="titleResponsive">¿Por qué elegirnos?</h4>
-                <ul class="list-disc p-4 space-y-4" style="line-height: 33px">
+    <!--====== ADDITIONAL SERVICES END ======-->
 
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i>
-                        Profesionalidad y
-                        compromiso con la satisfacción del
-                        cliente.</li>
-
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i> Atención
-                        personalizada y
-                        asesoramiento experto.</li>
-
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i> Precios
-                        competitivos: Te
-                        ofrecemos los mejores precios
-                        del mercado sin sacrificar la calidad.
-                    </li>
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i> Garantía
-                        en todas nuestras
-                        reparaciones: Puedes estar
-                        seguro de que tu electrodoméstico estará
-                        en buenas manos.</li>
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i> Uso de
-                        las últimas
-                        tecnologías: Estamos constantemente
-                        actualizados con las últimas herramientas
-                        y técnicas de reparación.</li>
-                    <li> <i class="fa-regular fa-circle-check" style="color: #166534; margin-right:8px"></i> Respeto
-                        por el medio
-                        ambiente: Seguimos prácticas
-                        responsables para minimizar nuestro impacto
-                        ambiental.</li>
-
-                </ul>
-
-
-
-
+    <!--====== BRANDS MARQUEE START ======-->
+    <section class="py-24 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Trabajamos con las mejores marcas
+                </h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Garantía de satisfacción con repuestos originales de las marcas líderes del mercado.
+                </p>
             </div>
         </div>
-    </div>
-    <!--====== WHY CHOOSE US PART ENDS ======-->
-    <!--====== TESTIMONIAL THREE PART START ======-->
 
-    <section id="testimonial" class="testimonial-area py-120">
-        <div class="container">
-            <div class="justify-center row">
-                <div class="w-full mx-4 lg:w-1/2">
-                    <div class="pb-10 text-center section-title">
-                        <h4 class="title" id="titleResponsive">Testimonios</h4>
-                        <p class="text">
-                            La voz de nuestros clientes satisfechos
-                        </p>
-                    </div>
-                    <!-- section title -->
+        <div class="marquee py-8">
+            <div class="marquee-content">
+                <img src="files/images/gallery/logo-1.png" alt="Marca 1" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-2.png" alt="Marca 2" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-3.png" alt="Marca 3" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-4.png" alt="Marca 4" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-5.png" alt="Marca 5" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-6.png" alt="Marca 6" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-7.png" alt="Marca 7" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-9.png" alt="Marca 8" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-10.png" alt="Marca 9" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-11.png" alt="Marca 10" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-12.png" alt="Marca 11" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-13.png" alt="Marca 12" class="brand-logo h-12 mx-8" />
+            </div>
+            <div class="marquee-content" aria-hidden="true">
+                <img src="files/images/gallery/logo-1.png" alt="Marca 1" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-2.png" alt="Marca 2" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-3.png" alt="Marca 3" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-4.png" alt="Marca 4" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-5.png" alt="Marca 5" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-6.png" alt="Marca 6" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-7.png" alt="Marca 7" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-9.png" alt="Marca 8" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-10.png" alt="Marca 9" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-11.png" alt="Marca 10" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-12.png" alt="Marca 11" class="brand-logo h-12 mx-8" />
+                <img src="files/images/gallery/logo-13.png" alt="Marca 12" class="brand-logo h-12 mx-8" />
+            </div>
+        </div>
+    </section>
+    <!--====== BRANDS MARQUEE END ======-->
+
+    <!--====== WHY CHOOSE US START ======-->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                        ¿Por qué elegirnos?
+                    </h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Profesionalidad y compromiso con la satisfacción del cliente</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Atención personalizada y asesoramiento experto</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Precios competitivos sin sacrificar la calidad</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Garantía en todas nuestras reparaciones</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Uso de las últimas tecnologías y técnicas de reparación</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-regular fa-circle-check text-emerald-600 text-xl mr-3 mt-1"></i>
+                            <span class="text-slate-700">Respeto por el medio ambiente con prácticas responsables</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="order-1 md:order-2">
+                    <img src="files/images/choose-us.png" alt="Por qué elegirnos" class="rounded-2xl shadow-2xl" />
                 </div>
             </div>
+        </div>
+    </section>
+    <!--====== WHY CHOOSE US END ======-->
 
+    <!--====== GALLERY MASONRY START ======-->
+    <section class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Galería
+                </h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    Desde la recepción hasta el área de trabajo, te mostramos donde se lleva a cabo la magia. Conoce a los técnicos expertos que se encargarán de tu electrodoméstico.
+                </p>
+            </div>
 
+            <div class="masonry-grid">
+                <div class="masonry-item">
+                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOWoWrubP2JwHHRK6MpybXSc7oj5vibrICYrQDG" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
+                        <img src="files/images/gallery/gallery-1.jpg" alt="Galería 1" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+                    </a>
+                </div>
+                <div class="masonry-item">
+                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNrRdbPld5LVJfHUwWuxlnHJgJAnMU5yrb8IC0h" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
+                        <img src="files/images/gallery/gallery-2.jpg" alt="Galería 2" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+                    </a>
+                </div>
+                <div class="masonry-item">
+                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNdxqeySRg95GuHTwcukzp18MG5brKxOfCQcpzs" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
+                        <img src="files/images/gallery/gallery-3.jpg" alt="Galería 3" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+                    </a>
+                </div>
+                <div class="masonry-item">
+                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipMI9qEVfR7QzgqcUs14MESQpnDWamjW0s0hIZJK" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
+                        <img src="files/images/gallery/gallery-4.jpg" alt="Galería 4" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+                    </a>
+                </div>
+                <div class="masonry-item">
+                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOCEyCE9bDlnQrluwgYUMym9Luq4hF0Rh1pDOuA" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
+                        <img src="files/images/gallery/gallery-5.jpg" alt="Galería 5" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== GALLERY MASONRY END ======-->
 
+    <!--====== CTA SECTION START ======-->
+    <section class="py-24 gradient-bg relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <img src="files/images/call-to-action.png" alt="Background" class="w-full h-full object-cover" />
+        </div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                No lo dejes para mañana
+            </h2>
+            <p class="text-xl text-white/90 mb-8">
+                Agenda tu cita y recibe asesoramiento experto. Tu electrodoméstico necesita atención profesional.
+            </p>
+            @if ($companyData && $companyData->phone)
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="javascript:abrirWhatsApp('+34643940970')" class="btn-secondary w-full sm:w-auto">
+                        <i class="fa-brands fa-whatsapp mr-2"></i>WhatsApp
+                    </a>
+                    <a href="tel:+34643940970" class="bg-white text-cyan-600 hover:bg-slate-100 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
+                        <i class="fa-solid fa-phone mr-2"></i>Llamar Ahora
+                    </a>
+                    <a href="{{ route('appointments.book') }}" target="_blank" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
+                        <i class="fa-solid fa-calendar-days mr-2"></i>Agendar Cita
+                    </a>
+                </div>
+            @endif
+        </div>
+    </section>
+    <!--====== CTA SECTION END ======-->
+
+    <!--====== TESTIMONIAL SECTION START ======-->
+    <section id="testimonial" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Testimonios
+                </h2>
+                <p class="text-lg text-slate-600">
+                    La voz de nuestros clientes satisfechos
+                </p>
+            </div>
 
             <script src="https://widget.trustmary.com/MHr-vVVpu"></script>
 
-            <div class="items-center justify-center text-center">
-                <div class="embedsocial-hashtag" data-ref="106f4e07bb24a96203d363bd2540e608e75bbf09"> <a
-                        class="feed-powered-by-es feed-powered-by-es-badge-img"
+            <div class="items-center justify-center text-center mt-12">
+                <div class="embedsocial-hashtag" data-ref="106f4e07bb24a96203d363bd2540e608e75bbf09">
+                    <a class="feed-powered-by-es feed-powered-by-es-badge-img"
                         href="https://embedsocial.com/blog/embed-google-reviews/" target="_blank"
                         title="Embed Google reviews">
-                        <img src="https://embedsocial.com/cdn/images/embedsocial-icon.png" alt="EmbedSocial"> </a>
+                        <img src="https://embedsocial.com/cdn/images/embedsocial-icon.png" alt="EmbedSocial">
+                    </a>
                 </div>
                 <script>
                     (function(d, s, id) {
@@ -769,353 +1049,210 @@
                 </script>
             </div>
         </div>
-        <!-- container -->
     </section>
-    <!--====== TESTIMONIAL THREE PART ENDS ======-->
+    <!--====== TESTIMONIAL SECTION END ======-->
 
     <!--====== LATEST POSTS START ======-->
     @livewire('latest-posts')
     <!--====== LATEST POSTS END ======-->
 
-
-
-
-    <!--====== MAP START ======-->
-
-    <section class=" bg-gray-100 client-logo-area">
-        @if ($companyData && $companyData->address_google_map)
-            <iframe src="{{ $companyData->address_google_map }}" width="100%" height="350" style="border:0;"
-                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        @else
-            <p>Map could not be loaded.</p>
-        @endif
+    <!--====== SERVICE AREA INFO START ======-->
+    <section class="py-16 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-slate-900 mb-2">Servicio solo a domicilio</h2>
+            <p class="text-slate-600">Cobertura en toda Gran Canaria</p>
+        </div>
     </section>
+    <!--====== SERVICE AREA INFO END ======-->
 
-    <!--====== MAP PART ENDS ======-->
-
-
-    <!--====== CONTACT PART START ======-->
+    <!--====== CONTACT FORM START ======-->
     @include('contact.form')
-    <!--====== CONTACT PART ENDS ======-->
+    <!--====== CONTACT FORM END ======-->
 
     <!--====== CITIES START ======-->
-    <div class="bg-white shadow-md rounded-md p-5 my-10 py-6">
-        <h1 class="text-center font-bold text-2xl" style="font-size: 20px; padding:10px;">Nuestro Alcance: Ciudades de
-            Gran Canaria</h1>
-        <ul class="city-list">
-            <li>Las Palmas de Gran Canaria</li>
-            <li><a href="#">Telde</a></li>
-            <li><a href="#">Santa Lucía de Tirajana</a></li>
-            <li><a href="#">Arucas</a></li>
-            <li><a href="#">San Bartolomé de Tirajana</a></li>
-            <li><a href="#">Mogán</a></li>
-            <li><a href="#">Guía de Gran Canaria</a></li>
-            <li><a href="#">Agüimes</a></li>
-            <li><a href="#">Ingenio</a></li>
-            <li><a href="#">Gáldar</a></li>
-            <li><a href="#">Santa Brígida</a></li>
-            <li><a href="#">Teror</a></li>
-            <li><a href="#">Valsequillo de Gran Canaria</a></li>
-            <li><a href="#">Tejeda</a></li>
-            <li><a href="#">Valleseco</a></li>
-            <li><a href="#">Firgas</a></li>
-            <li><a href="#">Moya</a></li>
-            <li><a href="#">Artenara</a></li>
-            <li><a href="#">La Aldea de San Nicolás</a></li>
-        </ul>
-    </div>
-    <style>
-        .city-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0;
-            margin: 0;
-        }
-
-        .city-list li {
-            margin-right: 1rem;
-            margin-bottom: 1rem;
-            padding: 0.5rem 1rem;
-            list-style: none;
-            background-color: #f3f4f6;
-            border-radius: 0.25rem;
-        }
-
-        @media (max-width: 768px) {
-            .city-list li {
-                margin-right: 1rem;
-                margin-bottom: 1rem;
-                padding: 0.5rem 1rem;
-                list-style: none;
-                background-color: #f3f4f6;
-                border-radius: 0.25rem;
-            }
-        }
-    </style>
-
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-slate-900 mb-8">
+                Nuestro Alcance: Ciudades de Gran Canaria
+            </h2>
+            <div class="flex flex-wrap justify-center gap-3">
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Las Palmas de Gran Canaria</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Telde</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Santa Lucía de Tirajana</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Arucas</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">San Bartolomé de Tirajana</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Mogán</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Guía de Gran Canaria</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Agüimes</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Ingenio</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Gáldar</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Santa Brígida</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Teror</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Valsequillo de Gran Canaria</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Tejeda</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Valleseco</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Firgas</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Moya</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">Artenara</span>
+                <span class="px-4 py-2 bg-slate-100 rounded-lg text-slate-700 hover:bg-cyan-100 hover:text-cyan-700 transition-colors">La Aldea de San Nicolás</span>
+            </div>
+        </div>
+    </section>
     <!--====== CITIES END ======-->
 
-    <!--====== FOOTER PART START ======-->
-
-    <footer id="footer" class="bg-gray-100 footer-area">
-        <div class="mb-16 footer-widget">
-            <div class="container">
-                <div class="row">
-                    <div class="w-full">
-                        <div class="items-end justify-between block mb-8 footer-logo-support md:flex">
-                            <div class="flex items-end footer-logo md:justify-start justify-center w-full">
-                                <a class="mt-8" href="#home">
-                                    @if ($companyData && $companyData->logo_path)
-                                        <img src="{{ asset($companyData->logo_path) }}" style="width: 100px;"
-                                            alt="Logo" />
-                                    @else
-                                        <img src="{{ asset('files/images/logo.png') }}" style="width: 100px;"
-                                            alt="Logo" />
-                                    @endif
-                                </a>
-
-                                <ul class="flex mt-8 ml-8 footer-social">
-                                    @if ($companyData && $companyData->social_media_facebook)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_facebook }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="lni-facebook-filled"></i></a>
-                                        </li>
-                                    @endif
-                                    @if ($companyData && $companyData->social_media_twitter)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_twitter }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="fa-brands fa-x-twitter"></i></a>
-                                        </li>
-                                    @endif
-                                    @if ($companyData && $companyData->social_media_instagram)
-                                        <li>
-                                            <a href="{{ $companyData->social_media_instagram }}" target="_blank"
-                                                rel="noopener noreferrer"><i class="lni-instagram-original"></i></a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </div>
-                            <!-- footer logo -->
-                        </div>
-                        <!-- footer logo support -->
+    <!--====== FOOTER START ======-->
+    <footer class="bg-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div>
+                    <a href="#home" class="inline-block mb-4">
+                        @if ($companyData && $companyData->logo_path)
+                            <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN" />
+                        @else
+                            <img src="files/images/logo.png" class="h-12 w-auto" alt="SERVISPIN" />
+                        @endif
+                    </a>
+                    <p class="text-slate-400 mb-4">
+                        Servicio técnico profesional de electrodomésticos en Gran Canaria.
+                    </p>
+                    <div class="flex space-x-4">
+                        @if ($companyData && $companyData->social_media_facebook)
+                            <a href="{{ $companyData->social_media_facebook }}" target="_blank" class="text-slate-400 hover:text-cyan-400 transition-colors text-xl">
+                                <i class="lni-facebook-filled"></i>
+                            </a>
+                        @endif
+                        @if ($companyData && $companyData->social_media_twitter)
+                            <a href="{{ $companyData->social_media_twitter }}" target="_blank" class="text-slate-400 hover:text-cyan-400 transition-colors text-xl">
+                                <i class="fa-brands fa-x-twitter"></i>
+                            </a>
+                        @endif
+                        @if ($companyData && $companyData->social_media_instagram)
+                            <a href="{{ $companyData->social_media_instagram }}" target="_blank" class="text-slate-400 hover:text-cyan-400 transition-colors text-xl">
+                                <i class="lni-instagram-original"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
-                <!-- row -->
-                <div class="row">
-                    <div class="w-full sm:w-1/2 md:w-1/4 lg:w-1/6">
-                        <div class="mb-8 footer-link">
-                            <h6 class="footer-title">Compañia</h6>
-                            <ul>
-                                <li><a href="#about">Quiénes Somos</a></li>
-                                <li><a href="#testimonial">Testimonios</a></li>
 
-                            </ul>
-                        </div>
-                        <!-- footer link -->
-                    </div>
-                    <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-                        <div class="mb-8 footer-link">
-                            <h6 class="footer-title">Producto & Servicios</h6>
-                            <ul>
-                                <li><a href="#ourservices">Nuestros Servicios</a></li>
-
-                            </ul>
-                        </div>
-                        <!-- footer link -->
-                    </div>
-                    <div class="w-full sm:w-5/12 md:w-1/3 lg:w-1/4">
-                        <div class="mb-8 footer-link">
-                            <h6 class="footer-title">Soporte</h6>
-                            <ul>
-                                <li><a class="page-scroll" href="#contact">Contacto</a></li>
-                                <li><a target="_blank" href="{{ route('appointments.book') }}">Agendar
-                                        Cita</a></li>
-
-                            </ul>
-                        </div>
-                        <!-- footer link -->
-                    </div>
-                    <div class="w-full sm:w-7/12 md:w-1/2 lg:w-1/3">
-                        <div class="mb-8 footer-newsletter">
-                            <h6 class="footer-title">Horario de Apertura</h6>
-                            <ul class="mb-8">
-                                <li>Lun a Vie: 7:00 AM – 9:00 PM</li>
-                                <li>Sáb: 9:00 AM – 9:00 PM</li>
-                                <li>Dom: 9:00 AM – 8:00 PM</li>
-                            </ul>
-                            @if ($companyData && $companyData->phone)
-                                <div class="flex flex-col gap-4 footer-buttons-container">
-                                    <div>
-                                        <a class="main-btn gradient-btn w-full text-center"
-                                            href="javascript:abrirWhatsApp('{{ $companyData->phone }}')">
-                                            <i class="fa-brands fa-whatsapp"
-                                                style="margin-right: 7px"></i>Whatsapp</a>
-                                    </div>
-                                    <div>
-                                        <a class="main-btn  w-full text-center"
-                                            href="tel:{{ $companyData->phone }}"><i class="fa-solid fa-phone "></i>
-                                            Llamar
-                                            Ahora </a>
-                                    </div>
-                                    <div>
-                                        <a class="main-btn cta-gradient-btn w-full text-center" target="_blank"
-                                            href="{{ route('appointments.book') }}">
-                                            <i class="fa-solid fa-calendar-days" style="margin-right: 7px"></i>Agendar
-                                            Cita
-                                        </a>
-                                    </div>
-                                </div>
-                            @endif
-
-                        </div>
-
-                        <!-- footer newsletter -->
-                    </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Compañía</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-slate-400 hover:text-white transition-colors">Inicio</a></li>
+                        <li><a href="#ourservices" class="text-slate-400 hover:text-white transition-colors">Servicios</a></li>
+                        <li><a href="#testimonial" class="text-slate-400 hover:text-white transition-colors">Testimonios</a></li>
+                    </ul>
                 </div>
-                <!-- row -->
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#contact" class="text-slate-400 hover:text-white transition-colors">Contacto</a></li>
+                        <li><a href="{{ route('appointments.book') }}" target="_blank" class="text-slate-400 hover:text-white transition-colors">Agendar Cita</a></li>
+                        <li><a href="tel:+34643940970" class="text-slate-400 hover:text-white transition-colors">Llamar Ahora</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Horario de Apertura</h3>
+                    <ul class="space-y-2 text-slate-400">
+                        <li>Lun a Vie: 7:00 AM – 9:00 PM</li>
+                        <li>Sáb: 9:00 AM – 9:00 PM</li>
+                        <li>Dom: 9:00 AM – 8:00 PM</li>
+                        <li class="mt-4">
+                            <span class="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm">
+                                Emergencias 24/7
+                            </span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <!-- container -->
-        </div>
-        <!-- footer widget -->
 
-        <div class="bg-blue-900 footer-copyright">
-            <div class="container">
-                <div class="row">
-                    <div class="w-full">
-                        <div class="py-6 text-center">
-                            <p class="text-white">
-                                © {{ date('Y') }}
-                                @if ($companyData)
-                                    <a class="text-blue-500 duration-300 hover:text-blue-700" rel="nofollow"
-                                        href="#home">
-                                        {{ $companyData->company_name }}
-                                    </a>
-                                @else
-                                    SERVISPIN
-                                @endif
-                                . Todos los derechos
-                                reservados.
-
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <!-- row -->
+            <div class="border-t border-slate-800 mt-12 pt-8 text-center text-slate-400">
+                <p>
+                    © {{ date('Y') }}
+                    @if ($companyData)
+                        <a href="#home" class="text-cyan-400 hover:text-cyan-300 transition-colors">
+                            {{ $companyData->company_name }}
+                        </a>
+                    @else
+                        SERVISPIN
+                    @endif
+                    . Todos los derechos reservados.
+                </p>
             </div>
-            <!-- container -->
         </div>
-        <!-- footer copyright -->
     </footer>
-    <!--====== FOOTER PART ENDS ======-->
+    <!--====== FOOTER END ======-->
 
-    <style>
-        .footer-buttons-container {
-            display: flex;
-            flex-direction: column;
-            /* Default: Stack buttons vertically */
-            gap: 0.75rem;
-            /* Tailwind's gap-3 equivalent */
-        }
+    <!--====== WHATSAPP FLOATING BUTTON ======-->
+    @if ($companyData && $companyData->phone)
+        <a href="javascript:abrirWhatsApp('+34643940970')" class="whatsapp-float" title="Contactar por WhatsApp">
+            <i class="fa-brands fa-whatsapp text-white text-3xl"></i>
+        </a>
+    @endif
 
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .footer-buttons-container {
-                flex-direction: row;
-                /*  Side by Side on medium screens*/
-            }
+    <!--====== BACK TO TOP ======-->
+    <a href="#home" class="fixed bottom-24 right-6 w-12 h-12 bg-slate-700 hover:bg-cyan-500 rounded-full flex items-center justify-center text-white transition-all shadow-lg z-50" id="back-to-top">
+        <i class="lni-chevron-up text-xl"></i>
+    </a>
 
-            .footer-buttons-container a {
-                width: auto;
-                flex: 1;
-                /* Equal width for buttons on medium screens*/
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .footer-buttons-container {
-                flex-wrap: wrap;
-                flex-direction: row;
-            }
-
-            .footer-buttons-container>div {
-                width: 48%;
-                margin-bottom: 0.75rem;
-            }
-
-            .footer-buttons-container>div:last-child {
-                width: 100%;
-            }
-        }
-
-        /* Center footer elements on small screens */
-        @media (max-width: 767px) {
-
-            .footer-link,
-            .footer-newsletter,
-            .footer-logo {
-                text-align: center;
-            }
-
-            .footer-link ul,
-            .footer-newsletter ul {
-                text-align: center;
-            }
-
-            .footer-title {
-                text-align: center;
-            }
-
-            .footer-logo {
-                justify-content: center;
-            }
-        }
-    </style>
-    <!--====== FOOTER PART ENDS ======-->
-
-
-
-
-    <!-- START JQUERY   -->
-    <!--====== BACK TO TOP PART START ======-->
-
-    <a class="back-to-top" href="#"><i class="lni-chevron-up"></i></a>
-
-    <!--====== BACK TO TOP PART ENDS ======-->
-
-    <!--====== jquery js ======-->
+    <!--====== SCRIPTS ======-->
     <script src="files/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="files/js/vendor/jquery-1.12.4.min.js"></script>
-
-    <!--====== Ajax Contact js ======-->
     <script src="files/js/ajax-contact.js"></script>
-
-    <!--====== Scrolling Nav js ======-->
     <script src="files/js/jquery.easing.min.js"></script>
     <script src="files/js/scrolling-nav.js"></script>
-
-    <!--====== Validator js ======-->
     <script src="files/js/validator.min.js"></script>
-
-    <!--====== Magnific Popup js ======-->
     <script src="files/js/jquery.magnific-popup.min.js"></script>
-
-    <!--====== Slick js ======-->
     <script src="files/js/slick.min.js"></script>
-
-    <!--====== Main js ======-->
     <script src="files/js/main.js"></script>
 
     <script>
         function abrirWhatsApp(numero) {
             const cleanedNumber = numero.replace(/\+/g, '').replace(/\s/g, '');
             const url = `https://wa.me/${cleanedNumber}`;
-            window.open(url, '_blank'); // Abre la ventana de WhatsApp en una pestaña nueva
+            window.open(url, '_blank');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.getElementById('navbar');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const backToTop = document.getElementById('back-to-top');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                    backToTop.style.display = 'flex';
+                } else {
+                    navbar.classList.remove('scrolled');
+                    backToTop.style.display = 'none';
+                }
+            });
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        });
     </script>
-    <!--END JQUERY  -->
-
-
-
 </body>
 
 </html>
