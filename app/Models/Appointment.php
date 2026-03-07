@@ -31,6 +31,8 @@ class Appointment extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    protected $appends = ['equipment_photo_url'];
     
     // Estados posibles para las citas
     const STATUS_NEW = 'New';
@@ -86,5 +88,26 @@ class Appointment extends Model
     {
         return $query->where('end_time', '>=', now())
                      ->whereIn('status', [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
+    }
+
+    /**
+     * Get the public URL for the equipment photo from Supabase Storage
+     */
+    public function getEquipmentPhotoUrlAttribute()
+    {
+        if (!$this->equipment_photo_path) {
+            return null;
+        }
+
+        try {
+            return \Illuminate\Support\Facades\Storage::disk('supabase')->url($this->equipment_photo_path);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error getting photo URL from Supabase', [
+                'appointment_id' => $this->id,
+                'photo_path' => $this->equipment_photo_path,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
     }
 }

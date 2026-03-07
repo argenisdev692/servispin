@@ -10,12 +10,13 @@ use Illuminate\Support\Str;
 class ImageHelper
 {
     /**
-     * Store and resize an image locally using the public disk.
+     * Store and resize an image to Supabase Storage.
      * @param mixed $image File upload or binary string
-     * @param string $storagePath Relative path within the public disk (e.g., 'appointment_photos')
-     * @return string|null Relative path of the stored image on the public disk, or null on failure
+     * @param string $storagePath Relative path within the storage (e.g., 'appointment_photos')
+     * @param string $disk Storage disk to use (default: 'supabase')
+     * @return string|null Relative path of the stored image, or null on failure
      */
-    public static function storeAndResizeLocally($image, $storagePath)
+    public static function storeAndResizeLocally($image, $storagePath, $disk = 'supabase')
     {
         try {
             Log::info('Starting local image processing', ['storage_path' => $storagePath]);
@@ -48,14 +49,14 @@ class ImageHelper
             // Generate a unique filename with .jpg extension
             $uniqueFileName = self::generateUniqueFileName() . '.jpg';
 
-            // Define the final relative path on the public disk
+            // Define the final relative path
             $finalRelativePath = $storagePath . '/' . $uniqueFileName;
 
             // Read the content of the temporary resized image
             $resizedImageContent = file_get_contents($resizedImagePath);
 
-            // Store the resized image content to the public disk
-            $stored = Storage::disk('public')->put($finalRelativePath, $resizedImageContent);
+            // Store the resized image content to the specified disk
+            $stored = Storage::disk($disk)->put($finalRelativePath, $resizedImageContent);
 
              // Delete the temporary file
             unlink($resizedImagePath);
@@ -63,13 +64,13 @@ class ImageHelper
 
 
             if ($stored) {
-                 Log::info('Image resized and stored locally successfully', [
+                 Log::info('Image resized and stored successfully', [
                     'final_path' => $finalRelativePath,
-                    'disk' => 'public'
+                    'disk' => $disk
                  ]);
                  return $finalRelativePath; // Return the relative path
              } else {
-                 Log::error('Failed to store resized image to public disk', ['path' => $finalRelativePath]);
+                 Log::error('Failed to store resized image', ['path' => $finalRelativePath, 'disk' => $disk]);
                  return null;
             }
 

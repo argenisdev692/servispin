@@ -180,15 +180,15 @@ class AppointmentController extends Controller
         $photoPath = null;
         if ($request->hasFile('equipment_photo') && $request->file('equipment_photo')->isValid()) {
             try {
-                // Use ImageHelper instead of direct storage
-                $photoPath = ImageHelper::storeAndResizeLocally($request->file('equipment_photo'), 'appointment_photos');
+                // Use ImageHelper with Supabase disk
+                $photoPath = ImageHelper::storeAndResizeLocally($request->file('equipment_photo'), 'appointment_photos', 'supabase');
                 if (!$photoPath) {
-                    Log::error('Failed to store and resize appointment photo.');
+                    Log::error('Failed to store and resize appointment photo to Supabase.');
                     return response()->json(['success' => false, 'message' => 'Error al procesar la foto.'], 500);
                 }
-                Log::info('Photo processed and stored at: ' . $photoPath);
+                Log::info('Photo processed and stored to Supabase at: ' . $photoPath);
             } catch (Throwable $uploadError) {
-                Log::error('Error during photo processing: ' . $uploadError->getMessage());
+                Log::error('Error during photo processing to Supabase: ' . $uploadError->getMessage());
                 return response()->json(['success' => false, 'message' => 'Error al procesar la foto.'], 500);
             }
         }
@@ -225,10 +225,10 @@ class AppointmentController extends Controller
                 },
                 // 3. On Error actions (before rollback)
                 function (Throwable $dbError) use ($photoPath) {
-                    // Cleanup uploaded photo if DB operation failed
-                    if ($photoPath && Storage::disk('public')->exists($photoPath)) {
-                        Storage::disk('public')->delete($photoPath);
-                        Log::warning('Rolled back photo upload due to DB error: ' . $photoPath);
+                    // Cleanup uploaded photo from Supabase if DB operation failed
+                    if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
+                        Storage::disk('supabase')->delete($photoPath);
+                        Log::warning('Rolled back photo upload from Supabase due to DB error: ' . $photoPath);
                     }
                 }
             );
@@ -244,10 +244,10 @@ class AppointmentController extends Controller
             // Catch exceptions re-thrown by TransactionService
             Log::error('Error during appointment creation transaction: ' . $e->getMessage(), ['exception' => $e]);
 
-            // Ensure photo is cleaned up even if the $onError handler within transactionService failed
-            if ($photoPath && Storage::disk('public')->exists($photoPath)) {
-                 Storage::disk('public')->delete($photoPath);
-                 Log::warning('Ensured photo cleanup after transaction exception: ' . $photoPath);
+            // Ensure photo is cleaned up from Supabase even if the $onError handler within transactionService failed
+            if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
+                 Storage::disk('supabase')->delete($photoPath);
+                 Log::warning('Ensured photo cleanup from Supabase after transaction exception: ' . $photoPath);
             }
 
             return response()->json([
@@ -553,13 +553,13 @@ class AppointmentController extends Controller
                     $appointment->delete();
                     Log::info('Appointment deleted from DB', ['id' => $id]);
 
-                    // Delete associated photo within the same transaction scope
-                    if ($photoPathToDelete && Storage::disk('public')->exists($photoPathToDelete)) {
-                        $deleted = Storage::disk('public')->delete($photoPathToDelete);
+                    // Delete associated photo from Supabase within the same transaction scope
+                    if ($photoPathToDelete && Storage::disk('supabase')->exists($photoPathToDelete)) {
+                        $deleted = Storage::disk('supabase')->delete($photoPathToDelete);
                         if ($deleted) {
-                            Log::info('Deleted associated photo: ' . $photoPathToDelete);
+                            Log::info('Deleted associated photo from Supabase: ' . $photoPathToDelete);
                         } else {
-                            Log::warning('Failed to delete associated photo (might not be critical): ' . $photoPathToDelete);
+                            Log::warning('Failed to delete associated photo from Supabase (might not be critical): ' . $photoPathToDelete);
                             // Decide if failure to delete photo should cause rollback (usually not)
                             // throw new \RuntimeException("Failed to delete associated file.");
                         }
