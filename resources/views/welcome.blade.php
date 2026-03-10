@@ -596,9 +596,9 @@
             <div class="flex justify-between items-center">
                 <a href="#home" class="flex items-center">
                     @if ($companyData && $companyData->logo_path)
-                        <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN Logo" />
+                        <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
                     @else
-                        <img src="files/images/logo.png" class="h-12 w-auto" alt="SERVISPIN Logo" />
+                        <img src="files/images/logo-white.png" class="h-12 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
                     @endif
                 </a>
 
@@ -648,7 +648,7 @@
                 @if ($companyData && $companyData->logo_path)
                     <img src="{{ asset($companyData->logo_path) }}" class="h-16 w-auto mx-auto mb-8 fade-in-up" alt="SERVISPIN" />
                 @else
-                    <img src="files/images/logo.png" class="h-16 w-auto mx-auto mb-8 fade-in-up" alt="SERVISPIN" />
+                    <img src="files/images/logo-white.png" class="h-16 w-auto mx-auto mb-8 fade-in-up" alt="SERVISPIN" />
                 @endif
                 
                 <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight animated-gradient-text fade-in-up">
@@ -764,16 +764,16 @@
                     </div>
                 </div>
 
-                <!-- Neveras de Hostelería -->
+                <!-- Congeladores y Arcones -->
                 <div class="hover-card">
-                    <img src="files/images/neveras-hosteleria.png" 
-                         alt="Neveras de Hostelería" 
+                    <img src="files/images/congeladores-arcones.png" 
+                         alt="Congeladores y Arcones" 
                          class="hover-card-image" />
                     <div class="hover-card-content">
                         <i class="fa-solid fa-snowflake hover-card-icon"></i>
-                        <h3 class="hover-card-title">Neveras de Hostelería</h3>
+                        <h3 class="hover-card-title">Congeladores y Arcones</h3>
                         <p class="hover-card-description">
-                            Técnicos especializados con herramientas y repuestos para cualquier reparación comercial.
+                            Reparación y mantenimiento de sistemas de congelación. Soluciones rápidas para conservar tus alimentos.
                         </p>
                         <a href="#contact" class="hover-card-cta">
                             Ver más <i class="fa-solid fa-arrow-right"></i>
@@ -1109,7 +1109,7 @@
                         @if ($companyData && $companyData->logo_path)
                             <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN" />
                         @else
-                            <img src="files/images/logo.png" class="h-12 w-auto" alt="SERVISPIN" />
+                            <img src="files/images/logo-white.png" class="h-12 w-auto" alt="SERVISPIN" />
                         @endif
                     </a>
                     <p class="text-slate-400 mb-4">
@@ -1216,6 +1216,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const navbar = document.getElementById('navbar');
+            const navbarLogo = document.getElementById('navbar-logo');
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             const backToTop = document.getElementById('back-to-top');
@@ -1224,9 +1225,17 @@
                 if (window.scrollY > 100) {
                     navbar.classList.add('scrolled');
                     backToTop.style.display = 'flex';
+                    // Cambiar logo al hacer scroll (solo si no hay logo personalizado)
+                    if (navbarLogo && navbarLogo.src.includes('logo-white.png')) {
+                        navbarLogo.src = 'files/images/logo.png';
+                    }
                 } else {
                     navbar.classList.remove('scrolled');
                     backToTop.style.display = 'none';
+                    // Volver al logo blanco
+                    if (navbarLogo && navbarLogo.src.includes('logo.png') && !navbarLogo.src.includes('logo-white.png')) {
+                        navbarLogo.src = 'files/images/logo-white.png';
+                    }
                 }
             });
 
