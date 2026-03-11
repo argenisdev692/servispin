@@ -596,9 +596,9 @@
             <div class="flex justify-between items-center">
                 <a href="#home" class="flex items-center">
                     @if ($companyData && $companyData->logo_path)
-                        <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
+                        <img src="{{ asset($companyData->logo_path) }}" class="h-16 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
                     @else
-                        <img src="files/images/logo-white.png" class="h-12 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
+                        <img src="files/images/logo-white.png" class="h-16 w-auto" alt="SERVISPIN Logo" id="navbar-logo" />
                     @endif
                 </a>
 
@@ -656,7 +656,7 @@
                 </h1>
                 
                 <p class="text-lg md:text-xl text-white/90 mb-4 subtitle-fade">
-                    Servicio técnico profesional a domicilio. 24/7 disponible
+                    Servicio técnico profesional a domicilio
                 </p>
                 
                 <div class="flex flex-wrap justify-center gap-4 text-sm md:text-base text-white/80 mb-8 badges-fade">
@@ -1107,9 +1107,9 @@
                 <div>
                     <a href="#home" class="inline-block mb-4">
                         @if ($companyData && $companyData->logo_path)
-                            <img src="{{ asset($companyData->logo_path) }}" class="h-12 w-auto" alt="SERVISPIN" />
+                            <img src="{{ asset($companyData->logo_path) }}" class="h-14 w-auto" alt="SERVISPIN" />
                         @else
-                            <img src="files/images/logo-white.png" class="h-12 w-auto" alt="SERVISPIN" />
+                            <img src="files/images/logo-white.png" class="h-14 w-auto" alt="SERVISPIN" />
                         @endif
                     </a>
                     <p class="text-slate-400 mb-4">
@@ -1158,11 +1158,6 @@
                         <li>Lun a Vie: 7:00 AM – 9:00 PM</li>
                         <li>Sáb: 9:00 AM – 9:00 PM</li>
                         <li>Dom: 9:00 AM – 8:00 PM</li>
-                        <li class="mt-4">
-                            <span class="inline-block px-3 py-1 bg-emerald-600 text-white rounded-full text-sm">
-                                Emergencias 24/7
-                            </span>
-                        </li>
                     </ul>
                 </div>
             </div>
