@@ -51,6 +51,9 @@
     <!--====== Magnific Popup css ======-->
     <link rel="stylesheet" href="files/css/magnific-popup.css" />
 
+    <!--====== GLightbox css ======-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/css/glightbox.min.css" />
+
     <!--====== tailwind css ======-->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
@@ -379,31 +382,36 @@
         transform: scale(1.1);
     }
 
-    .masonry-grid {
+    .gallery-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 20px;
     }
 
-    .masonry-item img {
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
+    .gallery-item {
+        break-inside: avoid;
     }
 
     @media (max-width: 1024px) {
-        .masonry-grid {
+        .gallery-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
 
     @media (max-width: 768px) {
-        .masonry-grid {
-            grid-template-columns: 1fr;
+        .gallery-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding-bottom: 12px;
+            -webkit-overflow-scrolling: touch;
         }
-
-        .masonry-item img {
-            height: 200px;
+        .gallery-grid::-webkit-scrollbar { display: none; }
+        .gallery-item {
+            flex: 0 0 85%;
+            scroll-snap-align: start;
         }
     }
 
@@ -953,32 +961,28 @@
                 </p>
             </div>
 
-            <div class="masonry-grid">
-                <div class="masonry-item">
-                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOWoWrubP2JwHHRK6MpybXSc7oj5vibrICYrQDG" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                        <img src="files/images/gallery/gallery-1.jpg" alt="Galería 1" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
+            <div class="gallery-grid" id="gallery-grid">
+                @forelse ($galleryImages as $galleryImage)
+                    <a href="{{ route('gallery.serve', ['path' => $galleryImage->file_path]) }}"
+                       class="glightbox gallery-item group block"
+                       data-gallery="servispin-gallery"
+                       @if ($galleryImage->type === 'video') data-type="video" @endif>
+                        <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+                            @if ($galleryImage->type === 'video')
+                                <video src="{{ route('gallery.serve', ['path' => $galleryImage->file_path]) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" muted preload="metadata"></video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                                    <svg class="w-12 h-12 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            @else
+                                <img src="{{ route('gallery.serve', ['path' => $galleryImage->file_path]) }}" alt="Gallery" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            @endif
+                        </div>
                     </a>
-                </div>
-                <div class="masonry-item">
-                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNrRdbPld5LVJfHUwWuxlnHJgJAnMU5yrb8IC0h" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                        <img src="files/images/gallery/gallery-2.jpg" alt="Galería 2" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
-                    </a>
-                </div>
-                <div class="masonry-item">
-                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipNdxqeySRg95GuHTwcukzp18MG5brKxOfCQcpzs" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                        <img src="files/images/gallery/gallery-3.jpg" alt="Galería 3" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
-                    </a>
-                </div>
-                <div class="masonry-item">
-                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipMI9qEVfR7QzgqcUs14MESQpnDWamjW0s0hIZJK" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                        <img src="files/images/gallery/gallery-4.jpg" alt="Galería 4" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
-                    </a>
-                </div>
-                <div class="masonry-item">
-                    <a href="https://www.google.com/maps/uv?pb=!1s0xc409571ff99c2a3%3A0xd01682bca0393f02!3m1!7e131!4s!5sServiSpin!15sCgIgAQ&hl=es&imagekey=!1e10!2sAF1QipOCEyCE9bDlnQrluwgYUMym9Luq4hF0Rh1pDOuA" target="_blank" class="block overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                        <img src="files/images/gallery/gallery-5.jpg" alt="Galería 5" class="w-full h-auto hover:scale-105 transition-transform duration-300" />
-                    </a>
-                </div>
+                @empty
+                    <div class="col-span-full text-center text-slate-500 py-12">
+                        No hay imágenes en la galería aún.
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -1201,6 +1205,7 @@
     <script src="files/js/jquery.magnific-popup.min.js"></script>
     <script src="files/js/slick.min.js"></script>
     <script src="files/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.1/dist/js/glightbox.min.js"></script>
 
     <script>
         function abrirWhatsApp(numero) {
@@ -1255,6 +1260,26 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof GLightbox !== 'undefined') {
+                const lightbox = GLightbox({
+                    selector: '.glightbox',
+                    touchNavigation: true,
+                    loop: true,
+                    autoplayVideos: true,
+                    zoomable: true,
+                    draggable: true,
+                    slideEffect: 'fade',
+                    cssEfects: {
+                        fade: { in: 'fadeIn', out: 'fadeOut' },
+                        zoom: { in: 'zoomIn', out: 'zoomOut' }
+                    }
+                });
+            }
         });
     </script>
 </body>

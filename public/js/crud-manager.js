@@ -160,7 +160,7 @@ class CrudManager {
             }" class="px-6 py-4 text-center text-sm text-gray-500">No ${this.entityNamePlural.toLowerCase()} found matching your search criteria.</td></tr>`;
         } else {
             entities.forEach((entity) => {
-                const isDeleted = entity.deleted_at !== null;
+                const isDeleted = entity.deleted_at != null;
                 const rowClass = isDeleted
                     ? "bg-red-50 dark:bg-red-900 opacity-60"
                     : "";

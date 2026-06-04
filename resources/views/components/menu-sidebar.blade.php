@@ -161,6 +161,18 @@
                          <span class="ml-4">Company Data</span>
                      </a>
                  </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('gallery-images.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('gallery-images.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Gallery</span>
+                     </a>
+                 </li>
              @endcan
          </ul>
 
@@ -322,6 +334,18 @@
                              </path>
                          </svg>
                          <span class="ml-4">Company Data</span>
+                     </a>
+                 </li>
+                 <li class="relative px-6 py-3">
+                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('gallery-images.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                         href="{{ route('gallery-images.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                             </path>
+                         </svg>
+                         <span class="ml-4">Gallery</span>
                      </a>
                  </li>
              @endcan

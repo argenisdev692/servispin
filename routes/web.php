@@ -21,6 +21,7 @@ use App\Http\Controllers\BrandController; // Import the brand controller
 use App\Http\Controllers\Admin\AvailabilityExceptionController; // Import the availability exception controller
 use App\Http\Controllers\Admin\ServiceController; // Import the service controller
 use App\Http\Controllers\ContactController; // Import the contact controller
+use App\Http\Controllers\GalleryImageController; // Import the gallery image controller
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +38,8 @@ use App\Http\Controllers\ContactController; // Import the contact controller
 Route::middleware(['throttle:global'])->group(function () {
 
 Route::get('/', function () {
-    return view('welcome');
+    $galleryImages = \App\Models\GalleryImage::orderBy('sort_order', 'asc')->get();
+    return view('welcome', compact('galleryImages'));
 });
 
 
@@ -190,6 +192,20 @@ Route::middleware([
         Route::patch('/events/{appointment}', [AppointmentCalendarController::class, 'update'])->name('update'); // Handles drag-and-drop updates
         Route::patch('/status/{id}', [AppointmentCalendarController::class, 'updateStatus'])->name('status.update'); // Ruta para actualizar el estado (confirmar/rechazar)
     });
+
+    // Gallery Image Routes
+    Route::prefix('gallery-images')->name('gallery-images.')->group(function () {
+        Route::get('/', [GalleryImageController::class, 'index'])->name('index');
+        Route::post('/', [GalleryImageController::class, 'store'])->name('store');
+        Route::get('/{uuid}/edit', [GalleryImageController::class, 'edit'])->name('edit');
+        Route::put('/{uuid}', [GalleryImageController::class, 'update'])->name('update');
+        Route::delete('/{uuid}', [GalleryImageController::class, 'destroy'])->name('destroy');
+        Route::post('/reorder', [GalleryImageController::class, 'reorder'])->name('reorder');
+    });
+
+    Route::get('storage-gallery/{path}', [GalleryImageController::class, 'serveFile'])
+        ->where('path', '.*')
+        ->name('gallery.serve');
 });
 
 // Contact form routes
