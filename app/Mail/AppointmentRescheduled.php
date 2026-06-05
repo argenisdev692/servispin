@@ -52,6 +52,7 @@ class AppointmentRescheduled extends Mailable
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
+            cc: env('MAIL_CC_EMAIL') ? [new Address(env('MAIL_CC_EMAIL'))] : [],
             subject: 'Su cita ha sido reagendada - ' . $this->companyData->company_name,
         );
     }

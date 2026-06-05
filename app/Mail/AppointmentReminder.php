@@ -61,8 +61,9 @@ class AppointmentReminder extends Mailable
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            subject: $this->isForCompany 
-                ? 'Recordatorio de cita programada para mañana' 
+            cc: env('MAIL_CC_EMAIL') ? [new Address(env('MAIL_CC_EMAIL'))] : [],
+            subject: $this->isForCompany
+                ? 'Recordatorio de cita programada para mañana'
                 : 'Recordatorio de su cita de mañana con ' . $this->companyData->company_name,
         );
     }

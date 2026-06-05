@@ -61,8 +61,9 @@ class AppointmentConfirmation extends Mailable
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            subject: $this->isForCompany 
-                ? 'Nueva cita registrada: ' . $this->appointment->client_first_name . ' ' . $this->appointment->client_last_name 
+            cc: env('MAIL_CC_EMAIL') ? [new Address(env('MAIL_CC_EMAIL'))] : [],
+            subject: $this->isForCompany
+                ? 'Nueva cita registrada: ' . $this->appointment->client_first_name . ' ' . $this->appointment->client_last_name
                 : 'Confirmación de su cita con ' . $this->companyData->company_name,
         );
     }
