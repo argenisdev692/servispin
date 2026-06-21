@@ -202,11 +202,12 @@ Route::middleware([
         Route::delete('/{uuid}', [GalleryImageController::class, 'destroy'])->name('destroy');
         Route::post('/reorder', [GalleryImageController::class, 'reorder'])->name('reorder');
     });
-
-    Route::get('storage-gallery/{path}', [GalleryImageController::class, 'serveFile'])
-        ->where('path', '.*')
-        ->name('gallery.serve');
 });
+
+// Public route for serving gallery images (must be outside auth middleware)
+Route::get('storage-gallery/{path}', [GalleryImageController::class, 'serveFile'])
+    ->where('path', '.*')
+    ->name('gallery.serve');
 
 // Contact form routes
 Route::post('/contact/submit', [ContactController::class, 'submitForm'])->middleware('throttle:contact')->name('contact.submit');
