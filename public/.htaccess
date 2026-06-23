@@ -5,6 +5,14 @@
 
     RewriteEngine On
 
+    # Protección contra acceso a .env desde public
+    RewriteCond %{REQUEST_URI} ^/\.env [NC]
+    RewriteRule .* - [F,L]
+
+    # Bloquear acceso a archivos sensibles
+    RewriteCond %{REQUEST_URI} \.(env|git|gitignore|htaccess|htpasswd)$ [NC]
+    RewriteRule .* - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -19,3 +27,15 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Protección adicional para .env
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Proteger archivos sensibles
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
