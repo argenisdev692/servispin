@@ -1,14 +1,13 @@
 <?php
 /**
  * Script de Verificación de Seguridad
- * 
+ *
  * INSTRUCCIONES:
  * 1. Sube este archivo a la raíz de tu proyecto en el servidor
  * 2. Accede desde el navegador: https://servispin.net/check_security.php
  * 3. Revisa los resultados
  * 4. ¡ELIMINA ESTE ARCHIVO después de usarlo!
  */
-
 header('Content-Type: text/html; charset=utf-8');
 
 ?>
@@ -111,27 +110,27 @@ header('Content-Type: text/html; charset=utf-8');
             '.env.example' => 'Ejemplo de configuración',
             'composer.json' => 'Dependencias de PHP',
             'package.json' => 'Dependencias de Node',
-            '.git/config' => 'Configuración de Git'
+            '.git/config' => 'Configuración de Git',
         ];
 
-        foreach ($sensitiveFiles as $file => $description) {
-            $fullPath = __DIR__ . '/' . $file;
-            $exists = file_exists($fullPath);
-            
-            if ($exists) {
-                $permissions = substr(sprintf('%o', fileperms($fullPath)), -3);
-                $isReadable = is_readable($fullPath);
-                
-                if ($permissions == '600' || $permissions == '400') {
-                    echo "<div class='check success'><span class='icon'>✅</span><strong>{$file}</strong> - {$description}<br>Permisos: {$permissions} (Seguro)</div>";
-                } else {
-                    echo "<div class='check danger'><span class='icon'>❌</span><strong>{$file}</strong> - {$description}<br>Permisos: {$permissions} (INSEGURO - Cambiar a 600)<br><code>chmod 600 {$file}</code></div>";
-                }
-            } else {
-                echo "<div class='check info'><span class='icon'>ℹ️</span><strong>{$file}</strong> - No existe</div>";
-            }
+foreach ($sensitiveFiles as $file => $description) {
+    $fullPath = __DIR__.'/'.$file;
+    $exists = file_exists($fullPath);
+
+    if ($exists) {
+        $permissions = substr(sprintf('%o', fileperms($fullPath)), -3);
+        $isReadable = is_readable($fullPath);
+
+        if ($permissions == '600' || $permissions == '400') {
+            echo "<div class='check success'><span class='icon'>✅</span><strong>{$file}</strong> - {$description}<br>Permisos: {$permissions} (Seguro)</div>";
+        } else {
+            echo "<div class='check danger'><span class='icon'>❌</span><strong>{$file}</strong> - {$description}<br>Permisos: {$permissions} (INSEGURO - Cambiar a 600)<br><code>chmod 600 {$file}</code></div>";
         }
-        ?>
+    } else {
+        echo "<div class='check info'><span class='icon'>ℹ️</span><strong>{$file}</strong> - No existe</div>";
+    }
+}
+?>
 
         <h2>🌐 Accesibilidad Web</h2>
         <div class="check info">
@@ -146,57 +145,57 @@ header('Content-Type: text/html; charset=utf-8');
 
         <h2>📂 Configuración de Directorios</h2>
         <?php
-        echo "<div class='check info'>";
-        echo "<span class='icon'>📍</span><strong>Document Root:</strong> " . $_SERVER['DOCUMENT_ROOT'] . "<br>";
-        echo "<strong>Script Path:</strong> " . __DIR__ . "<br>";
-        echo "<strong>Public Path:</strong> " . __DIR__ . '/public';
-        
-        if ($_SERVER['DOCUMENT_ROOT'] === __DIR__ . '/public') {
-            echo "<div class='check success' style='margin-top:10px'><span class='icon'>✅</span>Document Root está correctamente configurado apuntando a /public</div>";
-        } else if ($_SERVER['DOCUMENT_ROOT'] === __DIR__) {
-            echo "<div class='check danger' style='margin-top:10px'><span class='icon'>❌</span>PELIGRO: Document Root apunta a la raíz del proyecto. Debe apuntar a /public</div>";
-        } else {
-            echo "<div class='check warning' style='margin-top:10px'><span class='icon'>⚠️</span>Verificar configuración del Document Root</div>";
-        }
-        echo "</div>";
-        ?>
+echo "<div class='check info'>";
+echo "<span class='icon'>📍</span><strong>Document Root:</strong> ".$_SERVER['DOCUMENT_ROOT'].'<br>';
+echo '<strong>Script Path:</strong> '.__DIR__.'<br>';
+echo '<strong>Public Path:</strong> '.__DIR__.'/public';
+
+if ($_SERVER['DOCUMENT_ROOT'] === __DIR__.'/public') {
+    echo "<div class='check success' style='margin-top:10px'><span class='icon'>✅</span>Document Root está correctamente configurado apuntando a /public</div>";
+} elseif ($_SERVER['DOCUMENT_ROOT'] === __DIR__) {
+    echo "<div class='check danger' style='margin-top:10px'><span class='icon'>❌</span>PELIGRO: Document Root apunta a la raíz del proyecto. Debe apuntar a /public</div>";
+} else {
+    echo "<div class='check warning' style='margin-top:10px'><span class='icon'>⚠️</span>Verificar configuración del Document Root</div>";
+}
+echo '</div>';
+?>
 
         <h2>🔒 Archivos .htaccess</h2>
         <?php
-        $htaccessFiles = [
-            '.htaccess' => 'Raíz del proyecto',
-            'public/.htaccess' => 'Directorio public'
-        ];
+$htaccessFiles = [
+    '.htaccess' => 'Raíz del proyecto',
+    'public/.htaccess' => 'Directorio public',
+];
 
-        foreach ($htaccessFiles as $file => $location) {
-            $fullPath = __DIR__ . '/' . $file;
-            $exists = file_exists($fullPath);
-            
-            if ($exists) {
-                $content = file_get_contents($fullPath);
-                $hasEnvProtection = (strpos($content, '.env') !== false || strpos($content, 'Files .env') !== false);
-                
-                if ($hasEnvProtection) {
-                    echo "<div class='check success'><span class='icon'>✅</span><strong>{$file}</strong> ({$location})<br>Contiene protección para .env</div>";
-                } else {
-                    echo "<div class='check warning'><span class='icon'>⚠️</span><strong>{$file}</strong> ({$location})<br>No contiene protección específica para .env</div>";
-                }
-            } else {
-                echo "<div class='check danger'><span class='icon'>❌</span><strong>{$file}</strong> ({$location})<br>No existe - Crear archivo .htaccess</div>";
-            }
+foreach ($htaccessFiles as $file => $location) {
+    $fullPath = __DIR__.'/'.$file;
+    $exists = file_exists($fullPath);
+
+    if ($exists) {
+        $content = file_get_contents($fullPath);
+        $hasEnvProtection = (strpos($content, '.env') !== false || strpos($content, 'Files .env') !== false);
+
+        if ($hasEnvProtection) {
+            echo "<div class='check success'><span class='icon'>✅</span><strong>{$file}</strong> ({$location})<br>Contiene protección para .env</div>";
+        } else {
+            echo "<div class='check warning'><span class='icon'>⚠️</span><strong>{$file}</strong> ({$location})<br>No contiene protección específica para .env</div>";
         }
-        ?>
+    } else {
+        echo "<div class='check danger'><span class='icon'>❌</span><strong>{$file}</strong> ({$location})<br>No existe - Crear archivo .htaccess</div>";
+    }
+}
+?>
 
         <h2>⚙️ Configuración PHP</h2>
         <?php
-        echo "<div class='check info'>";
-        echo "<span class='icon'>🔧</span>";
-        echo "<strong>PHP Version:</strong> " . phpversion() . "<br>";
-        echo "<strong>expose_php:</strong> " . (ini_get('expose_php') ? 'On (cambiar a Off)' : 'Off ✅') . "<br>";
-        echo "<strong>display_errors:</strong> " . (ini_get('display_errors') ? 'On (cambiar a Off en producción)' : 'Off ✅') . "<br>";
-        echo "<strong>allow_url_fopen:</strong> " . (ini_get('allow_url_fopen') ? 'On' : 'Off') . "<br>";
-        echo "</div>";
-        ?>
+echo "<div class='check info'>";
+echo "<span class='icon'>🔧</span>";
+echo '<strong>PHP Version:</strong> '.phpversion().'<br>';
+echo '<strong>expose_php:</strong> '.(ini_get('expose_php') ? 'On (cambiar a Off)' : 'Off ✅').'<br>';
+echo '<strong>display_errors:</strong> '.(ini_get('display_errors') ? 'On (cambiar a Off en producción)' : 'Off ✅').'<br>';
+echo '<strong>allow_url_fopen:</strong> '.(ini_get('allow_url_fopen') ? 'On' : 'Off').'<br>';
+echo '</div>';
+?>
 
         <h2>✅ Recomendaciones Inmediatas</h2>
         <div class="check warning">

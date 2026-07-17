@@ -17,29 +17,63 @@
 
     <title>SERVISPIN | Servicio De Reparación De Lavadoras Y Secadoras a "DOMICILIO" en GRAN CANARIA!</title>
 
-    <!-- Google Tag Manager -->
+    {{-- Gestor de consentimiento de cookies (GDPR/ePrivacy).
+         Google Analytics y GTM son cookies de analítica: en la UE NO pueden
+         cargarse hasta que el usuario da su consentimiento explícito (opt-in).
+         Por eso el tracking NO se dispara aquí: solo dentro de loadAnalytics(),
+         que se llama al aceptar o si ya se aceptó en una visita anterior. --}}
     <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-PHXST37L');
+        function loadAnalytics() {
+            if (window.__servispinAnalyticsLoaded) return;
+            window.__servispinAnalyticsLoaded = true;
+
+            // Google Tag Manager
+            (function(w, d, s, l, i) {
+                w[l] = w[l] || [];
+                w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+                var f = d.getElementsByTagName(s)[0],
+                    j = d.createElement(s),
+                    dl = l != 'dataLayer' ? '&l=' + l : '';
+                j.async = true;
+                j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                f.parentNode.insertBefore(j, f);
+            })(window, document, 'script', 'dataLayer', 'GTM-PHXST37L');
+
+            // Google Analytics (gtag.js)
+            var g = document.createElement('script');
+            g.async = true;
+            g.src = 'https://www.googletagmanager.com/gtag/js?id=G-PVMDBD4L5Z';
+            document.head.appendChild(g);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { dataLayer.push(arguments); };
+            gtag('js', new Date());
+            gtag('config', 'G-PVMDBD4L5Z');
+        }
+
+        (function () {
+            var consent = null;
+            try { consent = localStorage.getItem('servispin_cookie_consent'); } catch (e) {}
+
+            window.servispinAcceptCookies = function () {
+                try { localStorage.setItem('servispin_cookie_consent', 'accepted'); } catch (e) {}
+                loadAnalytics();
+            };
+            window.servispinRejectCookies = function () {
+                try { localStorage.setItem('servispin_cookie_consent', 'rejected'); } catch (e) {}
+                // Sin analítica: no se carga nada.
+            };
+
+            // Solo se reactiva el tracking si ya se había aceptado antes.
+            if (consent === 'accepted') {
+                loadAnalytics();
+            }
+        })();
     </script>
-    <!-- End Google Tag Manager -->
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <!--====== Slick css ======-->
@@ -57,28 +91,38 @@
     <!--====== tailwind css ======-->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PVMDBD4L5Z"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'G-PVMDBD4L5Z');
-    </script>
+    {{-- Google Analytics ya NO se carga aquí: solo tras consentimiento, dentro
+         de loadAnalytics() (ver el gestor de consentimiento arriba). --}}
 
 </head>
 
 <style>
     * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     body {
         overflow-x: hidden;
+    }
+
+    button,
+    [type='button'],
+    [type='submit'],
+    [type='reset'],
+    a,
+    nav,
+    nav a,
+    [role='button'],
+    summary,
+    label[for] {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [type='button']:disabled,
+    [type='submit']:disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
     }
 
     ::-webkit-scrollbar {
@@ -593,10 +637,9 @@
 </style>
 
 <body class="antialiased bg-slate-50">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PHXST37L" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+    {{-- El <noscript> de GTM se ha retirado a propósito: dispara tracking sin
+         poder respetar el consentimiento (no hay JS que lo bloquee), lo que
+         incumpliría el opt-in del GDPR. --}}
 
     <!--====== NAVBAR START ======-->
     <nav class="navbar-sticky" id="navbar">
@@ -1178,6 +1221,12 @@
                     @endif
                     . Todos los derechos reservados.
                 </p>
+                {{-- Enlaces legales (GDPR / LSSI) --}}
+                <nav class="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+                    <a href="{{ route('legal.privacidad') }}" class="hover:text-cyan-300 underline">Política de privacidad</a>
+                    <a href="{{ route('legal.cookies') }}" class="hover:text-cyan-300 underline">Política de cookies</a>
+                    <a href="{{ route('legal.terminos') }}" class="hover:text-cyan-300 underline">Aviso legal</a>
+                </nav>
             </div>
         </div>
     </footer>
@@ -1281,6 +1330,136 @@
                 });
             }
         });
+    </script>
+
+    {{-- Popup promocional de asistencia remota. Se muestra UNA sola vez por
+         visitante (marca en localStorage) y de forma no intrusiva: aparece tras
+         un pequeño retardo y se puede cerrar con la X, el fondo o la tecla Esc. --}}
+    <div id="remote-promo-popup"
+         class="fixed inset-0 z-[1100] hidden items-center justify-center p-4"
+         role="dialog" aria-modal="true" aria-label="Nuevo servicio de asistencia remota">
+        <div class="absolute inset-0 bg-black/60" data-close-promo></div>
+
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <button type="button" data-close-promo aria-label="Cerrar"
+                    class="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-gray-700 shadow">
+                &times;
+            </button>
+
+            <div class="relative">
+                <img src="{{ asset('files/images/asistencia-online.webp') }}"
+                     alt="Asistencia técnica remota por videollamada"
+                     class="w-full block" loading="lazy">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            </div>
+
+            <div class="p-6 text-center">
+                <span class="inline-block mb-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold uppercase tracking-wide">
+                    Nuevo
+                </span>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    ¿Lavadora rota? Te ayudamos por videollamada
+                </h3>
+                <p class="text-gray-600 text-sm mb-5">
+                    Asistencia técnica en directo desde cualquier parte del mundo. Sin esperar a que
+                    nadie se desplace: te guiamos paso a paso.
+                </p>
+                <a href="{{ route('remote-assistance.landing') }}"
+                   class="inline-block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition">
+                    Saber más
+                </a>
+                <button type="button" data-close-promo
+                        class="block w-full mt-2 text-sm text-gray-500 hover:text-gray-700">
+                    Ahora no
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const STORAGE_KEY = 'servispin_remote_promo_seen';
+            const popup = document.getElementById('remote-promo-popup');
+            if (!popup) return;
+
+            // Si ya lo vio, no se vuelve a mostrar.
+            let alreadySeen = false;
+            try { alreadySeen = localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
+            if (alreadySeen) return;
+
+            function openPopup() {
+                popup.classList.remove('hidden');
+                popup.classList.add('flex');
+            }
+
+            function closePopup() {
+                popup.classList.add('hidden');
+                popup.classList.remove('flex');
+                try { localStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+            }
+
+            // Aparece tras un retardo corto para no ser intrusivo al cargar.
+            setTimeout(openPopup, 2000);
+
+            popup.querySelectorAll('[data-close-promo]').forEach(function (el) {
+                el.addEventListener('click', closePopup);
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !popup.classList.contains('hidden')) closePopup();
+            });
+        })();
+    </script>
+
+    {{-- Banner de consentimiento de cookies (GDPR/ePrivacy). Solo aparece si el
+         usuario no ha decidido todavía. "Aceptar" carga Analytics; "Rechazar" no
+         carga nada. Ambas opciones tienen el mismo peso visual (requisito GDPR:
+         rechazar debe ser tan fácil como aceptar). --}}
+    <div id="cookie-banner"
+         class="fixed bottom-0 inset-x-0 z-[1200] hidden bg-slate-900 text-white shadow-2xl">
+        <div class="max-w-5xl mx-auto p-4 sm:p-5 flex flex-col md:flex-row md:items-center gap-4">
+            <p class="text-sm text-slate-200 flex-1">
+                Usamos cookies propias necesarias para el funcionamiento del sitio y, con tu permiso,
+                cookies de analítica (Google Analytics) para entender cómo se usa la web. Puedes
+                aceptarlas o rechazarlas. Más información en nuestra
+                <a href="{{ route('legal.cookies') }}" class="underline hover:text-white">política de cookies</a>.
+            </p>
+            <div class="flex gap-2 shrink-0">
+                <button type="button" id="cookie-reject"
+                        class="px-4 py-2 text-sm font-semibold rounded-md bg-slate-700 hover:bg-slate-600 text-white">
+                    Rechazar
+                </button>
+                <button type="button" id="cookie-accept"
+                        class="px-4 py-2 text-sm font-semibold rounded-md bg-blue-600 hover:bg-blue-700 text-white">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var banner = document.getElementById('cookie-banner');
+            if (!banner) return;
+
+            var decided = null;
+            try { decided = localStorage.getItem('servispin_cookie_consent'); } catch (e) {}
+
+            // Solo se muestra si aún no hay decisión.
+            if (!decided) {
+                banner.classList.remove('hidden');
+            }
+
+            function hide() { banner.classList.add('hidden'); }
+
+            document.getElementById('cookie-accept').addEventListener('click', function () {
+                if (window.servispinAcceptCookies) window.servispinAcceptCookies();
+                hide();
+            });
+            document.getElementById('cookie-reject').addEventListener('click', function () {
+                if (window.servispinRejectCookies) window.servispinRejectCookies();
+                hide();
+            });
+        })();
     </script>
 </body>
 

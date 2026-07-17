@@ -5,12 +5,11 @@ namespace App\Mail;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 
 class AppointmentCancelled extends Mailable
 {
@@ -19,22 +18,20 @@ class AppointmentCancelled extends Mailable
     /**
      * The appointment instance.
      *
-     * @var \App\Models\Appointment
+     * @var Appointment
      */
     public $appointment;
 
     /**
      * The company data instance.
      *
-     * @var \App\Models\CompanyData
+     * @var CompanyData
      */
     public $companyData;
 
     /**
      * Create a new message instance.
      *
-     * @param  \App\Models\Appointment  $appointment
-     * @param  \App\Models\CompanyData  $companyData
      * @return void
      */
     public function __construct(Appointment $appointment, CompanyData $companyData)
@@ -46,21 +43,21 @@ class AppointmentCancelled extends Mailable
     /**
      * Get the message envelope.
      *
-     * @return \Illuminate\Mail\Mailables\Envelope
+     * @return Envelope
      */
     public function envelope()
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            cc: env('MAIL_CC_EMAIL') ? [new Address(env('MAIL_CC_EMAIL'))] : [],
-            subject: 'Su cita ha sido cancelada - ' . $this->companyData->company_name,
+            cc: $this->companyData->adminEmail() ? [new Address($this->companyData->adminEmail())] : [],
+            subject: 'Su cita ha sido cancelada - '.$this->companyData->company_name,
         );
     }
 
     /**
      * Get the message content definition.
      *
-     * @return \Illuminate\Mail\Mailables\Content
+     * @return Content
      */
     public function content()
     {
@@ -78,4 +75,4 @@ class AppointmentCancelled extends Mailable
     {
         return [];
     }
-} 
+}

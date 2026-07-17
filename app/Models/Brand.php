@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Brand extends Model
 {
@@ -42,18 +42,18 @@ class Brand extends Model
     /**
      * Mutator to capitalize the brand name when set
      *
-     * @param string $value
+     * @param  string  $value
      * @return void
      */
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = ucwords(strtolower($value));
     }
-    
+
     /**
      * Accessor to ensure the brand name is always displayed capitalized
      *
-     * @param string $value
+     * @param  string  $value
      * @return string
      */
     public function getNameAttribute($value)

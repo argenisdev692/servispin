@@ -1,5 +1,9 @@
 <?php
 
+use Spatie\Permission\DefaultTeamResolver;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
 return [
 
     'models' => [
@@ -13,7 +17,7 @@ return [
          * `Spatie\Permission\Contracts\Permission` contract.
          */
 
-        'permission' => Spatie\Permission\Models\Permission::class,
+        'permission' => Permission::class,
 
         /*
          * When using the "HasRoles" trait from this package, we need to know which
@@ -24,7 +28,24 @@ return [
          * `Spatie\Permission\Contracts\Role` contract.
          */
 
-        'role' => Spatie\Permission\Models\Role::class,
+        'role' => Role::class,
+
+        /*
+         * When using the "HasRoles" trait from this package, we need to know which
+         * Eloquent model should be used to retrieve your teams. Of course, it
+         * is often just the "Team" model but you may use whatever you like.
+         *
+         * NOTE: currently `null` because the teams feature is disabled below.
+         */
+
+        'team' => null,
+
+        /*
+         * When set, the package will use this model as the default model for
+         * polymorphic relations instead of resolving it from the morph map.
+         */
+
+        'default_model' => null,
 
     ],
 
@@ -75,8 +96,8 @@ return [
         /*
          * Change this if you want to name the related pivots other than defaults
          */
-        'role_pivot_key' => null, //default 'role_id',
-        'permission_pivot_key' => null, //default 'permission_id',
+        'role_pivot_key' => null, // default 'role_id',
+        'permission_pivot_key' => null, // default 'permission_id',
 
         /*
          * Change this if you want to name the related model primary key other than
@@ -104,6 +125,25 @@ return [
     'register_permission_check_method' => true,
 
     /*
+     * When set to true, Octane will flush the package's in-memory state between requests.
+     * Only relevant when running under Laravel Octane.
+     */
+
+    'register_octane_reset_listener' => false,
+
+    /*
+     * Events will fire when a role or permission is assigned/unassigned:
+     * \Spatie\Permission\Events\RoleAttached
+     * \Spatie\Permission\Events\RoleDetached
+     * \Spatie\Permission\Events\PermissionAttached
+     * \Spatie\Permission\Events\PermissionDetached
+     *
+     * To enable, set to true and listen for the events above.
+     */
+
+    'events_enabled' => false,
+
+    /*
      * When set to true the package implements teams using the 'team_foreign_key'. If you want
      * the migrations to register the 'team_foreign_key', you must set this to true
      * before doing the migration. If you already did the migration then you must make a new
@@ -112,6 +152,20 @@ return [
      */
 
     'teams' => false,
+
+    /*
+     * The class to use to resolve the permissions team id. Only used when the
+     * teams feature above is enabled.
+     */
+
+    'team_resolver' => DefaultTeamResolver::class,
+
+    /*
+     * Passport Client Credentials Grant. When set to true the package will use
+     * Passport's Client to check permissions.
+     */
+
+    'use_passport_client_credentials' => false,
 
     /*
      * When set to true, the required permission names are added to the exception
@@ -142,7 +196,7 @@ return [
          * When permissions or roles are updated the cache is flushed automatically.
          */
 
-        'expiration_time' => \DateInterval::createFromDateString('24 hours'),
+        'expiration_time' => DateInterval::createFromDateString('24 hours'),
 
         /*
          * The cache key used to store all permissions.

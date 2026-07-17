@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Service;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ServiceSeeder extends Seeder
@@ -62,5 +61,22 @@ class ServiceSeeder extends Seeder
                 'price' => $service['price'],
             ]);
         }
+
+        // Asistencia remota por videollamada. Precio y duración son provisionales
+        // (D-3): Cesar los ajusta desde el CRUD de servicios. El único dato que
+        // el módulo remoto necesita de verdad es is_remote = true.
+        // updateOrCreate para poder resembrar sin duplicar el servicio.
+        Service::updateOrCreate(
+            ['name' => 'Asistencia Técnica Remota'],
+            [
+                'uuid' => Str::uuid(),
+                'description' => 'Sesión de asistencia técnica por videollamada. Un técnico te guía '
+                    .'paso a paso para diagnosticar o reparar tu electrodoméstico desde donde estés.',
+                'duration' => config('remote_assistance.default_duration', 30),
+                'price' => config('remote_assistance.default_price', 30.00),
+                'active' => true,
+                'is_remote' => true,
+            ]
+        );
     }
-} 
+}

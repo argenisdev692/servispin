@@ -19,3 +19,10 @@ yarn-error.log
 /.vscode
 /backup
 /apis
+
+# Credenciales de Google Calendar / Meet (T036a). NUNCA commitear:
+# contienen el acceso a la cuenta de Google de Cesar. Si un deploy no las
+# persiste, la generación automática de enlaces se cae (R-7).
+/storage/app/google-calendar/oauth-credentials.json
+/storage/app/google-calendar/oauth-token.json
+/storage/app/google-calendar/service-account-credentials.json

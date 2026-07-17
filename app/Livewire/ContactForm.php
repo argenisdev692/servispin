@@ -1,18 +1,22 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\Mail;
 use App\Models\CompanyData;
 use Exception;
+use Illuminate\Support\Facades\Mail;
+use Livewire\Component;
 
 class ContactForm extends Component
 {
     public $name;
+
     public $email;
+
     public $subject;
+
     public $message;
+
     public $phone;
 
     public function submit()
@@ -26,15 +30,9 @@ class ContactForm extends Component
         ]);
 
         try {
-            // Get company data for the admin email
-            $companyData = CompanyData::first();
-            
-            if (!$companyData || !$companyData->email) {
-                // Fallback admin email if company data isn't set
-                $adminEmail = 'info@servispin.com';
-            } else {
-                $adminEmail = $companyData->email;
-            }
+            $companyData = CompanyData::with('user')->first();
+            $companyEmail = $companyData?->email ?: config('mail.contact_fallback');
+            $adminEmail = $companyData?->adminEmail();
 
             // Data array for the email
             $data = [
@@ -45,10 +43,14 @@ class ContactForm extends Component
                 'phone' => $this->phone,
             ];
 
-            // Send email to admin
-            Mail::send('emails.contactMailForm', $data, function($message) use ($adminEmail) {
-                $message->from($this->email, $this->name);
-                $message->to($adminEmail)->subject('Contacto Web: ' . $this->subject);
+            // Envío a la empresa, con copia interna al administrador
+            Mail::send('emails.contactMailForm', $data, function ($message) use ($companyEmail, $adminEmail) {
+                $message->replyTo($this->email, $this->name);
+                $message->to($companyEmail)->subject('Contacto Web: '.$this->subject);
+
+                if ($adminEmail) {
+                    $message->cc($adminEmail);
+                }
             });
 
             // Restablecer los campos del formulario
@@ -58,8 +60,8 @@ class ContactForm extends Component
             session()->flash('success', 'El formulario se ha enviado correctamente. Nos pondremos en contacto con usted pronto.');
         } catch (Exception $e) {
             // Log error
-            \Log::error('Error sending contact form email: ' . $e->getMessage());
-            
+            \Log::error('Error sending contact form email: '.$e->getMessage());
+
             // Show error message to user
             session()->flash('error', 'No pudimos enviar su mensaje. Por favor intente de nuevo más tarde o contáctenos directamente por teléfono.');
         }

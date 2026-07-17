@@ -1,14 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
-
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UsersController;
-use App\Http\Controllers\Api\PermissionController;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,45 +17,39 @@ use Illuminate\Support\Facades\Response;
 |
 */
 
-
-///------------- ROUTE GOOGLE AUTH ---------///
+// /------------- ROUTE GOOGLE AUTH ---------///
 Route::get('/google-auth/redirect', function () {
     return Socialite::driver('google')->redirect();
 });
- 
-
 
 Route::get('/google-auth/callback', function () {
     $googleUser = Socialite::driver('google')->user();
- 
+
     $user = User::updateOrCreate([
         'google_id' => $googleUser->id,
     ], [
         'name' => $googleUser->name,
         'email' => $googleUser->email,
-         'email_verified_at' => now(),
-       
-    ]);
- 
- 
-     // Accede al token del usuario autenticado
-        $token = $googleUser->token;
-     
-        $tokenData = $user->createToken('API Token')->plainTextToken;
+        'email_verified_at' => now(),
 
+    ]);
+
+    // Accede al token del usuario autenticado
+    $token = $googleUser->token;
+
+    $tokenData = $user->createToken('API Token')->plainTextToken;
 
     Auth::login($user);
- 
+
     return response()->json([
-            'message' => 'Authentication successful',
-            'user' => $user,
-            'token' => $token,
-            'token_data' => $tokenData
-        ]);
+        'message' => 'Authentication successful',
+        'user' => $user,
+        'token' => $token,
+        'token_data' => $tokenData,
+    ]);
 });
 
-
-///------------- END ROUTE GOOGLE AUTH ---------///
+// /------------- END ROUTE GOOGLE AUTH ---------///
 
 Route::post('login', [AuthController::class, 'login']);
 
@@ -73,10 +64,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('user', [AuthController::class, 'user']);
     Route::get('/users', [AuthController::class, 'getUsers']);
     Route::post('update-password', [AuthController::class, 'updatePassword']);
-    
+
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::post('update-profile', [AuthController::class, 'updateProfile']);
-  
 
     // Rutas relacionadas con roles
     Route::get('roles-list', [RoleController::class, 'index']); // Obtener una lista de roles
@@ -88,13 +78,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('roles/{id}/edit', [RoleController::class, 'edit']); // Mostrar listado de roles y permisos del usuario a editar
 
     // Rutas relacionadas con usuarios
-    Route::get('users-list', [UsersController::class, 'index']); 
-    Route::post('users-store', [UsersController::class, 'store']); 
-    Route::get('users-id/{id}', [UsersController::class, 'show']); 
-    Route::put('users-update/{id}', [UsersController::class, 'update']); 
-    Route::delete('users-delete/{id}', [UsersController::class, 'destroy']); 
-    Route::get('users-create', [UsersController::class, 'create']); 
-    Route::get('users-list/{id}/edit', [UsersController::class, 'edit']); 
+    Route::get('users-list', [UsersController::class, 'index']);
+    Route::post('users-store', [UsersController::class, 'store']);
+    Route::get('users-id/{id}', [UsersController::class, 'show']);
+    Route::put('users-update/{id}', [UsersController::class, 'update']);
+    Route::delete('users-delete/{id}', [UsersController::class, 'destroy']);
+    Route::get('users-create', [UsersController::class, 'create']);
+    Route::get('users-list/{id}/edit', [UsersController::class, 'edit']);
 
     // Rutas relacionadas con permisos
     Route::get('permissions-list', [PermissionController::class, 'index']);
@@ -105,6 +95,3 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('permissions/create', [PermissionController::class, 'create']);
     Route::get('permissions/{id}/edit', [PermissionController::class, 'edit']);
 });
-
-
-  

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\GalleryImage;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
 use Throwable;
-use App\Services\TransactionService;
 
 class GalleryImageController extends BaseCrudController
 {
@@ -31,7 +30,7 @@ class GalleryImageController extends BaseCrudController
             function ($attribute, $value, $fail) {
                 $ext = strtolower($value->getClientOriginalExtension());
                 $allowed = ['jpeg', 'jpg', 'png', 'webp', 'mp4', 'mov', 'avi'];
-                if (!in_array($ext, $allowed)) {
+                if (! in_array($ext, $allowed)) {
                     $fail('Only JPEG, PNG, JPG, WEBP images and MP4, MOV, AVI videos are allowed.');
                 }
             },
@@ -67,38 +66,36 @@ class GalleryImageController extends BaseCrudController
             $isImage = in_array($extension, $imageExts);
             $type = $isImage ? 'image' : 'video';
 
-            $filename = date('YmdHis') . '_' . Str::random(10) . '.' . $extension;
-            $relativePath = 'gallery/' . $filename;
-            $fullPath = storage_path('app/public/' . $relativePath);
+            $filename = date('YmdHis').'_'.Str::random(10).'.'.$extension;
+            $relativePath = 'gallery/'.$filename;
+            $fullPath = storage_path('app/public/'.$relativePath);
             $dir = dirname($fullPath);
 
-            if (!is_dir($dir)) {
+            if (! is_dir($dir)) {
                 mkdir($dir, 0755, true);
             }
 
             if ($isImage && extension_loaded('fileinfo')) {
-                $image = Image::make($file->getRealPath());
+                $image = Image::read($file->getRealPath());
 
                 $maxWidth = 1200;
                 $maxHeight = 1200;
 
-                if ($image->width() > $maxWidth || $image->height() > $maxHeight) {
-                    $image->resize($maxWidth, $maxHeight, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    });
-                }
+                $image->scaleDown($maxWidth, $maxHeight);
 
-                $encoded = $image->encode('jpg', 85);
-                file_put_contents($fullPath, $encoded);
+                $encoded = $image->toJpeg(85);
+                file_put_contents($fullPath, (string) $encoded);
+
                 return ['path' => $relativePath, 'type' => 'image'];
             }
 
             $contents = file_get_contents($file->getRealPath());
             file_put_contents($fullPath, $contents);
+
             return ['path' => $relativePath, 'type' => $type];
         } catch (\Exception $e) {
             Log::error('Error processing gallery file', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -106,7 +103,7 @@ class GalleryImageController extends BaseCrudController
     private function deleteImageFile($relativePath)
     {
         if ($relativePath) {
-            $fullPath = storage_path('app/public/' . $relativePath);
+            $fullPath = storage_path('app/public/'.$relativePath);
             if (file_exists($fullPath)) {
                 unlink($fullPath);
             }
@@ -115,8 +112,8 @@ class GalleryImageController extends BaseCrudController
 
     public function serveFile($path)
     {
-        $fullPath = storage_path('app/public/' . $path);
-        if (!file_exists($fullPath)) {
+        $fullPath = storage_path('app/public/'.$path);
+        if (! file_exists($fullPath)) {
             abort(404);
         }
 
@@ -143,7 +140,6 @@ class GalleryImageController extends BaseCrudController
             if ($request->ajax() || $request->wantsJson()) {
                 $query = GalleryImage::query();
 
-
                 $sortField = $request->input('sort_field', 'sort_order');
                 $sortDirection = $request->input('sort_direction', 'asc');
                 $query->orderBy($sortField, $sortDirection);
@@ -161,7 +157,7 @@ class GalleryImageController extends BaseCrudController
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error fetching gallery images: ' . $e->getMessage(),
+                    'message' => 'Error fetching gallery images: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -188,8 +184,8 @@ class GalleryImageController extends BaseCrudController
                     foreach ($files as $index => $file) {
                         $fileResult = $this->processAndStoreFile($file);
 
-                        if (!$fileResult) {
-                            throw new \Exception('Error processing file: ' . $file->getClientOriginalName());
+                        if (! $fileResult) {
+                            throw new \Exception('Error processing file: '.$file->getClientOriginalName());
                         }
 
                         $image = GalleryImage::create([
@@ -202,6 +198,7 @@ class GalleryImageController extends BaseCrudController
                         $images[] = $image;
                         $createdImages[] = $image;
                     }
+
                     return $images;
                 },
                 function ($created) {
@@ -214,14 +211,15 @@ class GalleryImageController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => count($galleryImages) . ' gallery image(s) uploaded successfully!',
-                'galleryImages' => $galleryImages
+                'message' => count($galleryImages).' gallery image(s) uploaded successfully!',
+                'galleryImages' => $galleryImages,
             ]);
         } catch (Throwable $e) {
             Log::error('Error creating gallery images', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error creating gallery images: ' . $e->getMessage()
+                'message' => 'Error creating gallery images: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -229,10 +227,10 @@ class GalleryImageController extends BaseCrudController
     public function edit($uuid)
     {
         try {
-            if (!$uuid || $uuid === 'undefined' || !Str::isUuid($uuid)) {
+            if (! $uuid || $uuid === 'undefined' || ! Str::isUuid($uuid)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid gallery image identifier.'
+                    'message' => 'Invalid gallery image identifier.',
                 ], 400);
             }
 
@@ -240,13 +238,14 @@ class GalleryImageController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'galleryImage' => $galleryImage
+                'galleryImage' => $galleryImage,
             ]);
         } catch (Throwable $e) {
             Log::error('Error finding gallery image', ['uuid' => $uuid, 'error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gallery image not found.'
+                'message' => 'Gallery image not found.',
             ], 404);
         }
     }
@@ -254,10 +253,10 @@ class GalleryImageController extends BaseCrudController
     public function update(Request $request, $uuid)
     {
         try {
-            if (!$uuid || $uuid === 'undefined' || !Str::isUuid($uuid)) {
+            if (! $uuid || $uuid === 'undefined' || ! Str::isUuid($uuid)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid gallery image identifier.'
+                    'message' => 'Invalid gallery image identifier.',
                 ], 400);
             }
 
@@ -273,16 +272,16 @@ class GalleryImageController extends BaseCrudController
             if ($request->hasFile('files') && count($request->file('files')) > 0) {
                 $files = $request->file('files');
                 $newFileResult = $this->processAndStoreFile($files[0]);
-                if (!$newFileResult) {
+                if (! $newFileResult) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Error processing file. Please try again.'
+                        'message' => 'Error processing file. Please try again.',
                     ], 500);
                 }
             }
 
             $galleryImage = $this->transactionService->run(
-                function () use ($request, $uuid, $newFileResult, $galleryImage) {
+                function () use ($request, $uuid, $newFileResult) {
                     $entity = GalleryImage::where('uuid', $uuid)->firstOrFail();
 
                     $data = [
@@ -300,6 +299,7 @@ class GalleryImageController extends BaseCrudController
                     }
 
                     Log::info('Gallery image updated', ['uuid' => $uuid]);
+
                     return $entity->fresh();
                 },
                 function ($updated) {},
@@ -314,13 +314,14 @@ class GalleryImageController extends BaseCrudController
             return response()->json([
                 'success' => true,
                 'message' => 'Gallery image updated successfully!',
-                'galleryImage' => $galleryImage
+                'galleryImage' => $galleryImage,
             ]);
         } catch (Throwable $e) {
             Log::error('Error updating gallery image', ['uuid' => $uuid, 'error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating gallery image: ' . $e->getMessage()
+                'message' => 'Error updating gallery image: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -328,10 +329,10 @@ class GalleryImageController extends BaseCrudController
     public function destroy($uuid)
     {
         try {
-            if (!$uuid || $uuid === 'undefined' || !Str::isUuid($uuid)) {
+            if (! $uuid || $uuid === 'undefined' || ! Str::isUuid($uuid)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid gallery image identifier.'
+                    'message' => 'Invalid gallery image identifier.',
                 ], 400);
             }
 
@@ -350,13 +351,14 @@ class GalleryImageController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Gallery image deleted permanently!'
+                'message' => 'Gallery image deleted permanently!',
             ]);
         } catch (Throwable $e) {
             Log::error('Error deleting gallery image', ['uuid' => $uuid, 'error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error deleting gallery image: ' . $e->getMessage()
+                'message' => 'Error deleting gallery image: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -365,10 +367,10 @@ class GalleryImageController extends BaseCrudController
     {
         try {
             $items = $request->input('items', []);
-            if (!is_array($items) || empty($items)) {
+            if (! is_array($items) || empty($items)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No items provided for reordering.'
+                    'message' => 'No items provided for reordering.',
                 ], 422);
             }
 
@@ -380,15 +382,15 @@ class GalleryImageController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Order updated successfully!'
+                'message' => 'Order updated successfully!',
             ]);
         } catch (Throwable $e) {
             Log::error('Error reordering gallery images', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating order: ' . $e->getMessage()
+                'message' => 'Error updating order: '.$e->getMessage(),
             ], 500);
         }
     }
-
 }

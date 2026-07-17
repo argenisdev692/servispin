@@ -110,6 +110,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Contact Form Recipient
+    |--------------------------------------------------------------------------
+    |
+    | Destinatario del formulario de contacto cuando CompanyData no tiene email
+    | configurado en base de datos.
+    |
+    */
+
+    'contact_fallback' => env('MAIL_CONTACT_FALLBACK', 'info@servispin.net'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------
     |

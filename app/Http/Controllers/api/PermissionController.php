@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
@@ -17,6 +16,7 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         $permissions = Permission::orderBy('id', 'DESC')->get();
+
         return response()->json(['permissions' => $permissions], 200);
     }
 
@@ -41,6 +41,7 @@ class PermissionController extends Controller
     public function show($id)
     {
         $permission = Permission::findOrFail($id);
+
         return response()->json(['permission' => $permission], 200);
     }
 
@@ -52,7 +53,7 @@ class PermissionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:permissions,name,' . $id,
+            'name' => 'required|unique:permissions,name,'.$id,
         ]);
 
         $permission = Permission::findOrFail($id);

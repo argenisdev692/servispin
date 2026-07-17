@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ImageHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Mail\AppointmentCancelled;
+use App\Mail\AppointmentConfirmation;
+use App\Mail\AppointmentConfirmed;
 use App\Models\Appointment;
+use App\Models\Brand;
+use App\Models\CompanyData;
 use App\Models\Service;
+use App\Services\TransactionService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use App\Services\TransactionService;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Throwable;
-use App\Models\Brand;
-use App\Helpers\ImageHelper;
 
 class AppointmentController extends Controller
 {
@@ -33,6 +37,7 @@ class AppointmentController extends Controller
     {
         $services = Service::orderBy('name')->get();
         $brands = Brand::orderBy('name')->get();
+
         return view('appointments.book', compact('services', 'brands'));
     }
 
@@ -42,29 +47,29 @@ class AppointmentController extends Controller
     public function index(Request $request)
     {
         $query = Appointment::with('service')->latest();
-        
+
         // Filtrar por estado si se especifica
-        if ($request->has('status') && !empty($request->status)) {
+        if ($request->has('status') && ! empty($request->status)) {
             $query->where('status', $request->status);
         }
-        
+
         // Filtrar por fecha si se especifica
-        if ($request->has('date') && !empty($request->date)) {
+        if ($request->has('date') && ! empty($request->date)) {
             $date = Carbon::parse($request->date)->format('Y-m-d');
             $query->whereDate('start_time', $date);
         }
-        
+
         // Filtrar por servicio si se especifica
-        if ($request->has('service_id') && !empty($request->service_id)) {
+        if ($request->has('service_id') && ! empty($request->service_id)) {
             $query->where('service_id', $request->service_id);
         }
-        
+
         // Obtener citas paginadas
         $appointments = $query->paginate(10);
-        
+
         return response()->json([
             'success' => true,
-            'data' => $appointments
+            'data' => $appointments,
         ]);
     }
 
@@ -75,7 +80,7 @@ class AppointmentController extends Controller
     {
         // Log para depuración
         Log::info('Datos recibidos para crear cita:', $request->all());
-        
+
         // Log file info if present
         if ($request->hasFile('equipment_photo')) {
             Log::info('Photo received:', [
@@ -84,7 +89,7 @@ class AppointmentController extends Controller
                 'mimeType' => $request->file('equipment_photo')->getMimeType(),
             ]);
         }
-        
+
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|exists:services,id',
             'client_first_name' => 'required|string|max:120|regex:/^\S*$/u',
@@ -105,98 +110,103 @@ class AppointmentController extends Controller
         if ($validator->fails()) {
             Log::error('Validation failed:', [
                 'errors' => $validator->errors()->toArray(),
-                'request_data' => $request->all()
+                'request_data' => $request->all(),
             ]);
+
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-        
+
         // Obtener el servicio para calcular la duración y final de la cita
         $service = Service::findOrFail($request->service_id);
         $validatedData = $validator->validated(); // Get validated data
         Log::info('Servicio encontrado:', [
             'service_id' => $service->id,
             'service_name' => $service->name,
-            'service_duration' => $service->duration
+            'service_duration' => $service->duration,
         ]);
-        
+
         try {
             // Start time is already validated as Y-m-d H:i:s
             $startTime = Carbon::parse($validatedData['start_time']);
             $endTime = $startTime->copy()->addMinutes($service->duration);
-            
+
             Log::info('Cálculo de horarios:', [
                 'start_time_string' => $validatedData['start_time'],
                 'parsed_start_time' => $startTime->toDateTimeString(),
                 'calculated_end_time' => $endTime->toDateTimeString(),
-                'duration_minutes' => $service->duration
+                'duration_minutes' => $service->duration,
             ]);
         } catch (\Exception $e) {
-            Log::error('Error al analizar fecha/hora (post-validation): ' . $e->getMessage(), [
+            Log::error('Error al analizar fecha/hora (post-validation): '.$e->getMessage(), [
                 'start_time_input' => $validatedData['start_time'],
                 'exception' => $e,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Formato de fecha y hora inválido. Por favor, inténtelo de nuevo.'
+                'message' => 'Formato de fecha y hora inválido. Por favor, inténtelo de nuevo.',
             ], 422);
         }
-        
+
         // Verificar si ya existe una cita en ese horario (excluding cancelled/completed)
-        $conflictQuery = Appointment::where(function($query) use ($startTime, $endTime) {
-            $query->where(function($q) use ($startTime, $endTime) {
+        $conflictQuery = Appointment::where(function ($query) use ($startTime, $endTime) {
+            $query->where(function ($q) use ($startTime, $endTime) {
                 $q->where('start_time', '<', $endTime)
-                  ->where('end_time', '>', $startTime);
+                    ->where('end_time', '>', $startTime);
             });
         })
-        ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED]);
-        
+            ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED]);
+
         // Log the conflict query
         Log::info('SQL para verificar conflictos:', [
             'query' => $conflictQuery->toSql(),
-            'bindings' => $conflictQuery->getBindings()
+            'bindings' => $conflictQuery->getBindings(),
         ]);
-        
+
         $existingAppointment = $conflictQuery->first();
-        
+
         if ($existingAppointment) {
             Log::warning('Conflicto de horario detectado:', [
                 'new_start' => $startTime->toDateTimeString(),
                 'new_end' => $endTime->toDateTimeString(),
                 'conflicting_appointment_id' => $existingAppointment->id,
                 'conflicting_start' => $existingAppointment->start_time->toDateTimeString(),
-                'conflicting_end' => $existingAppointment->end_time->toDateTimeString()
+                'conflicting_end' => $existingAppointment->end_time->toDateTimeString(),
             ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una cita programada en este horario.'
+                'message' => 'Ya existe una cita programada en este horario.',
             ], 422);
         }
-        
+
         // Handle file upload before transaction, but ensure cleanup on failure
         $photoPath = null;
         if ($request->hasFile('equipment_photo') && $request->file('equipment_photo')->isValid()) {
             try {
                 // Use ImageHelper with Supabase disk
                 $photoPath = ImageHelper::storeAndResizeLocally($request->file('equipment_photo'), 'appointment_photos', 'supabase');
-                if (!$photoPath) {
+                if (! $photoPath) {
                     Log::error('Failed to store and resize appointment photo to Supabase.');
+
                     return response()->json(['success' => false, 'message' => 'Error al procesar la foto.'], 500);
                 }
-                Log::info('Photo processed and stored to Supabase at: ' . $photoPath);
+                Log::info('Photo processed and stored to Supabase at: '.$photoPath);
             } catch (Throwable $uploadError) {
-                Log::error('Error during photo processing to Supabase: ' . $uploadError->getMessage());
+                Log::error('Error during photo processing to Supabase: '.$uploadError->getMessage());
+
                 return response()->json(['success' => false, 'message' => 'Error al procesar la foto.'], 500);
             }
         }
-        
+
         try {
             $appointment = $this->transactionService->run(
                 // 1. Database operations
-                function () use ($validatedData, $startTime, $endTime, $photoPath, $service) {
+                function () use ($validatedData, $startTime, $endTime, $photoPath) {
                     $appointmentData = [
                         'uuid' => (string) Str::uuid(),
                         'service_id' => $validatedData['service_id'],
@@ -211,11 +221,12 @@ class AppointmentController extends Controller
                         'issue_description' => $validatedData['issue_description'],
                         'address' => $validatedData['address'],
                         'equipment_photo_path' => $photoPath, // Save the path or null
-                        'status' => Appointment::STATUS_PENDING
+                        'status' => Appointment::STATUS_PENDING,
                     ];
 
                     $createdAppointment = Appointment::create($appointmentData);
                     Log::info('Appointment created within transaction', ['id' => $createdAppointment->id]);
+
                     return $createdAppointment;
                 },
                 // 2. Post-Commit actions (optional)
@@ -228,7 +239,7 @@ class AppointmentController extends Controller
                     // Cleanup uploaded photo from Supabase if DB operation failed
                     if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
                         Storage::disk('supabase')->delete($photoPath);
-                        Log::warning('Rolled back photo upload from Supabase due to DB error: ' . $photoPath);
+                        Log::warning('Rolled back photo upload from Supabase due to DB error: '.$photoPath);
                     }
                 }
             );
@@ -237,22 +248,22 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita creada correctamente. Será contactado para confirmar la cita y/o solicitar más detalles.',
-                'data' => $appointment->load('service') // Load service relationship
+                'data' => $appointment->load('service'), // Load service relationship
             ], 201);
 
         } catch (Throwable $e) {
             // Catch exceptions re-thrown by TransactionService
-            Log::error('Error during appointment creation transaction: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Error during appointment creation transaction: '.$e->getMessage(), ['exception' => $e]);
 
             // Ensure photo is cleaned up from Supabase even if the $onError handler within transactionService failed
             if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
-                 Storage::disk('supabase')->delete($photoPath);
-                 Log::warning('Ensured photo cleanup from Supabase after transaction exception: ' . $photoPath);
+                Storage::disk('supabase')->delete($photoPath);
+                Log::warning('Ensured photo cleanup from Supabase after transaction exception: '.$photoPath);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear la cita. Por favor, inténtelo de nuevo.'
+                'message' => 'Error al crear la cita. Por favor, inténtelo de nuevo.',
             ], 500);
         }
     }
@@ -263,17 +274,17 @@ class AppointmentController extends Controller
     public function show($id)
     {
         $appointment = Appointment::with('service')->find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         return response()->json([
             'success' => true,
-            'data' => $appointment
+            'data' => $appointment,
         ]);
     }
 
@@ -283,20 +294,21 @@ class AppointmentController extends Controller
     public function update(Request $request, $id)
     {
         $appointment = Appointment::find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             Log::warning('Intentando actualizar cita inexistente:', ['id' => $id]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         Log::info('Petición de actualización de cita:', [
             'appointment_id' => $id,
-            'request_data' => $request->all()
+            'request_data' => $request->all(),
         ]);
-        
+
         // Add validation rules for new fields (mostly optional on update)
         $validator = Validator::make($request->all(), [
             'service_id' => 'sometimes|exists:services,id',
@@ -317,19 +329,20 @@ class AppointmentController extends Controller
         if ($validator->fails()) {
             Log::error('Validación fallida en actualización:', [
                 'id' => $id,
-                'errors' => $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray(),
             ]);
+
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-        
+
         // Get validated data, excluding nulls unless explicitly needed
         $validatedData = $validator->validated();
         Log::info('Datos validados para actualización:', [
             'appointment_id' => $id,
-            'validated_data' => $validatedData
+            'validated_data' => $validatedData,
         ]);
 
         try {
@@ -352,7 +365,7 @@ class AppointmentController extends Controller
                             Log::info('Nuevo horario de inicio detectado:', [
                                 'appointment_id' => $id,
                                 'original_start' => $originalStartTime->toDateTimeString(),
-                                'new_start' => $startTime->toDateTimeString()
+                                'new_start' => $startTime->toDateTimeString(),
                             ]);
                         }
                     }
@@ -365,7 +378,7 @@ class AppointmentController extends Controller
                             'appointment_id' => $id,
                             'original_service_id' => $originalServiceId,
                             'new_service_id' => $serviceId,
-                            'new_service_duration' => $service->duration
+                            'new_service_duration' => $service->duration,
                         ]);
                     } else {
                         $service = $appointment->service; // Use existing relationship if service not changing
@@ -379,24 +392,24 @@ class AppointmentController extends Controller
                             'appointment_id' => $id,
                             'new_start' => $startTime->toDateTimeString(),
                             'new_end' => $endTime->toDateTimeString(),
-                            'service_duration' => $service->duration
+                            'service_duration' => $service->duration,
                         ]);
 
                         // Check for conflicts (excluding self)
                         $conflictQuery = Appointment::where('id', '!=', $id)
                             ->where(function ($query) use ($startTime, $endTime) {
                                 $query->where('start_time', '<', $endTime)
-                                      ->where('end_time', '>', $startTime);
+                                    ->where('end_time', '>', $startTime);
                             })
                             ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED]);
-                        
+
                         // Log the conflict query
                         Log::info('SQL para verificar conflictos de actualización:', [
                             'appointment_id' => $id,
                             'query' => $conflictQuery->toSql(),
-                            'bindings' => $conflictQuery->getBindings()
+                            'bindings' => $conflictQuery->getBindings(),
                         ]);
-                        
+
                         $existingAppointment = $conflictQuery->first();
 
                         if ($existingAppointment) {
@@ -406,7 +419,7 @@ class AppointmentController extends Controller
                                 'new_end' => $endTime->toDateTimeString(),
                                 'conflicting_appointment_id' => $existingAppointment->id,
                                 'conflicting_start' => $existingAppointment->start_time->toDateTimeString(),
-                                'conflicting_end' => $existingAppointment->end_time->toDateTimeString()
+                                'conflicting_end' => $existingAppointment->end_time->toDateTimeString(),
                             ]);
                             // Throw an exception to trigger rollback
                             throw new \RuntimeException('Ya existe otra cita programada en este horario.', 422);
@@ -431,8 +444,10 @@ class AppointmentController extends Controller
                         'brand_id',
                         'issue_description',
                         'address',
-                        'status' // Status update is handled here now
-                    ]), function($value) { return $value !== null; }); // Filter out potential nulls if desired
+                        'status', // Status update is handled here now
+                    ]), function ($value) {
+                        return $value !== null;
+                    }); // Filter out potential nulls if desired
 
                     // Apply formatting if names are being updated
                     if (isset($updateData['client_first_name'])) {
@@ -446,6 +461,7 @@ class AppointmentController extends Controller
 
                     $appointment->save();
                     Log::info('Appointment updated within transaction', ['id' => $appointment->id]);
+
                     return $appointment; // Return the updated model
                 }
                 // No specific onCommit or onError needed for basic update
@@ -454,21 +470,23 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita actualizada correctamente',
-                'data' => $updatedAppointment->fresh()->load('service') // Refresh data
+                'data' => $updatedAppointment->fresh()->load('service'), // Refresh data
             ]);
 
         } catch (\RuntimeException $re) {
-             // Catch conflict error specifically
-             Log::warning('Conflict during appointment update: ' . $re->getMessage(), ['id' => $id]);
-             return response()->json([
-                 'success' => false,
-                 'message' => $re->getMessage() // Use message from exception
-             ], $re->getCode() ?: 422); // Use code from exception or default
-        } catch (Throwable $e) {
-            Log::error('Error during appointment update transaction: ' . $e->getMessage(), ['id' => $id, 'exception' => $e]);
+            // Catch conflict error specifically
+            Log::warning('Conflict during appointment update: '.$re->getMessage(), ['id' => $id]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar la cita. Por favor, inténtelo de nuevo.'
+                'message' => $re->getMessage(), // Use message from exception
+            ], $re->getCode() ?: 422); // Use code from exception or default
+        } catch (Throwable $e) {
+            Log::error('Error during appointment update transaction: '.$e->getMessage(), ['id' => $id, 'exception' => $e]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la cita. Por favor, inténtelo de nuevo.',
             ], 500);
         }
     }
@@ -479,34 +497,35 @@ class AppointmentController extends Controller
     public function cancel($id)
     {
         $appointment = Appointment::find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         if ($appointment->status === Appointment::STATUS_CANCELLED) { // Use constant
             return response()->json([
                 'success' => false,
-                'message' => 'Esta cita ya está cancelada'
+                'message' => 'Esta cita ya está cancelada',
             ], 422);
         }
-        
+
         if ($appointment->status === Appointment::STATUS_COMPLETED) { // Use constant
             return response()->json([
                 'success' => false,
-                'message' => 'No se puede cancelar una cita ya completada'
+                'message' => 'No se puede cancelar una cita ya completada',
             ], 422);
         }
-        
+
         try {
             $cancelledAppointment = $this->transactionService->run(
                 function () use ($appointment) {
                     $appointment->status = Appointment::STATUS_CANCELLED;
                     $appointment->save();
                     Log::info('Appointment cancelled within transaction', ['id' => $appointment->id]);
+
                     return $appointment;
                 },
                 // Añadir onCommit para enviar el correo de cancelación
@@ -518,11 +537,12 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita cancelada correctamente',
-                'data' => $cancelledAppointment->fresh()->load('service')
+                'data' => $cancelledAppointment->fresh()->load('service'),
             ]);
 
         } catch (Throwable $e) {
-            Log::error('Error cancelling appointment: ' . $e->getMessage(), ['id' => $id, 'exception' => $e]);
+            Log::error('Error cancelling appointment: '.$e->getMessage(), ['id' => $id, 'exception' => $e]);
+
             return response()->json(['success' => false, 'message' => 'Error al cancelar la cita.'], 500);
         }
     }
@@ -534,14 +554,14 @@ class AppointmentController extends Controller
     {
         // Find appointment first to get photo path if needed
         $appointment = Appointment::find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         // Store photo path before transaction potentially deletes the appointment object
         $photoPathToDelete = $appointment->equipment_photo_path;
 
@@ -557,9 +577,9 @@ class AppointmentController extends Controller
                     if ($photoPathToDelete && Storage::disk('supabase')->exists($photoPathToDelete)) {
                         $deleted = Storage::disk('supabase')->delete($photoPathToDelete);
                         if ($deleted) {
-                            Log::info('Deleted associated photo from Supabase: ' . $photoPathToDelete);
+                            Log::info('Deleted associated photo from Supabase: '.$photoPathToDelete);
                         } else {
-                            Log::warning('Failed to delete associated photo from Supabase (might not be critical): ' . $photoPathToDelete);
+                            Log::warning('Failed to delete associated photo from Supabase (might not be critical): '.$photoPathToDelete);
                             // Decide if failure to delete photo should cause rollback (usually not)
                             // throw new \RuntimeException("Failed to delete associated file.");
                         }
@@ -571,58 +591,60 @@ class AppointmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cita eliminada correctamente'
+                'message' => 'Cita eliminada correctamente',
             ]);
 
         } catch (Throwable $e) {
-            Log::error('Error deleting appointment: ' . $e->getMessage(), ['id' => $id, 'exception' => $e]);
+            Log::error('Error deleting appointment: '.$e->getMessage(), ['id' => $id, 'exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al eliminar la cita.'
+                'message' => 'Error al eliminar la cita.',
             ], 500);
         }
     }
-    
+
     /**
      * Obtener lista de servicios disponibles
      */
     public function getServices()
     {
         $services = Service::where('active', true)->get();
-        
+
         return response()->json([
             'success' => true,
-            'data' => $services
+            'data' => $services,
         ]);
     }
-    
+
     /**
      * Confirmar una cita (cambiar su estado a confirmado)
      */
     public function confirm($id)
     {
         $appointment = Appointment::find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         if ($appointment->status !== Appointment::STATUS_PENDING) { // Use constant
             return response()->json([
                 'success' => false,
-                'message' => 'Solo se pueden confirmar citas pendientes'
+                'message' => 'Solo se pueden confirmar citas pendientes',
             ], 422);
         }
-        
+
         try {
             $confirmedAppointment = $this->transactionService->run(
                 function () use ($appointment) {
                     $appointment->status = Appointment::STATUS_CONFIRMED;
                     $appointment->save();
                     Log::info('Appointment confirmed within transaction', ['id' => $appointment->id]);
+
                     return $appointment;
                 },
                 // Añadir onCommit para enviar el correo de confirmación al cliente
@@ -634,42 +656,44 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita confirmada correctamente',
-                'data' => $confirmedAppointment->fresh()->load('service')
+                'data' => $confirmedAppointment->fresh()->load('service'),
             ]);
 
         } catch (Throwable $e) {
-            Log::error('Error confirming appointment: ' . $e->getMessage(), ['id' => $id, 'exception' => $e]);
+            Log::error('Error confirming appointment: '.$e->getMessage(), ['id' => $id, 'exception' => $e]);
+
             return response()->json(['success' => false, 'message' => 'Error al confirmar la cita.'], 500);
         }
     }
-    
+
     /**
      * Marcar una cita como completada
      */
     public function complete($id)
     {
         $appointment = Appointment::find($id);
-        
-        if (!$appointment) {
+
+        if (! $appointment) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cita no encontrada'
+                'message' => 'Cita no encontrada',
             ], 404);
         }
-        
+
         if ($appointment->status !== Appointment::STATUS_CONFIRMED) { // Use constant
             return response()->json([
                 'success' => false,
-                'message' => 'Solo se pueden completar citas confirmadas'
+                'message' => 'Solo se pueden completar citas confirmadas',
             ], 422);
         }
-        
+
         try {
             $completedAppointment = $this->transactionService->run(
                 function () use ($appointment) {
                     $appointment->status = Appointment::STATUS_COMPLETED;
                     $appointment->save();
                     Log::info('Appointment completed within transaction', ['id' => $appointment->id]);
+
                     return $appointment;
                 }
             );
@@ -677,15 +701,16 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cita marcada como completada',
-                'data' => $completedAppointment->fresh()->load('service')
+                'data' => $completedAppointment->fresh()->load('service'),
             ]);
 
         } catch (Throwable $e) {
-            Log::error('Error completing appointment: ' . $e->getMessage(), ['id' => $id, 'exception' => $e]);
+            Log::error('Error completing appointment: '.$e->getMessage(), ['id' => $id, 'exception' => $e]);
+
             return response()->json(['success' => false, 'message' => 'Error al marcar la cita como completada.'], 500);
         }
     }
-    
+
     /**
      * Método para enviar correo de nueva cita al cliente y a la empresa
      */
@@ -693,36 +718,37 @@ class AppointmentController extends Controller
     {
         try {
             // Obtener los datos de la empresa
-            $companyData = \App\Models\CompanyData::first();
-            
-            if (!$companyData) {
+            $companyData = CompanyData::first();
+
+            if (! $companyData) {
                 Log::error('No company data found for sending appointment confirmation', ['appointment_id' => $appointment->id]);
+
                 return;
             }
-            
+
             // Cargar relaciones necesarias
             $appointment->load(['service', 'brand']);
-            
+
             // Enviar correo al cliente
             Mail::to($appointment->client_email)
-                ->send(new \App\Mail\AppointmentConfirmation($appointment, $companyData));
-            
+                ->send(new AppointmentConfirmation($appointment, $companyData));
+
             // Enviar correo a la empresa
             if ($companyData->email) {
                 Mail::to($companyData->email)
-                    ->send(new \App\Mail\AppointmentConfirmation($appointment, $companyData, true));
+                    ->send(new AppointmentConfirmation($appointment, $companyData, true));
             }
-            
+
             Log::info('Appointment confirmation emails sent successfully', ['appointment_id' => $appointment->id]);
         } catch (\Exception $e) {
             Log::error('Error sending appointment confirmation emails', [
                 'appointment_id' => $appointment->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
-    
+
     /**
      * Método para enviar correo de actualización de estado (confirmación/cancelación)
      */
@@ -730,38 +756,39 @@ class AppointmentController extends Controller
     {
         try {
             // Obtener los datos de la empresa
-            $companyData = \App\Models\CompanyData::first();
-            
-            if (!$companyData) {
+            $companyData = CompanyData::first();
+
+            if (! $companyData) {
                 Log::error('No company data found for sending status update email', ['appointment_id' => $appointment->id]);
+
                 return;
             }
-            
+
             // Cargar relaciones necesarias
             $appointment->load(['service', 'brand']);
-            
+
             // Determinar qué tipo de correo enviar
             if ($status === 'confirmed') {
                 // Enviar correo de confirmación
                 Mail::to($appointment->client_email)
-                    ->send(new \App\Mail\AppointmentConfirmed($appointment, $companyData));
-            } else if ($status === 'cancelled') {
+                    ->send(new AppointmentConfirmed($appointment, $companyData));
+            } elseif ($status === 'cancelled') {
                 // Enviar correo de cancelación
                 Mail::to($appointment->client_email)
-                    ->send(new \App\Mail\AppointmentCancelled($appointment, $companyData));
+                    ->send(new AppointmentCancelled($appointment, $companyData));
             }
-            
+
             Log::info("Appointment {$status} email sent successfully", ['appointment_id' => $appointment->id]);
         } catch (\Exception $e) {
             Log::error("Error sending appointment {$status} email", [
                 'appointment_id' => $appointment->id,
                 'status' => $status,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
-    
+
     /**
      * Método para enviar correo de cancelación
      */

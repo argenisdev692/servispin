@@ -3,17 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Appointment;
-use App\Models\Service;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
-use App\Services\TransactionService;
-use Illuminate\Support\Facades\Log;
-use Throwable;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\AppointmentConfirmed;
 use App\Mail\AppointmentCancelled;
+use App\Mail\AppointmentConfirmed;
+use App\Mail\AppointmentRescheduled;
+use App\Mail\RemoteAssistanceCancelled;
+use App\Models\Appointment;
+use App\Models\Brand;
+use App\Models\CompanyData;
+use App\Models\Service;
+use App\Services\MeetingLink\MeetingLinkProvider;
+use App\Services\TransactionService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class AppointmentCalendarController extends Controller
 {
@@ -29,8 +35,16 @@ class AppointmentCalendarController extends Controller
      */
     public function index()
     {
-        // We just need to return the view, the calendar data will be loaded via AJAX
-        return view('full-calendar.calendar'); 
+        // Los eventos siguen cargándose por AJAX; esto es solo lo que necesita el
+        // formulario de alta de cita remota (US-6): Cesar la crea desde un hueco
+        // del calendario cuando el cliente llama por teléfono y paga por QR.
+        return view('full-calendar.calendar', [
+            'remoteServices' => Service::remote()->active()->orderBy('name')->get(),
+            'brands' => Brand::orderBy('name')->get(),
+            'providerIsAutomatic' => app(MeetingLinkProvider::class)->isAutomatic(),
+            'businessTimezone' => config('remote_assistance.business_timezone', 'Atlantic/Canary'),
+            'timezones' => \DateTimeZone::listIdentifiers(),
+        ]);
     }
 
     /**
@@ -44,10 +58,10 @@ class AppointmentCalendarController extends Controller
         $end = $request->query('end') ? Carbon::parse($request->query('end'))->endOfDay() : now()->addMonth();
 
         $appointments = Appointment::with('service') // Eager load service
-            ->where(function($query) use ($start, $end) {
+            ->where(function ($query) use ($start, $end) {
                 // Find appointments that *overlap* with the requested range
                 $query->where('start_time', '<=', $end)
-                      ->where('end_time', '>=', $start);
+                    ->where('end_time', '>=', $start);
             })
             // Optionally filter by status if needed (e.g., exclude cancelled/completed)
             // ->whereNotIn('status', [Appointment::STATUS_CANCELLED, Appointment::STATUS_COMPLETED])
@@ -68,16 +82,24 @@ class AppointmentCalendarController extends Controller
                     break;
             }
 
+            // FR-10: una remota tiene que distinguirse de una presencial de un
+            // vistazo. El color ya lo usa el estado, así que la modalidad se
+            // marca en el título y con el borde del evento: si Cesar confunde
+            // una videollamada con una visita, o conduce para nada o deja
+            // plantado a un cliente que ya pagó.
+            $isRemote = $appointment->isRemote();
+
             return [
                 'id' => $appointment->id,
-                'title' => $appointment->service->name ?? 'Servicio Desconocido', // Ahora el título es el servicio
+                'title' => ($isRemote ? '📹 ' : '').($appointment->service->name ?? 'Servicio Desconocido'), // Ahora el título es el servicio
                 'start' => $appointment->start_time->toIso8601String(), // Use ISO 8601 format
                 'end' => $appointment->end_time->toIso8601String(),
                 'color' => $color,
+                'borderColor' => $isRemote ? '#7c3aed' : $color, // violeta = remota
                 // Add any other custom properties you might want in the eventClick popup
                 'extendedProps' => [
                     'service' => $appointment->service->name ?? 'N/A',
-                    'clientName' => $appointment->client_first_name . ' ' . $appointment->client_last_name, // Nombre del cliente
+                    'clientName' => $appointment->client_first_name.' '.$appointment->client_last_name, // Nombre del cliente
                     'clientEmail' => $appointment->client_email,
                     'clientPhone' => $appointment->client_phone,
                     'status' => $appointment->status,
@@ -85,8 +107,17 @@ class AppointmentCalendarController extends Controller
                     'address' => $appointment->address,
                     'issue' => $appointment->issue_description,
                     'equipmentPhotoPath' => $appointment->equipment_photo_path,
+                    // Datos propios de la modalidad remota
+                    'modality' => $appointment->modality,
+                    'isRemote' => $isRemote,
+                    'paymentStatus' => $appointment->payment_status,
+                    'paymentReference' => $appointment->payment_reference,
+                    'clientTimezone' => $appointment->client_timezone,
+                    // El enlace solo viaja a un endpoint autenticado de admin.
+                    'meetingUrl' => $appointment->meeting_url,
+                    'meetingLinkFailed' => $appointment->meeting_link_failed_at !== null,
                     // Add more details as needed
-                ]
+                ],
             ];
         });
 
@@ -123,17 +154,19 @@ class AppointmentCalendarController extends Controller
                     // Comment this out if FullCalendar always sends the correct end time based on duration
                     // $newEndTime = $newStartTime->copy()->addMinutes($serviceDuration);
 
-                    // Ensure the duration hasn't accidentally changed (sanity check)
-                    if ($newStartTime->diffInMinutes($newEndTime) != $serviceDuration) {
+                    // Ensure the duration hasn't accidentally changed (sanity check).
+                    // Carbon 3 returns a signed float here, so force absolute and truncate
+                    // to whole minutes to keep the comparison against the service duration.
+                    if ((int) $newStartTime->diffInMinutes($newEndTime, true) != $serviceDuration) {
                         // Use a more specific exception maybe, or just RuntimeException
                         throw new \RuntimeException('La duración de la cita no puede cambiar.', 422);
                     }
 
                     // Check for conflicts with other appointments (excluding the current one)
                     $existingAppointment = Appointment::where('id', '!=', $appointment->id)
-                        ->where(function($query) use ($newStartTime, $newEndTime) {
+                        ->where(function ($query) use ($newStartTime, $newEndTime) {
                             $query->where('start_time', '<', $newEndTime)
-                                  ->where('end_time', '>', $newStartTime);
+                                ->where('end_time', '>', $newStartTime);
                         })
                         // Consider only relevant statuses for conflict checking
                         // Use constants if available and appropriate (e.g., Appointment::STATUS_NEW)
@@ -151,31 +184,33 @@ class AppointmentCalendarController extends Controller
                     $appointment->save();
 
                     Log::info('Appointment updated via calendar drag-drop within transaction', ['id' => $appointment->id]);
+
                     return $appointment;
                 },
                 // Acción a ejecutar después de que la transacción se haya completado
                 function ($updatedAppointment) {
                     try {
                         // Obtener los datos de la empresa
-                        $companyData = \App\Models\CompanyData::first();
-                        
-                        if (!$companyData) {
+                        $companyData = CompanyData::first();
+
+                        if (! $companyData) {
                             // Si no hay datos de la empresa, registramos el error pero igualmente actualizamos el estado
                             \Log::error('No company data found for sending rescheduling email notification');
+
                             return;
                         }
-                        
+
                         // Cargar las relaciones necesarias
                         $updatedAppointment->load(['service', 'brand']);
-                        
+
                         // Enviar correo de reagendamiento
                         Mail::to($updatedAppointment->client_email)
-                            ->send(new \App\Mail\AppointmentRescheduled($updatedAppointment, $companyData));
-                        
+                            ->send(new AppointmentRescheduled($updatedAppointment, $companyData));
+
                         Log::info('Rescheduling email sent for appointment', ['id' => $updatedAppointment->id]);
                     } catch (\Exception $e) {
                         // Log the error but don't fail the response
-                        \Log::error('Error sending rescheduling email notification: ' . $e->getMessage());
+                        \Log::error('Error sending rescheduling email notification: '.$e->getMessage());
                     }
                 }
             );
@@ -185,17 +220,19 @@ class AppointmentCalendarController extends Controller
 
         } catch (\RuntimeException $re) {
             // Catch specific conflict/duration errors thrown from within the transaction
-            Log::warning('Business logic error during calendar update: ' . $re->getMessage(), [
+            Log::warning('Business logic error during calendar update: '.$re->getMessage(), [
                 'id' => $appointment->id,
-                'code' => $re->getCode()
+                'code' => $re->getCode(),
             ]);
+
             return response()->json(['message' => $re->getMessage()], $re->getCode() ?: 422);
         } catch (Throwable $e) {
             // Catch any other errors during the transaction
-            Log::error('Error during calendar appointment update transaction: ' . $e->getMessage(), [
+            Log::error('Error during calendar appointment update transaction: '.$e->getMessage(), [
                 'id' => $appointment->id,
-                'exception' => $e
+                'exception' => $e,
             ]);
+
             return response()->json(['message' => 'Error al actualizar la cita en el calendario.'], 500);
         }
     }
@@ -203,15 +240,14 @@ class AppointmentCalendarController extends Controller
     /**
      * Update the specified appointment's status.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function updateStatus(Request $request, $id)
     {
         // Validate request data
         $request->validate([
-            'status' => 'required|in:Confirmed,Cancelled'
+            'status' => 'required|in:Confirmed,Cancelled',
         ]);
 
         // Find the appointment
@@ -228,32 +264,55 @@ class AppointmentCalendarController extends Controller
         // Update the appointment status
         $oldStatus = $appointment->status;
         $appointment->status = $request->status;
+
+        // US-5: si se cancela una cita remota cuyo pago YA estaba verificado, el
+        // dinero ya entró y hay que devolverlo. No se reembolsa automáticamente
+        // (Cesar lo tramita en SumUp a mano, fuera de alcance), pero SÍ queda
+        // registrado como reembolso pendiente para que no se pierda de vista.
+        // Guardado por isRemote(): el flujo presencial no se altera.
+        $refundPending = false;
+        if ($request->status === 'Cancelled'
+            && $appointment->isRemote()
+            && $appointment->payment_status === Appointment::PAYMENT_VERIFIED) {
+            $appointment->payment_status = Appointment::PAYMENT_REFUND_PENDING;
+            $refundPending = true;
+        }
+
         $appointment->save();
 
         // Send email notification based on the new status
         try {
             // Obtener los datos de la empresa
-            $companyData = \App\Models\CompanyData::first();
-            
-            if (!$companyData) {
+            $companyData = CompanyData::first();
+
+            if (! $companyData) {
                 // Si no hay datos de la empresa, registramos el error pero igualmente actualizamos el estado
                 \Log::error('No company data found for sending email notification');
                 $message = 'Estado actualizado, pero no se pudo enviar el correo por falta de datos de la empresa.';
             } else {
                 // Cargar las relaciones necesarias
                 $appointment->load(['service', 'brand']);
-                
+
                 if ($request->status === 'Confirmed') {
                     Mail::to($appointment->client_email)->send(new AppointmentConfirmed($appointment, $companyData));
                     $message = 'Cita confirmada exitosamente. Se ha enviado un correo de confirmación al cliente.';
-                } else if ($request->status === 'Cancelled') {
-                    Mail::to($appointment->client_email)->send(new AppointmentCancelled($appointment, $companyData));
-                    $message = 'Cita rechazada exitosamente. Se ha enviado un correo de notificación al cliente.';
+                } elseif ($request->status === 'Cancelled') {
+                    // Una cancelación remota lleva su propio email: menciona el
+                    // reembolso si lo hay y no habla de un técnico que iba a ir.
+                    if ($appointment->isRemote()) {
+                        Mail::to($appointment->client_email)
+                            ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending));
+                    } else {
+                        Mail::to($appointment->client_email)->send(new AppointmentCancelled($appointment, $companyData));
+                    }
+                    $message = $refundPending
+                        ? 'Cita cancelada. Queda registrado un reembolso pendiente de tramitar en SumUp.'
+                        : 'Cita cancelada. Se ha enviado un correo de notificación al cliente.';
                 }
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the response
-            \Log::error('Error sending email notification: ' . $e->getMessage());
+            \Log::error('Error sending email notification: '.$e->getMessage());
             $message = 'Estado actualizado, pero hubo un problema al enviar el correo de notificación.';
         }
 
@@ -264,7 +323,9 @@ class AppointmentCalendarController extends Controller
                 'id' => $appointment->id,
                 'old_status' => $oldStatus,
                 'new_status' => $appointment->status,
-            ]
+                'refund_pending' => $refundPending,
+                'payment_status' => $appointment->payment_status,
+            ],
         ]);
     }
 }

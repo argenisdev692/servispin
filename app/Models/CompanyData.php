@@ -27,7 +27,7 @@ class CompanyData extends Model
         'address_google_map',
         'user_id',
         'latitude',
-        'longitude'
+        'longitude',
     ];
 
     /**
@@ -36,5 +36,17 @@ class CompanyData extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Email del usuario administrador propietario, usado como copia interna.
+     *
+     * Se resuelve por la relación user_id en lugar de consultar el rol 'Admin':
+     * los roles están sembrados en el guard 'sanctum' y el guard por defecto es
+     * 'web', por lo que User::role('Admin') lanzaría RoleDoesNotExist.
+     */
+    public function adminEmail(): ?string
+    {
+        return $this->user?->email;
     }
 }

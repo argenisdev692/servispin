@@ -3,16 +3,15 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use App\Models\User;
-// use App\Models\MainCategories; // Commented out if not used
 use App\Models\Category;
+use App\Models\CompanyData;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+// use App\Models\MainCategories; // Commented out if not used
+use Ramsey\Uuid\Uuid;
 // use App\Models\StatuOptions; // Commented out if not used
-use App\Models\CompanyData; // Import CompanyData
-use Ramsey\Uuid\Uuid; // Import Uuid
-use App\Models\Brand;
+use Spatie\Permission\Models\Permission; // Import CompanyData
+use Spatie\Permission\Models\Role; // Import Uuid
 
 class DatabaseSeeder extends Seeder
 {
@@ -33,9 +32,9 @@ class DatabaseSeeder extends Seeder
 
         $adminUser = User::factory()->create([
             'name' => 'Admin',
-            'email' => 'admin@admin.com',
-            'username' => 'admin01',
-            'password' => bcrypt('sistema123')
+            'email' => 'servispin19@gmail.com',
+            'username' => 'servispin19',
+            'password' => bcrypt('servispin19='),
         ]);
         $adminUser->assignRole($adminRole);
         // END MANAGER ADMIN
@@ -48,7 +47,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'User',
             'email' => 'user@user.com',
             'username' => 'user01',
-            'password' => bcrypt('password123')
+            'password' => bcrypt('password123'),
         ]);
         $userUser->assignRole($userRole);
         // END MANAGER USER
@@ -64,7 +63,7 @@ class DatabaseSeeder extends Seeder
         $adminRole->syncPermissions($allPermissionNames);
 
         // Crear la categoría "General" para blog
-       Category::create([
+        Category::create([
             'category_name' => 'Blog',
             'description' => 'Valor por defecto',
             'image' => 'Valor por defecto',

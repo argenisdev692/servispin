@@ -11,10 +11,11 @@ class TransactionService
     /**
      * Executes database operations within a transaction.
      *
-     * @param callable $databaseOperations The closure containing database interactions.
-     * @param callable|null $onCommit Optional closure to run after successful commit.
-     * @param callable|null $onError Optional closure to run on exception before rollback.
+     * @param  callable  $databaseOperations  The closure containing database interactions.
+     * @param  callable|null  $onCommit  Optional closure to run after successful commit.
+     * @param  callable|null  $onError  Optional closure to run on exception before rollback.
      * @return mixed The result of the $databaseOperations closure if successful, false otherwise.
+     *
      * @throws Throwable Re-throws the original exception after rollback.
      */
     public function run(callable $databaseOperations, ?callable $onCommit = null, ?callable $onError = null): mixed
@@ -71,4 +72,4 @@ class TransactionService
             throw $e;
         }
     }
-} 
+}

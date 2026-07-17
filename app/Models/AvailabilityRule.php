@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class AvailabilityRule extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'uuid',
         'day_of_week',
@@ -17,23 +17,23 @@ class AvailabilityRule extends Model
         'end_time',
         'is_available',
     ];
-    
+
     protected $casts = [
         'day_of_week' => 'integer',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'is_available' => 'boolean',
     ];
-    
+
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             $model->uuid = (string) Str::uuid();
         });
     }
-    
+
     // Día de la semana como texto
     public function getDayNameAttribute()
     {
@@ -46,7 +46,7 @@ class AvailabilityRule extends Model
             5 => 'Viernes',
             6 => 'Sábado',
         ];
-        
+
         return $days[$this->day_of_week] ?? 'Desconocido';
     }
 }

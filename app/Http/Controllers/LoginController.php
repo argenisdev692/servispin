@@ -2,65 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use App\Actions\Fortify\UpdateUserProfileInformation;
+use Illuminate\Support\Facades\Response;
 
 class LoginController extends Controller
 {
-// USER LOGIN
-public function login(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    // USER LOGIN
+    public function login(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-        $token = $user->createToken('API Token')->plainTextToken;
+            $token = $user->createToken('API Token')->plainTextToken;
 
-        // Crear el objeto user
-        $userObject = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'token' => $token,
-        ];
+            // Crear el objeto user
+            $userObject = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'token' => $token,
+            ];
 
-        // Crear la respuesta completa
-        $response = [
-            'user' => $userObject,
-        ];
+            // Crear la respuesta completa
+            $response = [
+                'user' => $userObject,
+            ];
 
-        return Response::json($response);
+            return Response::json($response);
+        }
+
+        return Response::json(['error' => 'Credenciales inválidas'], 401);
     }
 
-    return Response::json(['error' => 'Credenciales inválidas'], 401);
-}
+    // USER LOGOUT
+    public function logout()
+    {
+        if (auth()->user()) {
+            auth()->user()->tokens()->delete();
 
-// USER LOGOUT
-public function logout()
-{
-    if (auth()->user()) {
-        auth()->user()->tokens()->delete();
-        return Response::json(['message' => 'Sesión cerrada correctamente'],200);
-    } else {
-        return Response::json(['message' => 'No se encontró ninguna sesión activa'], 401);
+            return Response::json(['message' => 'Sesión cerrada correctamente'], 200);
+        } else {
+            return Response::json(['message' => 'No se encontró ninguna sesión activa'], 401);
+        }
     }
-}
 
+    // / DETAILS CURRENT USER
+    public function user()
+    {
+        return response()->json(['User' => auth()->user()]);
+    }
 
-/// DETAILS CURRENT USER
- public function user()
-{
-    return response()->json(['User' => auth()->user()]);
-}
-
-// UPDATE USER PASSWORD
-public function updatePassword(Request $request)
-   {
+    // UPDATE USER PASSWORD
+    public function updatePassword(Request $request)
+    {
         $request->validate([
             'current_password' => ['required', 'string'],
             'password' => ['required', 'string', 'confirmed'],
@@ -68,7 +67,7 @@ public function updatePassword(Request $request)
 
         $user = Auth::user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return response()->json(['error' => 'La contraseña actual no coincide'], 401);
         }
 
@@ -94,7 +93,7 @@ public function updatePassword(Request $request)
         }
     }
 
-    //RESET PASSWORD PAGE MAIL
+    // RESET PASSWORD PAGE MAIL
     public function resetPassword(Request $request)
     {
         $request->validate([
@@ -119,7 +118,6 @@ public function updatePassword(Request $request)
         }
     }
 
-
     // UPDATE PROFILE USER
     public function updateProfile(Request $request, UpdateUserProfileInformation $updater)
     {
@@ -129,5 +127,4 @@ public function updatePassword(Request $request)
 
         return Response::json(['message' => 'Perfil actualizado correctamente.']);
     }
-
 }

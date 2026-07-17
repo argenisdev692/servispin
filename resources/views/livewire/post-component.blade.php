@@ -40,7 +40,7 @@
                     @can('manage admin')
                         <div class=" my-7 flex justify-between space-x-2">
                             <x-button wire:click="showDataModal">+ Create New </x-button>
-                            <x-input id="name" type="text" wire:model="search" placeholder="Search..." autofocus
+                            <x-input id="name" type="text" wire:model.live="search" placeholder="Search..." autofocus
                                 autocomplete="off" />
                         </div>
                     @endcan
@@ -107,7 +107,7 @@
                                                     <button wire:click="showEditDataModal({{ $post->id }})"
                                                         class="bg-blue-600 duration-500 ease-in-out hover:bg-blue-700 text-white font-bold p-3 py-2 px-4 rounded"><i
                                                             class="fa-solid fa-pen-to-square"></i></button>
-                                                    <button wire:click="$emit('deleteData',{{ $post->id }})"
+                                                    <button wire:click="$dispatch('deleteData', { id: {{ $post->id }} })"
                                                         class="bg-red-600 duration-500 ease-in-out hover:bg-red-700 text-white font-bold p-3 py-2 px-4 rounded"><i
                                                             class="fa-solid fa-trash"></i></button>
 
@@ -147,7 +147,7 @@
                                                 <label for="exampleFormControlInput1"
                                                     class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
                                                 <div class="mt-1">
-                                                    <input type="text" id="post_title" wire:model.lazy="post_title"
+                                                    <input type="text" id="post_title" wire:model.blur="post_title"
                                                         name="post_title"
                                                         class="block w-full 
                                      appearance-none bg-white border
@@ -214,7 +214,7 @@
                                                     class="block text-gray-700 text-sm font-bold mb-2">Content:</label>
                                                 <div class="mt-1">
 
-                                                    <textarea id="post_content" rows="3" wire:model.lazy="post_content" name="post_content"
+                                                    <textarea id="post_content" rows="3" wire:model.blur="post_content" name="post_content"
                                                         class="shadow-sm focus:ring-indigo-500 appearance-none bg-white border
                                      py-2 px-3 text-base leading-normal transition duration-150 ease-in-out focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                                 </div>
@@ -278,7 +278,7 @@
                                                     Title:</label>
                                                 <div class="mt-1">
                                                     <input type="text" id="meta_title"
-                                                        wire:model.lazy="meta_title"
+                                                        wire:model.blur="meta_title"
                                                         class="block w-full 
                                      appearance-none bg-white border
                                       border-gray-400 rounded-md py-2 px-3 text-base leading-normal transition duration-150 ease-in-out sm:text-sm sm:leading-5 mb-2" />
@@ -293,7 +293,7 @@
                                                     class="block text-gray-700 text-sm font-bold mb-2">Meta
                                                     Description:</label>
                                                 <div class="mt-1">
-                                                    <textarea rows="3" wire:model.lazy="meta_description"
+                                                    <textarea rows="3" wire:model.blur="meta_description"
                                                         class="shadow-sm focus:ring-indigo-500 appearance-none bg-white border
                                      py-2 px-3 text-base leading-normal transition duration-150 ease-in-out focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                                 </div>
@@ -307,7 +307,7 @@
                                                     class="block text-gray-700 text-sm font-bold mb-2">Meta
                                                     Keywords:</label>
                                                 <div class="mt-1">
-                                                    <textarea rows="3" wire:model.lazy="meta_keywords"
+                                                    <textarea rows="3" wire:model.blur="meta_keywords"
                                                         class="shadow-sm focus:ring-indigo-500 appearance-none bg-white border
                                      py-2 px-3 text-base leading-normal transition duration-150 ease-in-out focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                                 </div>
@@ -396,7 +396,7 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        Livewire.on('deleteData', catId => {
+        Livewire.on('deleteData', ({ id }) => {
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -407,7 +407,7 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Livewire.emitTo('posts', 'delete', catId)
+                    Livewire.dispatchTo('posts', 'delete', { post: id })
                     Swal.fire(
                         'Deleted!',
                         'Your Data has been deleted.',

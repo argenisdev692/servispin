@@ -225,6 +225,180 @@
                         </div>
                         {{-- End Modal --}}
 
+                        {{-- Modal de alta de cita remota (US-6 / T031d).
+                             El cliente llama por teléfono, paga por QR y Cesar la da
+                             de alta desde el hueco, sin pasar por la web.
+                             Se AÑADE junto al modal de detalles; no se toca aquél. --}}
+                        <div id="remoteAppointmentModal" class="fixed z-50 inset-0 overflow-y-auto hidden"
+                            aria-labelledby="remote-modal-title" role="dialog" aria-modal="true">
+                            <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                                <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true"></div>
+                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                <div class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900" id="remote-modal-title">
+                                            Nueva cita remota
+                                        </h3>
+                                        <button type="button" id="closeRemoteModalBtn"
+                                            class="text-gray-400 hover:text-gray-500">
+                                            <span class="sr-only">Cerrar</span>
+                                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <form id="remoteAppointmentForm" class="space-y-4 text-left">
+                                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Fecha</label>
+                                                <input type="date" name="date" id="remoteDate" required
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                            <div>
+                                                {{-- La hora viene del hueco pulsado, pero es editable: en la
+                                                     vista de mes el clic no trae hora, y así Cesar puede
+                                                     corregir sin cerrar y volver a abrir. --}}
+                                                <label class="block text-sm font-medium text-gray-700">Hora</label>
+                                                <input type="time" name="time" id="remoteTime" required step="900"
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Servicio remoto</label>
+                                            <select name="service_id" id="remoteServiceId" required
+                                                class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                @foreach ($remoteServices as $remoteService)
+                                                    <option value="{{ $remoteService->id }}" data-duration="{{ $remoteService->duration }}">
+                                                        {{ $remoteService->name }} ({{ $remoteService->duration }} min)
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @if ($remoteServices->isEmpty())
+                                                <p class="mt-1 text-sm text-red-600">
+                                                    No hay ningún servicio marcado como remoto. Crea uno en Servicios.
+                                                </p>
+                                            @endif
+                                        </div>
+
+                                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                                                <input type="text" name="client_first_name" required
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Apellidos</label>
+                                                <input type="text" name="client_last_name" required
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Email</label>
+                                                <input type="email" name="client_email" required
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+                                                <input type="tel" name="client_phone"
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                            </div>
+                                        </div>
+
+                                        {{-- FR-6 / R-5: el huso del CLIENTE, no el del navegador de Cesar.
+                                             Si se cogiera el del navegador, guardaríamos Atlantic/Canary
+                                             como huso de un cliente que puede estar en Argentina, y los
+                                             emails le dirían una hora equivocada. Por defecto va el del
+                                             negocio (cliente local, que es el caso habitual al teléfono). --}}
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">
+                                                Zona horaria del cliente
+                                            </label>
+                                            <select name="client_timezone" id="remoteClientTimezone" required
+                                                class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                @foreach ($timezones as $tz)
+                                                    <option value="{{ $tz }}" @selected($tz === $businessTimezone)>{{ $tz }}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-1 text-xs text-gray-500">
+                                                Se usa para decirle su hora local en los emails. Si el cliente está
+                                                fuera de Canarias, cámbialo.
+                                            </p>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700">Marca</label>
+                                                <select name="brand_id" class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                    <option value="">Sin especificar</option>
+                                                    @foreach ($brands as $brand)
+                                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Avería</label>
+                                            <textarea name="issue_description" rows="2"
+                                                class="w-full mt-1 border-gray-300 rounded-md shadow-sm"></textarea>
+                                        </div>
+
+                                        <div class="p-4 rounded-md bg-gray-50">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="payment_verified" id="remotePaymentVerified"
+                                                    class="border-gray-300 rounded">
+                                                <span class="ml-2 text-sm font-medium text-gray-900">
+                                                    Ya he comprobado el pago en SumUp
+                                                </span>
+                                            </label>
+                                            {{-- FR-3: sin marcar esto, la cita queda pendiente y SIN enlace,
+                                                 igual que en el formulario público. El atajo del admin no es
+                                                 una puerta trasera al control de pago. --}}
+                                            <p class="mt-1 text-xs text-gray-600">
+                                                Si no lo marcas, la cita queda pendiente de verificar y
+                                                <strong>no se envía ningún enlace</strong> al cliente.
+                                            </p>
+
+                                            <div id="remotePaymentFields" class="hidden mt-3 space-y-3">
+                                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                                    <input type="text" name="payment_reference" placeholder="Referencia SumUp"
+                                                        class="border-gray-300 rounded-md shadow-sm">
+                                                    <input type="number" step="0.01" min="0" name="payment_amount" placeholder="Importe €"
+                                                        class="border-gray-300 rounded-md shadow-sm">
+                                                    <input type="text" name="payer_name" placeholder="Nombre del pagador"
+                                                        class="border-gray-300 rounded-md shadow-sm">
+                                                </div>
+                                                @unless ($providerIsAutomatic)
+                                                    {{-- Con proveedor manual nadie genera el enlace: sin él, el
+                                                         cliente recibiría un "confirmada" sin forma de entrar. --}}
+                                                    <input type="url" name="meeting_url" id="remoteMeetingUrl"
+                                                        placeholder="https://… enlace de la videollamada"
+                                                        class="w-full border-gray-300 rounded-md shadow-sm">
+                                                @endunless
+                                            </div>
+                                        </div>
+
+                                        <div id="remoteFormErrors" class="hidden p-3 text-sm text-red-800 border border-red-200 rounded bg-red-50"></div>
+
+                                        <div class="flex gap-3 pt-2">
+                                            <button type="submit" id="remoteSubmitBtn"
+                                                class="flex-1 px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">
+                                                Crear cita remota
+                                            </button>
+                                            <button type="button" id="cancelRemoteBtn"
+                                                class="px-4 py-2 font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- End Remote Modal --}}
+
                     </div>
                 </main>
             </div>
@@ -265,6 +439,147 @@
             // Si no es un número español o no tiene el formato esperado, devolverlo sin cambios
             return phoneNumber;
         }
+
+        // ============================================================
+        // US-6 / T031d — Alta de cita remota desde un hueco del calendario
+        // ============================================================
+
+        // Guarda la API del calendario para poder refrescar tras crear la cita.
+        let remoteCalendarApi = null;
+
+        /**
+         * Abre el modal de alta remota con la fecha/hora del hueco pulsado.
+         *
+         * ⚠️ El instante NO se convierte de huso. `info.dateStr` ya viene en el
+         * timeZone configurado en el calendario (Atlantic/Canary), que es
+         * exactamente como se persiste start_time. Si aquí se hiciera
+         * `new Date(...).toISOString()` se mandaría UTC y en verano la cita se
+         * crearía una hora antes de la que Cesar pulsó: el bug de R-5.
+         */
+        function openRemoteModal(info) {
+            const modal = document.getElementById('remoteAppointmentModal');
+            if (!modal) return;
+
+            remoteCalendarApi = info.view.calendar;
+
+            // "2026-07-20T10:00:00+01:00" → fecha y hora tal cual, sin convertir.
+            // En la vista de mes el clic no trae hora (allDay) y se deja vacía
+            // para que Cesar la escriba.
+            document.getElementById('remoteDate').value = info.dateStr.slice(0, 10);
+            document.getElementById('remoteTime').value =
+                (!info.allDay && info.dateStr.length >= 16) ? info.dateStr.slice(11, 16) : '';
+
+            document.getElementById('remoteFormErrors').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const remoteModal = document.getElementById('remoteAppointmentModal');
+            const remoteForm = document.getElementById('remoteAppointmentForm');
+
+            if (remoteModal && remoteForm) {
+                const errorsEl = document.getElementById('remoteFormErrors');
+                const submitBtn = document.getElementById('remoteSubmitBtn');
+                const paidCheckbox = document.getElementById('remotePaymentVerified');
+                const paymentFields = document.getElementById('remotePaymentFields');
+
+                function closeRemoteModal() {
+                    remoteModal.classList.add('hidden');
+                    remoteForm.reset();
+                    paymentFields.classList.add('hidden');
+                    errorsEl.classList.add('hidden');
+                }
+
+                document.getElementById('closeRemoteModalBtn').addEventListener('click', closeRemoteModal);
+                document.getElementById('cancelRemoteBtn').addEventListener('click', closeRemoteModal);
+
+                // Los datos del pago solo tienen sentido si Cesar ya lo cobró.
+                paidCheckbox.addEventListener('change', function() {
+                    paymentFields.classList.toggle('hidden', !paidCheckbox.checked);
+                });
+
+                function showRemoteErrors(messages) {
+                    errorsEl.innerHTML = messages.map(m => '<div>• ' + m + '</div>').join('');
+                    errorsEl.classList.remove('hidden');
+                }
+
+                remoteForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    errorsEl.classList.add('hidden');
+
+                    const date = document.getElementById('remoteDate').value;
+                    const time = document.getElementById('remoteTime').value;
+
+                    if (!date || !time) {
+                        showRemoteErrors(['Indica la fecha y la hora de la cita.']);
+                        return;
+                    }
+
+                    const fd = new FormData(remoteForm);
+                    const payload = {
+                        service_id: fd.get('service_id'),
+                        brand_id: fd.get('brand_id') || null,
+                        client_first_name: fd.get('client_first_name'),
+                        client_last_name: fd.get('client_last_name'),
+                        client_email: fd.get('client_email'),
+                        client_phone: fd.get('client_phone') || null,
+                        issue_description: fd.get('issue_description') || null,
+                        client_timezone: fd.get('client_timezone'),
+                        // El backend exige Y-m-d H:i:s en huso del negocio. Ya lo está.
+                        start_time: date + ' ' + time + ':00',
+                        // Se manda explícito: un checkbox sin marcar no viaja en el
+                        // FormData y la regla es `required|boolean`.
+                        payment_verified: paidCheckbox.checked,
+                    };
+
+                    if (paidCheckbox.checked) {
+                        payload.payment_reference = fd.get('payment_reference') || null;
+                        payload.payment_amount = fd.get('payment_amount') || null;
+                        payload.payer_name = fd.get('payer_name') || null;
+                        if (fd.get('meeting_url')) {
+                            payload.meeting_url = fd.get('meeting_url');
+                        }
+                    }
+
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creando…';
+
+                    try {
+                        const res = await fetch('{{ route('admin.appointments.remote.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const json = await res.json();
+
+                        if (res.status === 201) {
+                            closeRemoteModal();
+                            if (remoteCalendarApi) remoteCalendarApi.refetchEvents();
+                            Swal.fire('Cita creada', json.message, 'success');
+                            return;
+                        }
+
+                        // El solapamiento (FR-7) lo decide el backend, no el JS:
+                        // duplicar esa regla aquí sería tener dos verdades que
+                        // pueden contradecirse. Aquí solo se muestra el 422.
+                        const messages = json.errors
+                            ? Object.values(json.errors).flat()
+                            : [json.message || 'No se pudo crear la cita.'];
+                        showRemoteErrors(messages);
+                    } catch (err) {
+                        showRemoteErrors(['Error de conexión. Inténtalo de nuevo.']);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Crear cita remota';
+                    }
+                });
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOM loaded, initializing calendar");
@@ -307,9 +622,17 @@
                     timeZone: 'Atlantic/Canary', // Your specific timezone
                     navLinks: true, // allows users to click day/week names to navigate
                     editable: true, // enable drag and drop
-                    selectable: false, // You might enable this later to *create* new appointments by clicking/selecting
+                    // Se mantiene en false a propósito: US-6 dice "cuando PULSO sobre un
+                    // hueco libre", y eso es dateClick (abajo), que no necesita selectable.
+                    // Dejarlo en false evita cambiar el comportamiento del calendario actual.
+                    selectable: false,
                     dayMaxEvents: true, // allow "more" link when too many events
                     nowIndicator: true, // Show current time line
+
+                    // US-6 / T031d: pulsar un hueco abre el alta de cita remota.
+                    dateClick: function(info) {
+                        openRemoteModal(info);
+                    },
 
                     // Time grid options
                     slotDuration: '00:30:00', // Set slot duration to 30 mins for grid lines

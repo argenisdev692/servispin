@@ -19,6 +19,7 @@ class CompanyDataController extends Controller
         if (request()->expectsJson()) {
             return response()->json(['companyData' => $companyData]);
         }
+
         return view('admin.company-data.index');
     }
 
@@ -69,7 +70,7 @@ class CompanyDataController extends Controller
 
         return response()->json([
             'message' => 'Company data saved successfully!',
-            'companyData' => $companyData
+            'companyData' => $companyData,
         ], 200);
     }
 
@@ -89,7 +90,7 @@ class CompanyDataController extends Controller
     {
         $dataToEdit = $companyData ?? CompanyData::first();
 
-        if (!$dataToEdit) {
+        if (! $dataToEdit) {
             return response()->json(['message' => 'Company data not found.'], 404);
         }
 
@@ -128,7 +129,7 @@ class CompanyDataController extends Controller
 
         return response()->json([
             'message' => 'Company data updated successfully!',
-            'companyData' => $companyData
+            'companyData' => $companyData,
         ]);
     }
 

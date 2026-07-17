@@ -42,7 +42,7 @@
                             <x-button wire:click="create()"><span class="font-semibold"> Create New <i
                                         class="fa-solid fa-user"></i> </span>
                             </x-button>
-                            <x-input id="name" type="text" wire:model="search" placeholder="Search..." autofocus
+                            <x-input id="name" type="text" wire:model.live="search" placeholder="Search..." autofocus
                                 autocomplete="off" />
                         </div>
                     @endcan
@@ -111,7 +111,7 @@
                                                     <button wire:click="edit({{ $item->id }})"
                                                         class="bg-blue-600 duration-500 ease-in-out hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"><i
                                                             class="fa-solid fa-pen-to-square"></i></button>
-                                                    <button wire:click="$emit('deleteData',{{ $item->id }})"
+                                                    <button wire:click="$dispatch('deleteData', { id: {{ $item->id }} })"
                                                         class="bg-red-600 duration-500 ease-in-out hover:bg-red-700 text-white font-bold py-2 px-4 rounded"><i
                                                             class="fa-solid fa-trash"></i></button>
 
@@ -334,7 +334,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        Livewire.on('deleteData', function(id) {
+        Livewire.on('deleteData', function({ id }) {
             Swal.fire({
                 title: 'Are you sure you want to delete all of this user records?',
                 text: "You won't be able to revert this!",
@@ -345,8 +345,8 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Livewire.emitTo('users-crud', 'delete',
-                        id); // Envía el Id al método delete
+                    Livewire.dispatchTo('users-crud', 'delete',
+                        { id: id }); // Envía el Id al método delete
                     Swal.fire(
                         'Deleted!',
                         'Your Data has been deleted.',
@@ -361,7 +361,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        Livewire.on('deleteUserOperations', function(id) {
+        Livewire.on('deleteUserOperations', function({ id }) {
             Swal.fire({
                 title: 'Are you sure you want to delete this item?',
                 text: "You won't be able to revert this!",
@@ -372,8 +372,8 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Livewire.emitTo('users-crud', 'deleteOperations',
-                        id); // Envía el Id al método delete
+                    Livewire.dispatchTo('users-crud', 'deleteOperations',
+                        { id: id }); // Envía el Id al método delete
                     Swal.fire(
                         'Deleted!',
                         'Your Data has been deleted.',

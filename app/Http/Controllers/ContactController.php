@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use App\Models\CompanyData;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
@@ -42,7 +42,7 @@ class ContactController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -50,15 +50,9 @@ class ContactController extends Controller
             // Capitalize name
             $name = ucwords(strtolower($request->name));
 
-            // Get company data for the admin email
-            $companyData = CompanyData::first();
-            
-            if (!$companyData || !$companyData->email) {
-                // Fallback admin email if company data isn't set
-                $adminEmail = 'info@servispin.com';
-            } else {
-                $adminEmail = $companyData->email;
-            }
+            $companyData = CompanyData::with('user')->first();
+            $companyEmail = $companyData?->email ?: config('mail.contact_fallback');
+            $adminEmail = $companyData?->adminEmail();
 
             // Data array for the email
             $data = [
@@ -69,32 +63,37 @@ class ContactController extends Controller
                 'phone' => $request->phone,
             ];
 
-            // Send email to admin
-            Mail::send('emails.contactMailForm', $data, function($message) use ($request, $adminEmail) {
-                $message->from($request->email, $request->name);
-                $message->to($adminEmail)->subject('Contacto Web: ' . $request->subject);
+            // Envío a la empresa, con copia interna al administrador
+            Mail::send('emails.contactMailForm', $data, function ($message) use ($request, $companyEmail, $adminEmail) {
+                $message->replyTo($request->email, $request->name);
+                $message->to($companyEmail)->subject('Contacto Web: '.$request->subject);
+
+                if ($adminEmail) {
+                    $message->cc($adminEmail);
+                }
             });
 
             // Log success
             Log::info('Contact form email sent successfully', [
-                'from' => $request->email,
-                'to' => $adminEmail
+                'reply_to' => $request->email,
+                'to' => $companyEmail,
+                'cc' => $adminEmail,
             ]);
 
             // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'El formulario se ha enviado correctamente. Nos pondremos en contacto con usted pronto.'
+                'message' => 'El formulario se ha enviado correctamente. Nos pondremos en contacto con usted pronto.',
             ]);
         } catch (\Exception $e) {
             // Log error
-            Log::error('Error sending contact form email: ' . $e->getMessage());
-            
+            Log::error('Error sending contact form email: '.$e->getMessage());
+
             // Return error response
             return response()->json([
                 'success' => false,
-                'message' => 'No pudimos enviar su mensaje. Por favor intente de nuevo más tarde o contáctenos directamente por teléfono.'
+                'message' => 'No pudimos enviar su mensaje. Por favor intente de nuevo más tarde o contáctenos directamente por teléfono.',
             ], 500);
         }
     }
-} 
+}

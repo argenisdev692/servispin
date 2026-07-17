@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Carbon\Carbon;
 use App\Models\AvailabilityException;
+use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class CanaryIslandHolidaysSeeder extends Seeder
 {
@@ -17,100 +17,100 @@ class CanaryIslandHolidaysSeeder extends Seeder
     public function run()
     {
         $year = now()->year; // Usar el año actual
-        
+
         $holidays = [
             // --- Festivos Nacionales y Autonómicos (Aplicables en todas las islas) ---
             [
                 'date' => Carbon::create($year, 1, 1),
                 'name' => 'Año Nuevo / New Year\'s Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 1, 6),
                 'name' => 'Epifanía del Señor / Día de Reyes',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             // Semana Santa - fechas variables según el año
             [
                 'date' => $this->getEasterThursday($year),
                 'name' => 'Jueves Santo / Maundy Thursday',
-                'scope' => 'Autonómico Canarias'
+                'scope' => 'Autonómico Canarias',
             ],
             [
                 'date' => $this->getEasterFriday($year),
                 'name' => 'Viernes Santo / Good Friday',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 5, 1),
                 'name' => 'Fiesta del Trabajo / Labour Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 5, 30),
                 'name' => 'Día de Canarias / Canary Islands Day',
-                'scope' => 'Autonómico Canarias'
+                'scope' => 'Autonómico Canarias',
             ],
             [
                 'date' => Carbon::create($year, 8, 15),
                 'name' => 'Asunción de la Virgen / Assumption Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 10, 12),
                 'name' => 'Fiesta Nacional de España / National Day of Spain',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 11, 1),
                 'name' => 'Día de Todos los Santos / All Saints Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 12, 6),
                 'name' => 'Día de la Constitución Española / Constitution Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 12, 8),
                 'name' => 'Inmaculada Concepción / Immaculate Conception',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
             [
                 'date' => Carbon::create($year, 12, 25),
                 'name' => 'Natividad del Señor / Christmas Day',
-                'scope' => 'Nacional'
+                'scope' => 'Nacional',
             ],
 
             // --- Festivos Insulares ---
             [
                 'date' => Carbon::create($year, 2, 2),
                 'name' => 'Virgen de la Candelaria (Tenerife)',
-                'scope' => 'Insular'
+                'scope' => 'Insular',
             ],
             // Gran Canaria - Nuestra Señora del Pino (8 de septiembre)
             [
                 'date' => $this->adjustForWeekend(Carbon::create($year, 9, 8), 'Nuestra Señora del Pino (Gran Canaria)'),
                 'name' => 'Nuestra Señora del Pino (Gran Canaria)',
-                'scope' => 'Insular'
+                'scope' => 'Insular',
             ],
             // Lanzarote - Nuestra Señora de los Dolores (15 de septiembre)
             [
                 'date' => $this->adjustForWeekend(Carbon::create($year, 9, 15), 'Nuestra Señora de los Dolores (Lanzarote)'),
                 'name' => 'Nuestra Señora de los Dolores (Lanzarote)',
-                'scope' => 'Insular'
+                'scope' => 'Insular',
             ],
             // Fuerteventura - Nuestra Señora de la Peña (tercer viernes de septiembre)
             [
                 'date' => $this->getThirdFridayOfSeptember($year),
                 'name' => 'Nuestra Señora de la Peña (Fuerteventura)',
-                'scope' => 'Insular'
+                'scope' => 'Insular',
             ],
             // La Gomera - Nuestra Señora de Guadalupe (lunes después del primer sábado de octubre)
             [
                 'date' => $this->getMondayAfterFirstSaturdayOfOctober($year),
                 'name' => 'Nuestra Señora de Guadalupe (La Gomera)',
-                'scope' => 'Insular'
+                'scope' => 'Insular',
             ],
         ];
 
@@ -119,10 +119,10 @@ class CanaryIslandHolidaysSeeder extends Seeder
             AvailabilityException::create([
                 'date' => $holiday['date'],
                 'is_available' => false, // No disponible en festivos
-                'reason' => $holiday['name'] . ' (' . $holiday['scope'] . ')',
+                'reason' => $holiday['name'].' ('.$holiday['scope'].')',
             ]);
-            
-            $this->command->info('Creado festivo: ' . $holiday['name'] . ' - ' . $holiday['date']->format('Y-m-d'));
+
+            $this->command->info('Creado festivo: '.$holiday['name'].' - '.$holiday['date']->format('Y-m-d'));
         }
     }
 
@@ -154,6 +154,7 @@ class CanaryIslandHolidaysSeeder extends Seeder
         while ($date->dayOfWeek != Carbon::FRIDAY) {
             $date->addDay();
         }
+
         // Ir al tercer viernes (sumando 14 días)
         return $date->addDays(14);
     }
@@ -168,6 +169,7 @@ class CanaryIslandHolidaysSeeder extends Seeder
         while ($date->dayOfWeek != Carbon::SATURDAY) {
             $date->addDay();
         }
+
         // Ir al lunes siguiente (sumando 2 días)
         return $date->addDays(2);
     }
@@ -179,8 +181,10 @@ class CanaryIslandHolidaysSeeder extends Seeder
     {
         if ($date->isWeekend()) {
             $this->command->info("Festivo '$holidayName' cae en fin de semana. Movido al lunes siguiente.");
+
             return $date->next(Carbon::MONDAY);
         }
+
         return $date;
     }
-} 
+}

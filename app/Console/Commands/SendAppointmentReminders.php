@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\AppointmentReminder;
+use App\Mail\RemoteAssistanceReminder;
 use App\Models\Appointment;
 use App\Models\CompanyData;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
-use App\Mail\AppointmentReminder;
 
 class SendAppointmentReminders extends Command
 {
@@ -44,8 +45,9 @@ class SendAppointmentReminders extends Command
     {
         // Get company data for sending emails
         $companyData = CompanyData::first();
-        if (!$companyData) {
+        if (! $companyData) {
             $this->error('No company data found');
+
             return 1;
         }
 
@@ -55,24 +57,39 @@ class SendAppointmentReminders extends Command
             ->where('status', 'Confirmed')
             ->get();
 
-        $this->info("Found " . $appointments->count() . " appointments for tomorrow.");
+        $this->info('Found '.$appointments->count().' appointments for tomorrow.');
 
         // Send reminder emails
         foreach ($appointments as $appointment) {
             try {
-                // Send to client
-                Mail::to($appointment->client_email)
-                    ->send(new AppointmentReminder($appointment, $companyData));
+                if ($appointment->isRemote()) {
+                    // Una cita remota necesita SU recordatorio: con enlace y con el
+                    // huso del cliente. Si le mandáramos el AppointmentReminder
+                    // presencial, recibiría un email que habla de un técnico que va
+                    // a su casa y SIN el enlace de la videollamada (US-3, R-5).
+                    Mail::to($appointment->client_email)
+                        ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_TOMORROW));
 
-                // Also send a copy to company if needed
-                if ($companyData->email) {
-                    Mail::to($companyData->email)
-                        ->send(new AppointmentReminder($appointment, $companyData, true));
+                    // El técnico también lo recibe: es quien atiende (US-3).
+                    if ($companyData->email) {
+                        Mail::to($companyData->email)
+                            ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_TOMORROW, true));
+                    }
+                } else {
+                    // Send to client
+                    Mail::to($appointment->client_email)
+                        ->send(new AppointmentReminder($appointment, $companyData));
+
+                    // Also send a copy to company if needed
+                    if ($companyData->email) {
+                        Mail::to($companyData->email)
+                            ->send(new AppointmentReminder($appointment, $companyData, true));
+                    }
                 }
 
-                $this->info("Sent reminder for appointment ID: " . $appointment->id);
+                $this->info('Sent reminder for appointment ID: '.$appointment->id);
             } catch (\Exception $e) {
-                $this->error("Failed to send reminder for appointment ID: " . $appointment->id . " - " . $e->getMessage());
+                $this->error('Failed to send reminder for appointment ID: '.$appointment->id.' - '.$e->getMessage());
             }
         }
 

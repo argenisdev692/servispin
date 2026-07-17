@@ -13,12 +13,64 @@
     <title>Welcome</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <!-- Scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Tailwind CSS v4 (browser CDN), coherente con layouts/app.blade.php.
+         La base de formularios completa vive en app.blade.php; aquí basta el
+         borde de los inputs para las pantallas de login/registro. --}}
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        @layer base {
+            button,
+            [type='button'],
+            [type='submit'],
+            [type='reset'],
+            a,
+            nav,
+            nav a,
+            [role='button'],
+            summary,
+            label[for] {
+                cursor: pointer;
+            }
+
+            button:disabled,
+            [type='button']:disabled,
+            [type='submit']:disabled,
+            [aria-disabled='true'] {
+                cursor: not-allowed;
+            }
+
+            [type='text'], [type='email'], [type='url'], [type='password'],
+            [type='number'], [type='search'], [type='tel'], textarea, select {
+                appearance: none;
+                background-color: #fff;
+                border: 1px solid #6b7280;
+                padding: 0.5rem 0.75rem;
+            }
+            [type='checkbox'], [type='radio'] {
+                appearance: none;
+                height: 1rem;
+                width: 1rem;
+                border: 1px solid #6b7280;
+                color: #2563eb;
+            }
+            [type='checkbox']:checked, [type='radio']:checked {
+                background-color: currentColor;
+                border-color: transparent;
+            }
+            [type='checkbox'] { border-radius: 0.25rem; }
+            [type='radio'] { border-radius: 100%; }
+        }
+    </style>
     <style>
         ::-webkit-scrollbar {
             width: 12px;

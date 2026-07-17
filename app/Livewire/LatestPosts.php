@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
+
 use App\Models\Post;
 use Livewire\Component;
 
@@ -10,7 +11,7 @@ class LatestPosts extends Component
 
     public function mount()
     {
-       
+
         $this->latestPosts = Post::latest()->take(10)->get();
     }
 

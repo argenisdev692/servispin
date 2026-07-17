@@ -1,3 +1,4 @@
+<div>
  <style>
      .post-container {
          display: grid;
@@ -104,3 +105,4 @@
          </div>
      </div>
  @endif
+</div>
