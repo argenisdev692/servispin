@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAdminRemoteAppointmentRequest;
+use App\Http\Requests\UpdateMeetingLinkRequest;
 use App\Http\Requests\VerifyPaymentRequest;
 use App\Mail\RemoteAssistanceConfirmed;
 use App\Mail\RemoteAssistanceRejected;
 use App\Models\Appointment;
+use App\Models\AppointmentPaymentEvent;
 use App\Models\CompanyData;
 use App\Models\Service;
 use App\Services\MeetingLink\MeetingLinkException;
 use App\Services\MeetingLink\MeetingLinkProvider;
+use App\Services\PaymentEventLogger;
 use App\Services\SchedulingService;
 use App\Services\TransactionService;
 use Carbon\Carbon;
@@ -33,6 +36,7 @@ class RemoteAssistanceAdminController extends Controller
         protected TransactionService $transactionService,
         protected SchedulingService $scheduling,
         protected MeetingLinkProvider $meetingLinks,
+        protected PaymentEventLogger $paymentEvents,
     ) {}
 
     /**
@@ -61,6 +65,29 @@ class RemoteAssistanceAdminController extends Controller
             'appointments' => $appointments,
             'awaitingLink' => $awaitingLink,
             'providerIsAutomatic' => $this->meetingLinks->isAutomatic(),
+            'pendingCount' => Appointment::pendingPaymentVerification()->count(),
+        ]);
+    }
+
+    /**
+     * Historial de referencias de pago (timeline de eventos).
+     */
+    public function paymentHistory(Request $request)
+    {
+        $reference = trim((string) $request->query('reference', ''));
+
+        $events = AppointmentPaymentEvent::with(['appointment.service', 'recorder'])
+            ->when($reference !== '', function ($query) use ($reference) {
+                $query->where('reference', 'like', '%'.$reference.'%');
+            })
+            ->orderByDesc('created_at')
+            ->paginate(30)
+            ->withQueryString();
+
+        return view('admin.remote-assistance.payment-history', [
+            'events' => $events,
+            'reference' => $reference,
+            'pendingCount' => Appointment::pendingPaymentVerification()->count(),
         ]);
     }
 
@@ -122,7 +149,22 @@ class RemoteAssistanceAdminController extends Controller
 
                     return $appointment;
                 },
-                function (Appointment $confirmed) {
+                function (Appointment $confirmed) use ($verifier) {
+                    $this->paymentEvents->log(
+                        $confirmed,
+                        AppointmentPaymentEvent::TYPE_VERIFIED,
+                        $verifier,
+                    );
+
+                    if ($confirmed->meeting_link_failed_at !== null) {
+                        $this->paymentEvents->log(
+                            $confirmed,
+                            AppointmentPaymentEvent::TYPE_LINK_FAILED,
+                            $verifier,
+                            'El proveedor automático no pudo generar el enlace.',
+                        );
+                    }
+
                     $this->sendConfirmedEmail($confirmed);
                 }
             );
@@ -210,7 +252,14 @@ class RemoteAssistanceAdminController extends Controller
 
                     return $appointment;
                 },
-                function (Appointment $rejected) use ($data) {
+                function (Appointment $rejected) use ($data, $verifier) {
+                    $this->paymentEvents->log(
+                        $rejected,
+                        AppointmentPaymentEvent::TYPE_REJECTED,
+                        $verifier,
+                        $data['reason'] ?? null,
+                    );
+
                     $this->sendRejectedEmail($rejected, $data['reason'] ?? null);
                 }
             );
@@ -302,8 +351,29 @@ class RemoteAssistanceAdminController extends Controller
 
                     return $appointment;
                 },
-                function (Appointment $created) use ($paymentVerified) {
+                function (Appointment $created) use ($paymentVerified, $verifier) {
+                    $this->paymentEvents->log(
+                        $created,
+                        AppointmentPaymentEvent::TYPE_CLAIMED,
+                        $verifier,
+                        $paymentVerified ? 'Alta admin con pago ya verificado' : null,
+                    );
+
                     if ($paymentVerified) {
+                        $this->paymentEvents->log(
+                            $created,
+                            AppointmentPaymentEvent::TYPE_VERIFIED,
+                            $verifier,
+                        );
+
+                        if ($created->meeting_link_failed_at !== null) {
+                            $this->paymentEvents->log(
+                                $created,
+                                AppointmentPaymentEvent::TYPE_LINK_FAILED,
+                                $verifier,
+                            );
+                        }
+
                         $this->sendConfirmedEmail($created);
                     }
                 }
@@ -326,6 +396,111 @@ class RemoteAssistanceAdminController extends Controller
 
             return response()->json(['success' => false, 'message' => 'Error al crear la cita.'], 500);
         }
+    }
+
+    /**
+     * Añade o actualiza el enlace manualmente (FR-15) y opcionalmente reenvía el email.
+     */
+    public function updateMeetingLink(UpdateMeetingLinkRequest $request, $id)
+    {
+        $appointment = Appointment::find($id);
+
+        if (! $appointment || ! $appointment->isRemote()) {
+            return response()->json(['success' => false, 'message' => 'Cita remota no encontrada.'], 404);
+        }
+
+        if ($appointment->status !== Appointment::STATUS_CONFIRMED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se puede añadir enlace a citas remotas confirmadas.',
+            ], 422);
+        }
+
+        $data = $request->validated();
+        $admin = $request->user();
+
+        try {
+            $appointment = $this->transactionService->run(
+                function () use ($appointment, $data) {
+                    $appointment->meeting_url = $data['meeting_url'];
+                    $appointment->meeting_provider = $this->meetingLinks->name();
+                    $appointment->meeting_link_failed_at = null;
+                    $appointment->save();
+
+                    return $appointment;
+                },
+                function (Appointment $updated) use ($data, $admin) {
+                    $this->paymentEvents->log(
+                        $updated,
+                        AppointmentPaymentEvent::TYPE_LINK_ADDED,
+                        $admin,
+                        $data['meeting_url'],
+                    );
+
+                    if ($data['resend_email'] ?? true) {
+                        $this->sendConfirmedEmail($updated);
+                        $this->paymentEvents->log(
+                            $updated,
+                            AppointmentPaymentEvent::TYPE_CONFIRMATION_RESENT,
+                            $admin,
+                        );
+                    }
+                }
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Enlace guardado'.(($data['resend_email'] ?? true) ? ' y email reenviado.' : '.'),
+                'data' => ['meeting_url' => $appointment->meeting_url],
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Error actualizando enlace de reunión: '.$e->getMessage(), ['appointment_id' => $id]);
+
+            return response()->json(['success' => false, 'message' => 'Error al guardar el enlace.'], 500);
+        }
+    }
+
+    /**
+     * Reenvía el email de confirmación con el enlace actual.
+     */
+    public function resendConfirmation(Request $request, $id)
+    {
+        $user = $request->user();
+        if ($user === null || ! $user->hasRole('Admin', 'sanctum')) {
+            return response()->json(['success' => false, 'message' => 'No autorizado.'], 403);
+        }
+
+        $appointment = Appointment::find($id);
+
+        if (! $appointment || ! $appointment->isRemote()) {
+            return response()->json(['success' => false, 'message' => 'Cita remota no encontrada.'], 404);
+        }
+
+        if ($appointment->status !== Appointment::STATUS_CONFIRMED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se puede reenviar la confirmación de citas confirmadas.',
+            ], 422);
+        }
+
+        if (! $appointment->meeting_url) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta cita no tiene enlace de videollamada. Añádelo primero.',
+            ], 422);
+        }
+
+        $this->sendConfirmedEmail($appointment);
+        $this->paymentEvents->log(
+            $appointment,
+            AppointmentPaymentEvent::TYPE_CONFIRMATION_RESENT,
+            $user,
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Confirmación reenviada al cliente y al técnico.',
+        ]);
     }
 
     private function sendConfirmedEmail(Appointment $appointment): void

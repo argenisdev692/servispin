@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRemoteAssistanceRequest;
 use App\Mail\RemoteAssistanceRequested;
 use App\Models\Appointment;
+use App\Models\AppointmentPaymentEvent;
 use App\Models\Brand;
 use App\Models\CompanyData;
 use App\Models\Service;
+use App\Services\PaymentEventLogger;
 use App\Services\SchedulingService;
 use App\Services\TransactionService;
 use Carbon\Carbon;
@@ -32,6 +34,7 @@ class RemoteAssistanceController extends Controller
     public function __construct(
         protected TransactionService $transactionService,
         protected SchedulingService $scheduling,
+        protected PaymentEventLogger $paymentEvents,
     ) {}
 
     /**
@@ -144,6 +147,10 @@ class RemoteAssistanceController extends Controller
                     ]);
                 },
                 function (Appointment $appointment) {
+                    $this->paymentEvents->log(
+                        $appointment,
+                        AppointmentPaymentEvent::TYPE_CLAIMED,
+                    );
                     $this->sendRequestedEmail($appointment);
                 },
                 function (Throwable $dbError) use ($photoPath) {

@@ -8,10 +8,12 @@ use App\Mail\AppointmentConfirmed;
 use App\Mail\AppointmentRescheduled;
 use App\Mail\RemoteAssistanceCancelled;
 use App\Models\Appointment;
+use App\Models\AppointmentPaymentEvent;
 use App\Models\Brand;
 use App\Models\CompanyData;
 use App\Models\Service;
 use App\Services\MeetingLink\MeetingLinkProvider;
+use App\Services\PaymentEventLogger;
 use App\Services\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -25,8 +27,10 @@ class AppointmentCalendarController extends Controller
 {
     protected TransactionService $transactionService;
 
-    public function __construct(TransactionService $transactionService)
-    {
+    public function __construct(
+        TransactionService $transactionService,
+        protected PaymentEventLogger $paymentEvents,
+    ) {
         $this->transactionService = $transactionService;
     }
 
@@ -112,6 +116,9 @@ class AppointmentCalendarController extends Controller
                     'isRemote' => $isRemote,
                     'paymentStatus' => $appointment->payment_status,
                     'paymentReference' => $appointment->payment_reference,
+                    'paymentAmount' => $appointment->payment_amount,
+                    'paymentCurrency' => $appointment->payment_currency,
+                    'payerName' => $appointment->payer_name,
                     'clientTimezone' => $appointment->client_timezone,
                     // El enlace solo viaja a un endpoint autenticado de admin.
                     'meetingUrl' => $appointment->meeting_url,
@@ -170,7 +177,7 @@ class AppointmentCalendarController extends Controller
                         })
                         // Consider only relevant statuses for conflict checking
                         // Use constants if available and appropriate (e.g., Appointment::STATUS_NEW)
-                        ->whereIn('status', ['pending', 'confirmed']) // Adjust statuses as needed
+                        ->whereIn('status', [Appointment::STATUS_PENDING, Appointment::STATUS_CONFIRMED])
                         ->lockForUpdate() // Add pessimistic lock for concurrency safety
                         ->first();
 
@@ -253,6 +260,26 @@ class AppointmentCalendarController extends Controller
         // Find the appointment
         $appointment = Appointment::findOrFail($id);
 
+        // Las remotas con pago sin verificar deben pasar por verify-payment (FR-3).
+        if ($request->status === 'Confirmed' && $appointment->isRemote()) {
+            if ($appointment->payment_status !== Appointment::PAYMENT_VERIFIED) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Las citas remotas requieren verificar el pago antes de confirmar. Usa "Confirmar pago y enviar enlace".',
+                ], 422);
+            }
+        }
+
+        // Las remotas pendientes de pago deben rechazarse vía verify-payment.
+        if ($request->status === 'Cancelled'
+            && $appointment->isRemote()
+            && $appointment->payment_status === Appointment::PAYMENT_CLAIMED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Para rechazar el pago de una cita remota usa "Rechazar pago" en el modal.',
+            ], 422);
+        }
+
         // Skip if appointment is "New" or already has the requested status
         if ($appointment->status === 'New' || $appointment->status === $request->status) {
             return response()->json([
@@ -276,6 +303,11 @@ class AppointmentCalendarController extends Controller
             && $appointment->payment_status === Appointment::PAYMENT_VERIFIED) {
             $appointment->payment_status = Appointment::PAYMENT_REFUND_PENDING;
             $refundPending = true;
+            $this->paymentEvents->log(
+                $appointment,
+                AppointmentPaymentEvent::TYPE_REFUND_PENDING,
+                $request->user(),
+            );
         }
 
         $appointment->save();

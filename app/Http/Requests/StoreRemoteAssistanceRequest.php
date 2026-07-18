@@ -62,8 +62,8 @@ class StoreRemoteAssistanceRequest extends FormRequest
             ],
             'brand_id' => 'required|exists:brands,id',
 
-            'client_first_name' => 'required|string|max:120',
-            'client_last_name' => 'required|string|max:135',
+            'client_first_name' => ['required', 'string', 'min:3', 'max:15', 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u'],
+            'client_last_name' => ['required', 'string', 'min:3', 'max:15', 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u'],
             'client_email' => 'required|email|max:255',
             'client_phone' => 'required|string|max:25',
             'issue_description' => 'required|string|max:5000',
@@ -103,6 +103,12 @@ class StoreRemoteAssistanceRequest extends FormRequest
             'payment_reference.required' => 'La referencia del pago es obligatoria: sin ella no podemos comprobar que el cobro entró.',
             'payment_amount.required' => 'Indica el importe que has pagado.',
             'payer_name.required' => 'Indica el nombre con el que hiciste el pago.',
+            'client_first_name.min' => 'El nombre debe tener al menos 3 letras.',
+            'client_first_name.max' => 'El nombre no puede superar 15 caracteres.',
+            'client_first_name.regex' => 'El nombre solo puede contener letras, sin espacios.',
+            'client_last_name.min' => 'El apellido debe tener al menos 3 letras.',
+            'client_last_name.max' => 'El apellido no puede superar 15 caracteres.',
+            'client_last_name.regex' => 'El apellido solo puede contener letras, sin espacios.',
             'client_timezone.required' => 'No hemos podido determinar tu zona horaria. Selecciónala para confirmar la hora de tu cita.',
             'client_timezone.timezone' => 'La zona horaria indicada no es válida.',
             'service_id.exists' => 'El servicio seleccionado no está disponible para asistencia remota.',
@@ -114,6 +120,24 @@ class StoreRemoteAssistanceRequest extends FormRequest
         }
 
         return $messages;
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (! $this->filled('service_id') || ! $this->filled('payment_amount')) {
+                return;
+            }
+
+            $service = Service::find($this->input('service_id'));
+
+            if ($service && round((float) $this->input('payment_amount'), 2) !== round((float) $service->price, 2)) {
+                $validator->errors()->add(
+                    'payment_amount',
+                    'El importe debe ser '.number_format((float) $service->price, 2, '.', '').' €.'
+                );
+            }
+        });
     }
 
     /**

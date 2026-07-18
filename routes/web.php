@@ -14,15 +14,16 @@ use App\Http\Controllers\GalleryImageController; // Import the appointment contr
 use App\Http\Controllers\PostController; // Import the availability controller
 use App\Livewire\PostComponent; // Import the remote assistance controller
 use App\Livewire\UsersCrud; // Import the new admin controller
-use App\Models\GalleryImage; // Import the remote assistance admin controller
-use App\Models\User; // Import the brand controller
-use Illuminate\Support\Facades\Auth; // Import the availability exception controller
-use Illuminate\Support\Facades\Route; // Import the service controller
-use Laravel\Socialite\Facades\Socialite; // Import the contact controller
+use App\Models\CompanyData; // Import the remote assistance admin controller
+use App\Models\GalleryImage; // Import the brand controller
+use App\Models\User; // Import the availability exception controller
+use Illuminate\Support\Facades\Auth; // Import the service controller
+use Illuminate\Support\Facades\Route; // Import the contact controller
+use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
- // Import the gallery image controller
+// Import the gallery image controller
 
 /*
 |--------------------------------------------------------------------------
@@ -192,12 +193,18 @@ Route::middleware(['throttle:global'])->group(function () {
             // fuera hasta al propio Cesar (ver VerifyPaymentRequest::authorize()).
             Route::patch('/{id}/verify-payment', [RemoteAssistanceAdminController::class, 'verifyPayment'])
                 ->name('verify-payment');
+            Route::patch('/{id}/meeting-link', [RemoteAssistanceAdminController::class, 'updateMeetingLink'])
+                ->name('meeting-link');
+            Route::post('/{id}/resend-confirmation', [RemoteAssistanceAdminController::class, 'resendConfirmation'])
+                ->name('resend-confirmation');
             Route::post('/remote', [RemoteAssistanceAdminController::class, 'store'])->name('remote.store');
         });
 
         // Bandeja de verificación de pagos remotos (US-2)
         Route::get('admin/remote-assistance', [RemoteAssistanceAdminController::class, 'index'])
             ->name('admin.remote-assistance.index');
+        Route::get('admin/remote-assistance/pagos', [RemoteAssistanceAdminController::class, 'paymentHistory'])
+            ->name('admin.remote-assistance.payments');
 
         // Rutas protegidas para la gestión de disponibilidad
         Route::prefix('admin/availability')->name('admin.availability.')->group(function () {
@@ -238,13 +245,13 @@ Route::middleware(['throttle:global'])->group(function () {
 
     // Páginas legales (GDPR / LSSI). Públicas.
     Route::get('/politica-de-privacidad', function () {
-        return view('legal.privacidad', ['companyData' => \App\Models\CompanyData::first()]);
+        return view('legal.privacidad', ['companyData' => CompanyData::first()]);
     })->name('legal.privacidad');
     Route::get('/politica-de-cookies', function () {
-        return view('legal.cookies', ['companyData' => \App\Models\CompanyData::first()]);
+        return view('legal.cookies', ['companyData' => CompanyData::first()]);
     })->name('legal.cookies');
     Route::get('/aviso-legal', function () {
-        return view('legal.terminos', ['companyData' => \App\Models\CompanyData::first()]);
+        return view('legal.terminos', ['companyData' => CompanyData::first()]);
     })->name('legal.terminos');
 
 }); // Cierre del grupo throttle:global

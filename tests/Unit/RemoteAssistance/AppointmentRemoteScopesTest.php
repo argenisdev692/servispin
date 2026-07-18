@@ -118,6 +118,8 @@ class AppointmentRemoteScopesTest extends TestCase
     {
         // research #5: getServices() filtra por 'active', una columna que no
         // existía y hacía reventar GET /appointments/services.
+        Service::query()->delete();
+
         Service::factory()->count(2)->create();
         Service::factory()->inactive()->create();
         Service::factory()->remote()->create();

@@ -1,4 +1,5 @@
  <!-- Desktop sidebar -->
+@php $remotePendingCount = \App\Models\Appointment::pendingPaymentVerification()->count(); @endphp
  <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
      <div class="py-4 text-gray-500 dark:text-gray-400">
          <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="{{ route('dashboard') }}">
@@ -94,6 +95,20 @@
                          </path>
                      </svg>
                      <span class="ml-4">Calendario Citas</span>
+                 </a>
+             </li>
+
+             <li class="relative px-6 py-3">
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.remote-assistance.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.remote-assistance.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                     </svg>
+                     <span class="ml-4">Asistencia remota</span>
+                     @if ($remotePendingCount > 0)
+                         <span class="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $remotePendingCount }}</span>
+                     @endif
                  </a>
              </li>
 
@@ -280,6 +295,20 @@
                          </path>
                      </svg>
                      <span class="ml-4">Calendario Citas</span>
+                 </a>
+             </li>
+
+             <li class="relative px-6 py-3">
+                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.remote-assistance.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                     href="{{ route('admin.remote-assistance.index') }}">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                             d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                     </svg>
+                     <span class="ml-4">Asistencia remota</span>
+                     @if ($remotePendingCount > 0)
+                         <span class="ml-auto bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $remotePendingCount }}</span>
+                     @endif
                  </a>
              </li>
 

@@ -18,6 +18,7 @@
          layout renderiza dentro de <head>. --}}
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <style>
         .honeypot-field {
             position: absolute !important;
@@ -31,6 +32,20 @@
             background-color: #2563eb;
             color: #fff;
             border-color: #2563eb;
+        }
+
+        .required-asterisk {
+            color: red;
+            margin-left: 2px;
+        }
+
+        .iti {
+            width: 100%;
+            display: block;
+        }
+
+        .iti__flag-container {
+            z-index: 10;
         }
     </style>
 @endpush
@@ -91,9 +106,11 @@
                 <input type="hidden" name="service_id" value="{{ $service->id }}">
 
                 <div class="mb-4">
-                    <label for="brand_id" class="block text-sm font-medium text-gray-700 mb-1">Marca del aparato</label>
+                    <label for="brand_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        Marca del aparato <span class="required-asterisk">*</span>
+                    </label>
                     <select name="brand_id" id="brand_id" required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Selecciona una marca</option>
                         @foreach ($brands as $brand)
                             <option value="{{ $brand->id }}">{{ $brand->name }}</option>
@@ -103,19 +120,23 @@
 
                 <div>
                     <label for="issue_description" class="block text-sm font-medium text-gray-700 mb-1">
-                        Describe la avería
+                        Describe la avería <span class="required-asterisk">*</span>
                     </label>
                     <textarea name="issue_description" id="issue_description" rows="4" required
                               placeholder="Cuanto más detalle nos des, mejor podremos ayudarte en la llamada."
-                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                              class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
 
                 <div class="mt-4">
                     <label for="equipment_photo" class="block text-sm font-medium text-gray-700 mb-1">
-                        Foto del aparato <span class="text-gray-400">(opcional)</span>
+                        Foto del aparato <span class="text-gray-400 font-normal">(opcional)</span>
                     </label>
-                    <input type="file" name="equipment_photo" id="equipment_photo" accept="image/*"
-                           class="w-full text-sm text-gray-600">
+                    <input type="file" name="equipment_photo" id="equipment_photo"
+                           accept="image/jpeg,image/png,image/jpg,image/gif"
+                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-1 text-xs text-gray-500">Solo imágenes (JPG, PNG, GIF). Tamaño máximo: 10 MB.</p>
+                    <p id="photo-size-error" class="text-red-500 text-xs mt-1 hidden">El archivo excede el límite de 10 MB.</p>
+                    <img id="photo-preview" src="#" alt="Vista previa" class="mt-2 max-h-40 rounded-lg shadow-md hidden object-contain">
                 </div>
             </div>
 
@@ -132,13 +153,17 @@
                 </p>
 
                 <div class="mb-4">
-                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
+                        Fecha <span class="required-asterisk">*</span>
+                    </label>
                     <input type="text" id="date" required placeholder="Selecciona una fecha"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                           class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div id="slots-container" class="hidden">
-                    <span class="block text-sm font-medium text-gray-700 mb-2">Huecos disponibles</span>
+                    <span class="block text-sm font-medium text-gray-700 mb-2">
+                        Hueco disponible <span class="required-asterisk">*</span>
+                    </span>
                     <div id="slots" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
                     <p id="no-slots" class="hidden text-sm text-gray-500">No quedan huecos ese día. Prueba con otra fecha.</p>
                 </div>
@@ -151,25 +176,39 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="client_first_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                        <label for="client_first_name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nombre <span class="required-asterisk">*</span>
+                        </label>
                         <input type="text" name="client_first_name" id="client_first_name" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               minlength="3" maxlength="15" autocomplete="given-name"
+                               placeholder="Primer nombre"
+                               class="capitalize mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Solo letras, sin espacios (3–15 caracteres).</p>
                     </div>
                     <div>
-                        <label for="client_last_name" class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                        <label for="client_last_name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Apellido <span class="required-asterisk">*</span>
+                        </label>
                         <input type="text" name="client_last_name" id="client_last_name" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               minlength="3" maxlength="15" autocomplete="family-name"
+                               placeholder="Primer apellido"
+                               class="capitalize mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Solo letras, sin espacios (3–15 caracteres).</p>
                     </div>
                     <div>
-                        <label for="client_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" name="client_email" id="client_email" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label for="client_email" class="block text-sm font-medium text-gray-700 mb-1">
+                            Email <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="email" name="client_email" id="client_email" required autocomplete="email"
+                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <p class="text-xs text-gray-500 mt-1">Aquí te enviaremos el enlace de la videollamada.</p>
                     </div>
                     <div>
-                        <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                        <input type="tel" name="client_phone" id="client_phone" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">
+                            Teléfono <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="tel" name="client_phone" id="client_phone" required autocomplete="tel"
+                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
@@ -180,22 +219,26 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="sm:col-span-2">
                         <label for="payment_reference" class="block text-sm font-medium text-gray-700 mb-1">
-                            Referencia del recibo de SumUp
+                            Referencia del recibo de SumUp <span class="required-asterisk">*</span>
                         </label>
                         <input type="text" name="payment_reference" id="payment_reference" required maxlength="128"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <p class="text-xs text-gray-500 mt-1">Aparece en el recibo que te envía SumUp por email o SMS.</p>
                     </div>
                     <div>
-                        <label for="payment_amount" class="block text-sm font-medium text-gray-700 mb-1">Importe pagado (€)</label>
-                        <input type="number" step="0.01" min="0" name="payment_amount" id="payment_amount" required
-                               value="{{ $service->price }}"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <label for="payment_amount" class="block text-sm font-medium text-gray-700 mb-1">
+                            Importe pagado (€) <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="text" name="payment_amount" id="payment_amount" required readonly
+                               value="{{ number_format($service->price, 2, '.', '') }}"
+                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none">
                     </div>
                     <div>
-                        <label for="payer_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del pagador</label>
+                        <label for="payer_name" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nombre del pagador <span class="required-asterisk">*</span>
+                        </label>
                         <input type="text" name="payer_name" id="payer_name" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
@@ -235,6 +278,8 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
     <script>
         (function () {
             const form = document.getElementById('remote-assistance-form');
@@ -244,14 +289,108 @@
             const startTimeEl = document.getElementById('start_time');
             const errorsEl = document.getElementById('form-errors');
             const submitBtn = document.getElementById('submit-btn');
+            const clientFirstNameInput = document.getElementById('client_first_name');
+            const clientLastNameInput = document.getElementById('client_last_name');
+            const clientPhoneInput = document.getElementById('client_phone');
+            const equipmentPhotoInput = document.getElementById('equipment_photo');
+            const photoSizeError = document.getElementById('photo-size-error');
+            const photoPreview = document.getElementById('photo-preview');
+            const namePattern = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u;
 
-            // FR-6: el huso del cliente lo detecta el navegador. Es el dato que
-            // permite mostrarle SU hora sin ambigüedad.
             const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '{{ $businessTimezone }}';
             document.getElementById('client_timezone').value = clientTimezone;
             document.getElementById('tz-label').textContent = clientTimezone;
 
             let selectedDate = null;
+            let iti = null;
+
+            function sanitizeNameInput(input) {
+                input.addEventListener('input', function () {
+                    this.value = this.value
+                        .replace(/\s+/g, '')
+                        .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '')
+                        .slice(0, 15);
+                });
+            }
+
+            sanitizeNameInput(clientFirstNameInput);
+            sanitizeNameInput(clientLastNameInput);
+
+            if (clientPhoneInput) {
+                iti = window.intlTelInput(clientPhoneInput, {
+                    initialCountry: 'es',
+                    preferredCountries: ['es'],
+                    separateDialCode: true,
+                    utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js',
+                    autoPlaceholder: 'aggressive',
+                });
+
+                clientPhoneInput.addEventListener('input', function () {
+                    const isSpanish = iti.getSelectedCountryData().iso2 === 'es';
+                    const cursorPos = this.selectionStart;
+                    const spacesBefore = (this.value.substring(0, cursorPos).match(/ /g) || []).length;
+                    const digits = this.value.replace(/\D/g, '');
+
+                    if (isSpanish) {
+                        let formattedValue = '';
+                        for (let i = 0; i < Math.min(digits.length, 9); i++) {
+                            if (i === 3 || i === 5 || i === 7) formattedValue += ' ';
+                            formattedValue += digits[i];
+                        }
+                        if (this.value !== formattedValue) {
+                            this.value = formattedValue;
+                            const spacesAfter = (formattedValue.substring(0, cursorPos).match(/ /g) || []).length;
+                            this.setSelectionRange(cursorPos + (spacesAfter - spacesBefore), cursorPos + (spacesAfter - spacesBefore));
+                        }
+                    } else if (digits.length > 15) {
+                        this.value = this.value.substring(0, this.value.length - 1);
+                    }
+                });
+
+                clientPhoneInput.addEventListener('countrychange', function () {
+                    const digits = this.value.replace(/\D/g, '');
+                    if (iti.getSelectedCountryData().iso2 === 'es' && digits.length > 0) {
+                        let formattedValue = '';
+                        const limited = digits.substring(0, 9);
+                        for (let i = 0; i < limited.length; i++) {
+                            if (i === 3 || i === 5 || i === 7) formattedValue += ' ';
+                            formattedValue += limited[i];
+                        }
+                        this.value = formattedValue;
+                    }
+                });
+            }
+
+            if (equipmentPhotoInput) {
+                equipmentPhotoInput.addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    photoSizeError.classList.add('hidden');
+                    photoPreview.classList.add('hidden');
+                    photoPreview.src = '#';
+
+                    if (!file) return;
+
+                    if (!file.type.startsWith('image/')) {
+                        showErrors(['La foto debe ser una imagen (JPG, PNG o GIF).']);
+                        equipmentPhotoInput.value = '';
+                        return;
+                    }
+
+                    const maxSize = 10 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        photoSizeError.classList.remove('hidden');
+                        equipmentPhotoInput.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        photoPreview.src = e.target.result;
+                        photoPreview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
             flatpickr('#date', {
                 locale: 'es',
@@ -320,17 +459,63 @@
                 errorsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
+            function validateForm() {
+                const messages = [];
+                const requiredFields = form.querySelectorAll('input[required]:not([type="hidden"]):not([readonly]), select[required], textarea[required]');
+
+                requiredFields.forEach(function (field) {
+                    field.classList.remove('border-red-500');
+                    const label = form.querySelector('label[for="' + field.id + '"]');
+                    if (label) label.classList.remove('text-red-500');
+
+                    if (!String(field.value || '').trim()) {
+                        messages.push('Completa todos los campos obligatorios (*).');
+                        field.classList.add('border-red-500');
+                        if (label) label.classList.add('text-red-500');
+                    }
+                });
+
+                const firstName = clientFirstNameInput.value.trim();
+                const lastName = clientLastNameInput.value.trim();
+
+                if (firstName.length < 3 || firstName.length > 15 || !namePattern.test(firstName)) {
+                    messages.push('El nombre debe tener entre 3 y 15 letras, sin espacios.');
+                    clientFirstNameInput.classList.add('border-red-500');
+                }
+                if (lastName.length < 3 || lastName.length > 15 || !namePattern.test(lastName)) {
+                    messages.push('El apellido debe tener entre 3 y 15 letras, sin espacios.');
+                    clientLastNameInput.classList.add('border-red-500');
+                }
+
+                if (iti && (!clientPhoneInput.value.trim() || !iti.isValidNumber())) {
+                    messages.push('Introduce un teléfono válido.');
+                    clientPhoneInput.classList.add('border-red-500');
+                }
+
+                if (!startTimeEl.value) {
+                    messages.push('Selecciona un hueco disponible para tu cita.');
+                }
+
+                return [...new Set(messages)];
+            }
+
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 errorsEl.classList.add('hidden');
 
-                if (!startTimeEl.value) {
-                    showErrors(['Selecciona un hueco disponible para tu cita.']);
+                const validationErrors = validateForm();
+                if (validationErrors.length) {
+                    showErrors(validationErrors);
                     return;
                 }
 
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Enviando…';
+
+                const formData = new FormData(form);
+                if (iti && iti.isValidNumber()) {
+                    formData.set('client_phone', iti.getNumber());
+                }
 
                 try {
                     const res = await fetch('{{ route('remote-assistance.store') }}', {
@@ -339,7 +524,7 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
-                        body: new FormData(form)
+                        body: formData
                     });
 
                     const json = await res.json();

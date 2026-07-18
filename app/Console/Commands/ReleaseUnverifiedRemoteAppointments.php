@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Mail\RemoteAssistanceRejected;
 use App\Models\Appointment;
+use App\Models\AppointmentPaymentEvent;
 use App\Models\CompanyData;
+use App\Services\PaymentEventLogger;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -68,6 +70,14 @@ class ReleaseUnverifiedRemoteAppointments extends Command
             // pago sea falso; simplemente caducó el plazo de verificación.
             $appointment->status = Appointment::STATUS_CANCELLED;
             $appointment->save();
+
+            app(PaymentEventLogger::class)->log(
+                $appointment,
+                AppointmentPaymentEvent::TYPE_RELEASED,
+                null,
+                'Plazo de verificación agotado.',
+            );
+
             $released++;
 
             if ($companyData) {

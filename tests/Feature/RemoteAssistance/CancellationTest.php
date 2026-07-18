@@ -93,6 +93,7 @@ class CancellationTest extends TestCase
     public function cancelar_una_remota_sin_pago_verificado_no_marca_reembolso(): void
     {
         // Si nunca se verificó el pago, no hay dinero que devolver.
+        // Ya no se cancela por el endpoint genérico del calendario: va por verify-payment.
         $appointment = Appointment::factory()
             ->remote() // payment_status = claimed
             ->for(Service::factory()->remote())
@@ -102,10 +103,18 @@ class CancellationTest extends TestCase
             ->patchJson(route('admin.appointment.calendar.status.update', $appointment->id), [
                 'status' => 'Cancelled',
             ])
+            ->assertStatus(422);
+
+        $this->actingAs($this->admin)
+            ->patchJson(route('admin.appointments.verify-payment', $appointment->id), [
+                'decision' => 'reject',
+                'reason' => 'Pago no localizado en SumUp.',
+            ])
             ->assertStatus(200)
-            ->assertJson(['data' => ['refund_pending' => false]]);
+            ->assertJson(['data' => ['payment_status' => Appointment::PAYMENT_REJECTED]]);
 
         $this->assertNotSame(Appointment::PAYMENT_REFUND_PENDING, $appointment->fresh()->payment_status);
+        $this->assertSame(Appointment::PAYMENT_REJECTED, $appointment->fresh()->payment_status);
     }
 
     #[Test]

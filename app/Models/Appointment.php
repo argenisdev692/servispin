@@ -184,6 +184,11 @@ class Appointment extends Model
         return $this->belongsTo(User::class, 'payment_verified_by');
     }
 
+    public function paymentEvents()
+    {
+        return $this->hasMany(AppointmentPaymentEvent::class)->orderByDesc('created_at');
+    }
+
     /**
      * Get the public URL for the equipment photo from Supabase Storage
      */

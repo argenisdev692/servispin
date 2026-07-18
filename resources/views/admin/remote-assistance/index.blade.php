@@ -9,9 +9,25 @@
 --}}
 
 @section('content')
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-1">Asistencia remota</h1>
-        <p class="text-gray-600 mb-8">Pagos declarados pendientes de cotejar en SumUp.</p>
+    <div :class="{ 'theme-dark': dark }" x-data="data()" lang="es">
+        <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
+
+            <x-menu-sidebar />
+
+            <div class="flex flex-col flex-1 w-full">
+                <x-header-dashboard />
+
+                <main class="h-full overflow-y-auto">
+                    <div class="container px-6 mx-auto py-6 max-w-6xl">
+
+                        @include('admin.remote-assistance._header', ['current' => 'Bandeja'])
+
+                        <div class="mb-6">
+                            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Asistencia remota</h1>
+                            <p class="text-gray-600 dark:text-gray-400">Pagos declarados pendientes de cotejar en SumUp.</p>
+                        </div>
+
+                        @include('admin.remote-assistance._nav', ['pendingCount' => $pendingCount])
 
         {{-- FR-15: citas pagadas y confirmadas que se quedaron sin enlace porque
              el provider automático falló. Son las urgentes: el cliente ya pagó y
@@ -25,12 +41,24 @@
                     Estos clientes han pagado y su cita está confirmada, pero no se pudo generar el
                     enlace automáticamente. Añádelo a mano cuanto antes.
                 </p>
-                <ul class="space-y-2">
+                <ul class="space-y-4">
                     @foreach ($awaitingLink as $appointment)
-                        <li class="text-sm text-red-900">
-                            <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
-                            — {{ $appointment->start_time->format('d/m/Y H:i') }}
-                            ({{ $appointment->client_email }})
+                        <li class="text-sm text-red-900 border border-red-200 rounded p-3 bg-white">
+                            <p class="mb-2">
+                                <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
+                                — {{ $appointment->start_time->format('d/m/Y H:i') }}
+                                ({{ $appointment->client_email }})
+                            </p>
+                            <form class="link-form flex flex-col sm:flex-row gap-2" data-id="{{ $appointment->id }}">
+                                <input type="url" name="meeting_url" required
+                                       placeholder="https://meet.google.com/…"
+                                       class="flex-1 rounded-md border-gray-300 text-sm">
+                                <button type="submit"
+                                        class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-md font-semibold text-sm whitespace-nowrap">
+                                    Guardar y reenviar
+                                </button>
+                            </form>
+                            <p class="link-feedback text-xs mt-1 hidden"></p>
                         </li>
                     @endforeach
                 </ul>
@@ -140,6 +168,11 @@
         <div class="mt-6">
             {{ $appointments->links() }}
         </div>
+
+                    </div>
+                </main>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -198,6 +231,46 @@
                         form.querySelectorAll('button').forEach(b => b.disabled = false);
                     }
                 });
+            });
+        });
+
+        document.querySelectorAll('.link-form').forEach(function (form) {
+            const id = form.dataset.id;
+            const feedback = form.parentElement.querySelector('.link-feedback');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const meetingUrl = form.querySelector('[name="meeting_url"]').value;
+                form.querySelector('button').disabled = true;
+                feedback.classList.add('hidden');
+
+                try {
+                    const res = await fetch('/admin/appointments/' + id + '/meeting-link', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ meeting_url: meetingUrl, resend_email: true })
+                    });
+                    const json = await res.json();
+
+                    if (res.ok) {
+                        feedback.textContent = json.message;
+                        feedback.className = 'link-feedback text-xs mt-1 text-green-700';
+                        form.style.opacity = '0.5';
+                    } else {
+                        const messages = json.errors ? Object.values(json.errors).flat().join(' ') : json.message;
+                        feedback.textContent = messages;
+                        feedback.className = 'link-feedback text-xs mt-1 text-red-700';
+                        form.querySelector('button').disabled = false;
+                    }
+                } catch (err) {
+                    feedback.textContent = 'Error de conexión.';
+                    feedback.className = 'link-feedback text-xs mt-1 text-red-700';
+                    form.querySelector('button').disabled = false;
+                }
             });
         });
     </script>

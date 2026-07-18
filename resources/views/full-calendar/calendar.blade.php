@@ -143,17 +143,16 @@
                                     class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                     <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
                                         {{-- Close (X) button in top right corner --}}
-                                        <button type="button" id="closeEventModalBtn"
-                                            class="absolute top-2 right-2 rounded-full bg-red-600 p-2 inline-flex items-center justify-center text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        <button type="button" id="closeEventModalBtn" aria-label="Cerrar"
+                                            class="absolute top-3 right-3 z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-600 p-0 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            <svg class="block h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                            <span class="sr-only">Cerrar</span>
                                         </button>
                                         <div class="sm:flex sm:items-start">
-                                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full pr-8">
                                                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100"
                                                     id="modalEventTitle"></h3>
                                                 <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-400">
@@ -163,7 +162,36 @@
                                                     <p><strong>Servicio:</strong> <span id="modalEventService"></span></p>
                                                     <p><strong>Estado:</strong> <span id="modalEventStatus"
                                                             class="px-2 py-1 text-xs font-bold rounded-full"></span></p>
-                                                    <p><strong>Dirección:</strong> <span id="modalEventAddress"
+
+                                                    {{-- Sección remota: pago, enlace, acciones --}}
+                                                    <div id="remoteSection" class="hidden mt-3 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-700 space-y-2">
+                                                        <p class="text-xs font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200">📹 Asistencia remota</p>
+                                                        <p><strong>Pago:</strong> <span id="modalPaymentStatus"></span></p>
+                                                        <p><strong>Referencia SumUp:</strong> <span id="modalPaymentReference" class="font-mono"></span></p>
+                                                        <p><strong>Importe:</strong> <span id="modalPaymentAmount"></span></p>
+                                                        <p><strong>Pagador:</strong> <span id="modalPayerName"></span></p>
+                                                        <p id="modalClientTimezoneRow" class="hidden"><strong>Huso cliente:</strong> <span id="modalClientTimezone"></span></p>
+                                                        <p id="modalMeetingUrlRow" class="hidden"><strong>Enlace:</strong>
+                                                            <a id="modalMeetingUrl" href="#" target="_blank" class="text-blue-600 underline break-all"></a>
+                                                        </p>
+                                                        <p id="modalMeetingFailed" class="hidden text-red-700 text-xs font-semibold">⚠️ Confirmada sin enlace — pégalo abajo.</p>
+
+                                                        <div id="remoteVerifyActions" class="hidden space-y-2 pt-2">
+                                                            @unless ($providerIsAutomatic)
+                                                                <input type="url" id="remoteMeetingUrlInput" placeholder="https://… enlace de videollamada"
+                                                                    class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                            @endunless
+                                                            <input type="text" id="remoteRejectReason" placeholder="Motivo (solo si rechazas el pago)"
+                                                                class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                        </div>
+
+                                                        <div id="remoteLinkActions" class="hidden space-y-2 pt-2">
+                                                            <input type="url" id="addMeetingUrlInput" placeholder="https://meet.google.com/…"
+                                                                class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                        </div>
+                                                    </div>
+
+                                                    <p id="modalAddressRow"><strong>Dirección:</strong> <span id="modalEventAddress"
                                                             class="whitespace-pre-wrap"></span></p>
                                                     <p><strong>Problema:</strong> <span id="modalEventIssue"
                                                             class="whitespace-pre-wrap"></span></p>
@@ -183,9 +211,9 @@
                                         </div>
                                     </div>
                                     <div
-                                        class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row justify-center">
-                                        {{-- Add status change buttons for non-new appointments --}}
-                                        <div id="statusActionButtons" class="flex space-x-4">
+                                        class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-col gap-3 justify-center">
+                                        {{-- Botones presenciales (Confirmar / Rechazar cita) --}}
+                                        <div id="statusActionButtons" class="flex space-x-4 justify-center">
                                             <button type="button" id="confirmAppointmentBtn"
                                                 class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm">
                                                 <span class="normal-btn-text">Confirmar Cita</span>
@@ -219,6 +247,30 @@
                                                 </span>
                                             </button>
                                         </div>
+
+                                        {{-- Botones remotos: verificar pago --}}
+                                        <div id="remotePaymentButtons" class="hidden flex flex-wrap gap-3 justify-center">
+                                            <button type="button" id="verifyPaymentBtn"
+                                                class="inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-green-600 text-sm font-medium text-white hover:bg-green-700">
+                                                Confirmar pago y enviar enlace
+                                            </button>
+                                            <button type="button" id="rejectPaymentBtn"
+                                                class="inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-red-600 text-sm font-medium text-white hover:bg-red-700">
+                                                Rechazar pago
+                                            </button>
+                                        </div>
+
+                                        {{-- Botones remotos: enlace manual / reenvío --}}
+                                        <div id="remoteLinkButtons" class="hidden flex flex-wrap gap-3 justify-center">
+                                            <button type="button" id="saveMeetingLinkBtn"
+                                                class="inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-violet-600 text-sm font-medium text-white hover:bg-violet-700">
+                                                Guardar enlace y reenviar email
+                                            </button>
+                                            <button type="button" id="resendConfirmationBtn"
+                                                class="inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700">
+                                                Reenviar confirmación
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -236,14 +288,13 @@
                                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                                 <div class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
-                                    <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center justify-between gap-3 mb-4">
                                         <h3 class="text-lg font-medium leading-6 text-gray-900" id="remote-modal-title">
                                             Nueva cita remota
                                         </h3>
-                                        <button type="button" id="closeRemoteModalBtn"
-                                            class="text-gray-400 hover:text-gray-500">
-                                            <span class="sr-only">Cerrar</span>
-                                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <button type="button" id="closeRemoteModalBtn" aria-label="Cerrar"
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+                                            <svg class="block h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -596,7 +647,16 @@
             const confirmAppointmentBtn = document.getElementById('confirmAppointmentBtn');
             const declineAppointmentBtn = document.getElementById('declineAppointmentBtn');
             const statusActionButtons = document.getElementById('statusActionButtons');
+            const remoteSection = document.getElementById('remoteSection');
+            const remotePaymentButtons = document.getElementById('remotePaymentButtons');
+            const remoteLinkButtons = document.getElementById('remoteLinkButtons');
+            const verifyPaymentBtn = document.getElementById('verifyPaymentBtn');
+            const rejectPaymentBtn = document.getElementById('rejectPaymentBtn');
+            const saveMeetingLinkBtn = document.getElementById('saveMeetingLinkBtn');
+            const resendConfirmationBtn = document.getElementById('resendConfirmationBtn');
+            const providerIsAutomatic = @json($providerIsAutomatic);
             let currentAppointmentId = null;
+            let currentEventProps = null;
 
             // --- CSRF Token for AJAX --- 
             $.ajaxSetup({
@@ -820,6 +880,70 @@
                             document.getElementById('modalEventNotes').textContent = props.notes ||
                                 'N/A';
 
+                            currentEventProps = props;
+
+                            // Sección remota
+                            const isRemote = props.isRemote === true;
+                            const addressRow = document.getElementById('modalAddressRow');
+                            remoteSection.classList.toggle('hidden', !isRemote);
+                            addressRow.classList.toggle('hidden', isRemote);
+
+                            if (isRemote) {
+                                const paymentLabels = {
+                                    claimed: 'Declarado (sin verificar)',
+                                    verified: 'Verificado',
+                                    rejected: 'Rechazado',
+                                    refund_pending: 'Reembolso pendiente',
+                                    unpaid: 'Sin pago',
+                                };
+                                document.getElementById('modalPaymentStatus').textContent =
+                                    paymentLabels[props.paymentStatus] || props.paymentStatus || 'N/A';
+                                document.getElementById('modalPaymentReference').textContent =
+                                    props.paymentReference || '—';
+                                document.getElementById('modalPaymentAmount').textContent =
+                                    props.paymentAmount != null
+                                        ? `${props.paymentAmount} ${props.paymentCurrency || 'EUR'}`
+                                        : '—';
+                                document.getElementById('modalPayerName').textContent = props.payerName || '—';
+
+                                const tzRow = document.getElementById('modalClientTimezoneRow');
+                                if (props.clientTimezone) {
+                                    tzRow.classList.remove('hidden');
+                                    document.getElementById('modalClientTimezone').textContent = props.clientTimezone;
+                                } else {
+                                    tzRow.classList.add('hidden');
+                                }
+
+                                const urlRow = document.getElementById('modalMeetingUrlRow');
+                                const meetingUrlEl = document.getElementById('modalMeetingUrl');
+                                if (props.meetingUrl) {
+                                    urlRow.classList.remove('hidden');
+                                    meetingUrlEl.href = props.meetingUrl;
+                                    meetingUrlEl.textContent = props.meetingUrl;
+                                } else {
+                                    urlRow.classList.add('hidden');
+                                }
+
+                                document.getElementById('modalMeetingFailed').classList.toggle(
+                                    'hidden', !(props.meetingLinkFailed && !props.meetingUrl)
+                                );
+
+                                document.getElementById('remoteVerifyActions').classList.toggle(
+                                    'hidden', !(props.status === 'Pending' && props.paymentStatus === 'claimed')
+                                );
+                                document.getElementById('remoteLinkActions').classList.toggle(
+                                    'hidden', !(props.status === 'Confirmed' && (!props.meetingUrl || props.meetingLinkFailed))
+                                );
+
+                                const remoteUrlInput = document.getElementById('remoteMeetingUrlInput');
+                                if (remoteUrlInput) remoteUrlInput.value = '';
+                                document.getElementById('remoteRejectReason').value = '';
+                                const addLinkInput = document.getElementById('addMeetingUrlInput');
+                                if (addLinkInput) addLinkInput.value = props.meetingUrl || '';
+                            }
+
+                            configureModalActions(props);
+
                             // Mostrar la foto si está disponible
                             const photoContainer = document.getElementById('photoContainer');
                             const modalEventPhoto = document.getElementById('modalEventPhoto');
@@ -853,34 +977,6 @@
                                 console.log('No equipment photo available for this appointment');
                             }
 
-                            // Show/hide status change buttons based on current status
-                            if (props.status === 'New') {
-                                statusActionButtons.classList.add('hidden');
-                            } else {
-                                statusActionButtons.classList.remove('hidden');
-
-                                // Disable buttons based on current status
-                                if (props.status === 'Confirmed') {
-                                    confirmAppointmentBtn.disabled = true;
-                                    confirmAppointmentBtn.classList.add('opacity-50',
-                                        'cursor-not-allowed');
-                                } else {
-                                    confirmAppointmentBtn.disabled = false;
-                                    confirmAppointmentBtn.classList.remove('opacity-50',
-                                        'cursor-not-allowed');
-                                }
-
-                                if (props.status === 'Cancelled') {
-                                    declineAppointmentBtn.disabled = true;
-                                    declineAppointmentBtn.classList.add('opacity-50',
-                                        'cursor-not-allowed');
-                                } else {
-                                    declineAppointmentBtn.disabled = false;
-                                    declineAppointmentBtn.classList.remove('opacity-50',
-                                        'cursor-not-allowed');
-                                }
-                            }
-
                             // Show modal with explicit style update
                             eventDetailModal.classList.remove('hidden');
                             eventDetailModal.style.display = 'block';
@@ -901,6 +997,188 @@
                         });
                     }
 
+                });
+
+                function configureModalActions(props) {
+                    const isRemote = props.isRemote === true;
+                    const pendingPayment = props.status === 'Pending' && props.paymentStatus === 'claimed';
+                    const needsLink = props.status === 'Confirmed' && (!props.meetingUrl || props.meetingLinkFailed);
+                    const canResend = props.status === 'Confirmed' && props.meetingUrl;
+
+                    remotePaymentButtons.classList.toggle('hidden', !isRemote || !pendingPayment);
+                    remoteLinkButtons.classList.toggle('hidden', !isRemote || (!needsLink && !canResend));
+
+                    saveMeetingLinkBtn.classList.toggle('hidden', !needsLink);
+                    resendConfirmationBtn.classList.toggle('hidden', !canResend);
+
+                    if (props.status === 'New') {
+                        statusActionButtons.classList.add('hidden');
+                        return;
+                    }
+
+                    if (isRemote && pendingPayment) {
+                        statusActionButtons.classList.add('hidden');
+                        return;
+                    }
+
+                    statusActionButtons.classList.remove('hidden');
+
+                    if (props.status === 'Confirmed' || (isRemote && props.paymentStatus !== 'verified')) {
+                        confirmAppointmentBtn.disabled = true;
+                        confirmAppointmentBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else if (!isRemote) {
+                        confirmAppointmentBtn.disabled = false;
+                        confirmAppointmentBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+
+                    if (props.status === 'Cancelled' || (isRemote && pendingPayment)) {
+                        declineAppointmentBtn.disabled = true;
+                        declineAppointmentBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        declineAppointmentBtn.disabled = false;
+                        declineAppointmentBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+
+                function closeEventModal() {
+                    eventDetailModal.classList.add('hidden');
+                    eventDetailModal.style.display = 'none';
+                }
+
+                async function patchJson(url, payload) {
+                    const res = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
+                        body: JSON.stringify(payload),
+                    });
+                    const json = await res.json().catch(() => ({}));
+                    return { res, json };
+                }
+
+                async function postJson(url, payload = {}) {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
+                        body: JSON.stringify(payload),
+                    });
+                    const json = await res.json().catch(() => ({}));
+                    return { res, json };
+                }
+
+                verifyPaymentBtn.addEventListener('click', async function () {
+                    if (!currentAppointmentId) return;
+
+                    const payload = { decision: 'verify' };
+                    const urlInput = document.getElementById('remoteMeetingUrlInput');
+                    if (urlInput && urlInput.value) payload.meeting_url = urlInput.value;
+
+                    const result = await Swal.fire({
+                        title: 'Confirmar pago',
+                        text: '¿El cobro aparece en SumUp? Se confirmará la cita y se enviará el enlace.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, confirmar',
+                        cancelButtonText: 'Cancelar',
+                    });
+
+                    if (!result.isConfirmed) return;
+
+                    verifyPaymentBtn.disabled = true;
+                    const { res, json } = await patchJson(
+                        `{{ url('admin/appointments') }}/${currentAppointmentId}/verify-payment`,
+                        payload
+                    );
+                    verifyPaymentBtn.disabled = false;
+
+                    if (res.ok) {
+                        Swal.fire('¡Listo!', json.message, 'success');
+                        calendar.refetchEvents();
+                        closeEventModal();
+                    } else {
+                        const msg = json.errors ? Object.values(json.errors).flat().join(' ') : (json.message || 'Error');
+                        Swal.fire('Error', msg, 'error');
+                    }
+                });
+
+                rejectPaymentBtn.addEventListener('click', async function () {
+                    if (!currentAppointmentId) return;
+
+                    const reason = document.getElementById('remoteRejectReason').value;
+                    const result = await Swal.fire({
+                        title: 'Rechazar pago',
+                        text: '¿Rechazar esta solicitud? Se cancelará la cita y se avisará al cliente.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, rechazar',
+                        cancelButtonText: 'Cancelar',
+                    });
+
+                    if (!result.isConfirmed) return;
+
+                    rejectPaymentBtn.disabled = true;
+                    const { res, json } = await patchJson(
+                        `{{ url('admin/appointments') }}/${currentAppointmentId}/verify-payment`,
+                        { decision: 'reject', reason: reason || undefined }
+                    );
+                    rejectPaymentBtn.disabled = false;
+
+                    if (res.ok) {
+                        Swal.fire('Rechazada', json.message, 'success');
+                        calendar.refetchEvents();
+                        closeEventModal();
+                    } else {
+                        Swal.fire('Error', json.message || 'No se pudo rechazar.', 'error');
+                    }
+                });
+
+                saveMeetingLinkBtn.addEventListener('click', async function () {
+                    if (!currentAppointmentId) return;
+
+                    const meetingUrl = document.getElementById('addMeetingUrlInput').value;
+                    if (!meetingUrl) {
+                        Swal.fire('Falta el enlace', 'Pega la URL de la videollamada.', 'warning');
+                        return;
+                    }
+
+                    saveMeetingLinkBtn.disabled = true;
+                    const { res, json } = await patchJson(
+                        `{{ url('admin/appointments') }}/${currentAppointmentId}/meeting-link`,
+                        { meeting_url: meetingUrl, resend_email: true }
+                    );
+                    saveMeetingLinkBtn.disabled = false;
+
+                    if (res.ok) {
+                        Swal.fire('Guardado', json.message, 'success');
+                        calendar.refetchEvents();
+                        closeEventModal();
+                    } else {
+                        const msg = json.errors ? Object.values(json.errors).flat().join(' ') : (json.message || 'Error');
+                        Swal.fire('Error', msg, 'error');
+                    }
+                });
+
+                resendConfirmationBtn.addEventListener('click', async function () {
+                    if (!currentAppointmentId) return;
+
+                    resendConfirmationBtn.disabled = true;
+                    const { res, json } = await postJson(
+                        `{{ url('admin/appointments') }}/${currentAppointmentId}/resend-confirmation`
+                    );
+                    resendConfirmationBtn.disabled = false;
+
+                    if (res.ok) {
+                        Swal.fire('Enviado', json.message, 'success');
+                    } else {
+                        Swal.fire('Error', json.message || 'No se pudo reenviar.', 'error');
+                    }
                 });
 
                 console.log("Rendering calendar...");
