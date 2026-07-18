@@ -15,7 +15,7 @@
 
 **Industria:** Servicios técnicos / reparación de electrodomésticos (B2C local + asistencia remota internacional).
 
-![SERVISPIN Landing — vista principal](../../public/files/images/screenshot.webp)
+![SERVISPIN Landing — vista principal](https://servispin.net/files/images/screenshot.webp)
 
 ---
 
@@ -81,8 +81,8 @@ flowchart TB
 
     subgraph Data["Persistencia"]
         MySQL[(MySQL 8)]
-        Storage[(storage/app/public)]
-        Supabase[(Supabase S3 — legacy fotos)]
+        Storage[(storage/app/public — fotos citas)]
+        Supabase[(Supabase S3 — legacy opcional)]
     end
 
     subgraph External["Servicios externos"]
@@ -145,8 +145,11 @@ flowchart TB
 No hay scores versionados en el repositorio. Ejecutar localmente:
 
 ```bash
-# Con la app levantada en http://localhost
+# Desarrollo local (Sail en http://localhost)
 npx lighthouse http://localhost --only-categories=performance,accessibility,seo,best-practices --view
+
+# Producción
+npx lighthouse https://servispin.net --only-categories=performance,accessibility,seo,best-practices --view
 ```
 
 Factores que afectan el score actual:
@@ -245,7 +248,7 @@ composer install
 The [public/storage] link has been connected to [storage/app/public].
 ```
 
-Abrir: `http://localhost`
+Abrir en desarrollo: `http://localhost` · Producción: [https://servispin.net](https://servispin.net)
 
 ### Staging / Producción
 
@@ -518,13 +521,13 @@ Ver commits en `main` y releases etiquetados. Mantener `CHANGELOG.md` en raíz (
 
 ### Landing principal
 
-![SERVISPIN — hero y CTAs](../../public/files/images/screenshot.webp)
+![SERVISPIN — hero y CTAs](https://servispin.net/files/images/screenshot.webp)
 
-| Vista | Archivo / ruta |
+| Vista | Archivo / URL |
 |-------|----------------|
-| Landing hero | `public/files/images/screenshot.webp` |
-| Asistencia remota (promo) | `public/files/images/asistencia-online.webp` |
-| Admin bandeja remota | `/admin/remote-assistance` |
+| Landing hero | https://servispin.net/files/images/screenshot.webp |
+| Asistencia remota (promo) | https://servispin.net/files/images/asistencia-online.webp |
+| Admin bandeja remota | https://servispin.net/admin/remote-assistance |
 
 ---
 

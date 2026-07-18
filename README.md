@@ -1,615 +1,196 @@
-# 🚀 SERVISPIN - Appointment Management System
+# SERVISPIN — Sistema de gestión de citas y asistencia técnica
 
-[![Laravel Version](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com/)
-[![PHP Version](https://img.shields.io/badge/PHP-8.1+-blue.svg)](https://php.net/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC.svg)](https://tailwindcss.com/)
-[![Livewire](https://img.shields.io/badge/Livewire-3.x-FB70A9.svg)](https://laravel-livewire.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?logo=php&logoColor=white)](https://php.net)
+[![Livewire](https://img.shields.io/badge/Livewire-3.8-FB70A9)](https://livewire.laravel.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x_(CDN)-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A comprehensive **Appointment Management System** built with Laravel for technical service businesses. Streamline customer appointments, manage availability schedules, handle service bookings, and maintain complete business operations through an intuitive web interface.
+Plataforma web para **Servispin** (reparación de electrodomésticos en Gran Canaria): landing pública, reserva de citas a domicilio, **asistencia técnica remota** por videollamada con verificación de pago SumUp, panel de administración y API REST.
 
-## 📋 Table of Contents
+**Producción:** [https://servispin.net](https://servispin.net)
 
--   [✨ Features](#-features)
--   [🚀 Demo](#-demo)
--   [🏗️ Architecture](#️-architecture)
--   [🛠️ Technologies](#️-technologies)
--   [📁 Project Structure](#-project-structure)
--   [⚡ Quick Start](#-quick-start)
--   [📖 API Documentation](#-api-documentation)
--   [🧪 Testing](#-testing)
--   [🚀 Deployment](#-deployment)
--   [🤝 Contributing](#-contributing)
--   [📝 License](#-license)
--   [👥 Authors](#-authors)
-
-## ✨ Features
-
-### 🎯 Complete Appointment Management
-
--   **Full Lifecycle Management**: Handle appointments from creation to completion
--   **Real-time Status Updates**: Track appointment states (New, Pending, Confirmed, Cancelled, Completed)
--   **Customer Information**: Complete client data management with contact details
--   **Service Integration**: Link appointments to specific services and brands
--   **Photo Upload**: Optional equipment photos for service documentation
-
-### 🔧 Advanced Availability System
-
--   **Flexible Scheduling**: Configure availability rules by day of the week
--   **Exception Management**: Handle holidays, special closures, and temporary changes
--   **Time Zone Support**: Proper timezone handling for global operations
--   **Slot Calculation**: Dynamic available time slot generation
-
-### 👥 User Management & Authentication
-
--   **Multi-role System**: Admin, staff, and customer roles with granular permissions
--   **Social Authentication**: Google OAuth integration
--   **Two-Factor Authentication**: Enhanced security with 2FA
--   **Profile Management**: User profiles with photo upload capabilities
-
-### 📧 Automated Communication
-
--   **Email Notifications**: Automated emails for all appointment lifecycle events
--   **Confirmation Emails**: Instant booking confirmations for customers
--   **Reminder System**: Configurable appointment reminders
--   **Status Updates**: Real-time notifications for appointment changes
-
-### 🛠️ Technical Excellence
-
--   **RESTful API**: Complete API for mobile apps and third-party integrations
--   **Rate Limiting**: Protection against API abuse
--   **Transaction Management**: ACID-compliant database operations
--   **Image Processing**: Automatic image optimization and storage
--   **Caching System**: Performance optimization with intelligent caching
-
-## 🚀 Demo
-
-### Screenshots
-
-#### Customer Booking Interface
-
-![Customer Booking](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=Customer+Booking+Interface)
-
-#### Admin Dashboard
-
-![Admin Dashboard](https://via.placeholder.com/800x400/10B981/FFFFFF?text=Admin+Dashboard)
-
-#### Appointment Management
-
-![Appointment Management](https://via.placeholder.com/800x400/EF4444/FFFFFF?text=Appointment+Management)
-
-> 📸 _Screenshots will be updated with actual project images_
-
-### Development URLs
-
--   **Main Application**: http://localhost:8000
--   **API Documentation**: http://localhost:8000/api/documentation
--   **Admin Panel**: http://localhost:8000/admin
-
-## 🏗️ Architecture
-
-```mermaid
-graph TB
-    A[Frontend Laravel Blade/Livewire] --> B[Laravel Controllers]
-    B --> C[Service Layer]
-    C --> D[Eloquent Models]
-    D --> E[(MySQL Database)]
-
-    B --> F[API Controllers]
-    F --> G[Laravel Sanctum]
-
-    H[Email Service] --> I[Queue System]
-    I --> J[Mail Templates]
-
-    K[File Storage] --> L[Image Processing]
-    L --> M[Intervention Image]
-
-    style A fill:#F05340
-    style B fill:#FF6B35
-    style C fill:#F7931E
-    style D fill:#00A676
-    style E fill:#4A90E2
-```
-
-### System Architecture
-
-```
-servispin/
-├── app/                          # 🖥️  Laravel Application Core
-│   ├── Actions/                  # 🎯 Jetstream specific actions
-│   ├── Console/                  # ⚡ Artisan commands
-│   ├── Exceptions/               # 🚨 Custom exception handlers
-│   ├── Helpers/                  # 🛠️  Shared utilities (ImageHelper)
-│   ├── Http/
-│   │   ├── Controllers/          # 🎮 Web and API controllers
-│   │   ├── Livewire/             # ⚡ Livewire SPA components
-│   │   └── Middleware/           # 🛡️  Custom middleware
-│   ├── Mail/                     # 📧 Email templates
-│   ├── Models/                   # 📊 Eloquent models with relationships
-│   ├── Providers/                # 🔧 Service providers
-│   ├── Services/                 # 🏢 Business logic services
-│   └── Traits/                   # 🔄 Reusable traits
-├── database/
-│   ├── factories/                # 🏭 Model factories
-│   ├── migrations/               # 🗃️  Database migrations
-│   └── seeders/                  # 🌱 Database seeders
-├── public/                       # 🌐 Public assets
-├── resources/
-│   ├── css/                      # 🎨 Stylesheets
-│   ├── js/                       # 📜 JavaScript files
-│   ├── views/                    # 📄 Blade templates
-│   └── markdown/                 # 📝 Documentation
-├── routes/                       # 🛣️  Route definitions
-├── tests/                        # 🧪 Test suites
-└── README.md                     # 📖 Documentation
-```
-
-## 🛠️ Technologies
-
-### Backend Stack
-
--   **[Laravel Framework](https://laravel.com/)** (10.x) - PHP web framework
--   **[PHP](https://php.net/)** (8.1+) - Server-side scripting
--   **[MySQL](https://mysql.com/)** (8.0+) - Relational database
--   **[Redis](https://redis.io/)** - Caching and sessions (optional)
-
-### Frontend Stack
-
--   **[Tailwind CSS](https://tailwindcss.com/)** (3.x) - Utility-first CSS framework
--   **[Livewire](https://laravel-livewire.com/)** (3.x) - Dynamic components
--   **[Alpine.js](https://alpinejs.dev/)** - Lightweight reactivity
--   **[Vite](https://vitejs.dev/)** - Modern build tool
-
-### External Libraries
-
--   **[Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)** - Roles and permissions
--   **[Laravel Jetstream](https://jetstream.laravel.com/)** - Admin panel scaffolding
--   **[Laravel Socialite](https://laravel.com/docs/socialite)** - Social authentication
--   **[Intervention Image](https://image.intervention.io/)** - Image processing
--   **[Carbon](https://carbon.nesbot.com/)** - Date/time manipulation
-
-### DevOps & Quality
-
--   **Docker & Docker Compose** - Containerization
--   **Laravel Sail** - Development environment
--   **Composer** - PHP dependency management
--   **NPM** - Node.js dependency management
--   **PHPUnit** - Testing framework
-
-## 📁 Project Structure
-
-### Core Application (`app/`)
-
-```
-app/
-├── Actions/
-│   └── Fortify/                  # 🔐 Authentication actions
-├── Console/
-│   ├── Commands/                 # ⚡ Custom Artisan commands
-│   └── Kernel.php               # 🎯 Command scheduler
-├── Exceptions/
-│   └── Handler.php              # 🚨 Exception handling
-├── Helpers/
-│   └── ImageHelper.php          # 🖼️  Image processing utilities
-├── Http/
-│   ├── Controllers/             # 🎮 HTTP controllers
-│   │   ├── AppointmentController.php
-│   │   ├── AvailabilityController.php
-│   │   └── ...
-│   ├── Livewire/                # ⚡ Livewire components
-│   │   ├── UsersCrud.php        # 👥 User management
-│   │   └── PostComponent.php    # 📝 Blog posts
-│   └── Middleware/              # 🛡️  Custom middleware
-├── Mail/                        # 📧 Email classes
-│   ├── AppointmentConfirmation.php
-│   ├── AppointmentReminder.php
-│   └── ...
-├── Models/                      # 📊 Eloquent models
-│   ├── User.php
-│   ├── Appointment.php
-│   ├── Service.php
-│   ├── Brand.php
-│   ├── AvailabilityRule.php
-│   └── ...
-├── Providers/                   # 🔧 Service providers
-├── Services/                    # 🏢 Business services
-│   └── TransactionService.php   # 🔄 Transaction management
-└── Traits/                      # 🔄 Reusable traits
-    ├── CacheTrait.php           # 💾 Caching functionality
-    └── ChecksPermissions.php    # 🛡️  Permission checks
-```
-
-### Database Structure
-
-```
-database/
-├── factories/                   # 🏭 Model factories
-│   └── UserFactory.php
-├── migrations/                  # 🗃️  Database schema
-│   ├── 2024_01_01_000001_create_users_table.php
-│   ├── 2024_01_01_000002_create_services_table.php
-│   ├── 2024_01_01_000003_create_appointments_table.php
-│   └── ...
-└── seeders/                     # 🌱 Data seeding
-    ├── DatabaseSeeder.php
-    └── ServiceSeeder.php
-```
-
-## ⚡ Quick Start
-
-### Prerequisites
-
--   **PHP** 8.1+ ([Download](https://php.net/))
--   **Composer** ([Installation](https://getcomposer.org/))
--   **Node.js** 16+ & **NPM** ([Download](https://nodejs.org/))
--   **MySQL** 8.0+ or **PostgreSQL**
--   **Git** ([Download](https://git-scm.com/))
-
-### Installation
-
-1. **Clone the repository**
-
-    ```bash
-    git clone https://github.com/your-username/servispin.git
-    cd servispin
-    ```
-
-2. **Install PHP dependencies**
-
-    ```bash
-    composer install
-    ```
-
-3. **Install Node.js dependencies**
-
-    ```bash
-    npm install
-    ```
-
-4. **Environment configuration**
-
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
-
-    Configure your `.env` file with database credentials and other settings.
-
-5. **Database setup**
-
-    ```bash
-    php artisan migrate
-    php artisan db:seed
-    ```
-
-6. **Build assets**
-
-    ```bash
-    npm run build
-    # or for development
-    npm run dev
-    ```
-
-7. **Start the application**
-
-    ```bash
-    php artisan serve
-    ```
-
-    The application will be available at: http://localhost:8000
-
-### Verification
-
--   Visit http://localhost:8000 to see the main application
--   Access admin panel at http://localhost:8000/admin
--   API endpoints available at http://localhost:8000/api/
-
-## 📖 API Documentation
-
-### Base URL
-
-```
-http://localhost:8000/api
-```
-
-### Authentication
-
-All admin endpoints require authentication via Laravel Sanctum:
-
-```bash
-# Get authentication token
-POST /api/login
-Content-Type: application/json
-
-{
-  "email": "admin@example.com",
-  "password": "password"
-}
-```
-
-### Appointment Management Endpoints
-
-#### 📅 Customer Endpoints
-
-```http
-GET    /api/appointments/book              # Booking form data
-GET    /api/appointments/services          # Available services
-POST   /api/appointments/store             # Create new appointment
-POST   /api/appointments/availability/slots # Available time slots
-```
-
-#### 🛠️ Admin Endpoints (Protected)
-
-```http
-GET    /api/admin/appointments             # List appointments (paginated)
-GET    /api/admin/appointments/{id}        # Get appointment details
-PUT    /api/admin/appointments/{id}        # Update appointment
-DELETE /api/admin/appointments/{id}        # Delete appointment
-PATCH  /api/admin/appointments/{id}/confirm # Confirm appointment
-PATCH  /api/admin/appointments/{id}/cancel  # Cancel appointment
-PATCH  /api/admin/appointments/{id}/complete # Complete appointment
-```
-
-#### 📅 Availability Management
-
-```http
-GET    /api/admin/availability/rules              # Get availability rules
-POST   /api/admin/availability/rules              # Create/update rule
-GET    /api/admin/availability/exceptions         # Get exceptions
-POST   /api/admin/availability/exceptions         # Create/update exception
-DELETE /api/admin/availability/exceptions/{id}    # Delete exception
-```
-
-### Response Format
-
-All API responses follow a consistent JSON structure:
-
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Operation completed successfully",
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-### Error Handling
-
-Error responses include detailed information:
-
-```json
-{
-    "success": false,
-    "error": {
-        "code": "VALIDATION_ERROR",
-        "message": "The given data was invalid.",
-        "details": {
-            "email": ["The email field is required."]
-        }
-    },
-    "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-# Run all tests
-php artisan test
-
-# Run with coverage
-php artisan test --coverage
-
-# Run specific test suite
-php artisan test tests/Feature/AppointmentTest.php
-```
-
-### Test Structure
-
-```
-tests/
-├── Feature/                    # 🧪 Integration tests
-│   ├── AppointmentTest.php     # 📅 Appointment functionality
-│   ├── AvailabilityTest.php    # 📆 Availability system
-│   └── AuthenticationTest.php  # 🔐 Auth system
-├── Unit/                       # 🧪 Unit tests
-│   ├── Services/              # 🏢 Service layer tests
-│   └── Models/                # 📊 Model tests
-└── TestCase.php               # 🏗️ Base test class
-```
-
-### Testing Coverage
-
--   **API Endpoints**: Critical business endpoints
--   **Models & Relationships**: Data integrity and relationships
--   **Services**: Business logic validation
--   **Authentication**: Security and authorization
--   **Validation**: Input validation and sanitization
-
-## 🚀 Deployment
-
-### Production Environment
-
-#### Manual Deployment
-
-1. **Server Requirements**
-
-    - PHP 8.1+ with required extensions
-    - MySQL 8.0+ or PostgreSQL
-    - Redis (recommended)
-    - Nginx or Apache
-
-2. **Deployment Steps**
-
-    ```bash
-    # Clone repository
-    git clone https://github.com/your-username/servispin.git
-    cd servispin
-
-    # Install dependencies
-    composer install --optimize-autoloader --no-dev
-    npm install && npm run build
-
-    # Environment setup
-    cp .env.example .env
-    php artisan key:generate
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-
-    # Database migration
-    php artisan migrate --force
-    php artisan db:seed --force
-
-    # Storage setup
-    php artisan storage:link
-    ```
-
-#### Nginx Configuration
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /path/to/servispin/public;
-    index index.php;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        include fastcgi_params;
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    }
-
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}
-```
-
-#### Docker Deployment
-
-```dockerfile
-# Dockerfile
-FROM php:8.1-fpm-alpine
-
-# Install system dependencies
-RUN apk add --no-cache \
-    nginx \
-    mysql-client \
-    redis
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql
-
-# Copy application
-COPY . /var/www/html
-WORKDIR /var/www/html
-
-# Install Composer dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Setup permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-EXPOSE 80
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
-```
-
-### Environment Variables
-
-```bash
-# Application
-APP_NAME="SERVISPIN"
-APP_ENV=production
-APP_KEY=base64:your-generated-key
-APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-# Database
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=servispin
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
-
-# Mail Configuration
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your-email@domain.com
-MAIL_PASSWORD=your-email-password
-
-# Cache & Sessions
-CACHE_DRIVER=redis
-SESSION_DRIVER=redis
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-```
-
-## 🤝 Contributing
-
-¡Contributions are welcome! 🎉
-
-### Development Guidelines
-
-1. **Fork** the project
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. Open a **Pull Request**
-
-### Code Standards
-
--   Follow **PSR-12** coding standards
--   Use **Laravel conventions** for naming
--   Write **comprehensive tests** for new features
--   Update documentation for API changes
-
-### Commit Convention
-
-```
-feat: add new appointment booking feature
-fix: resolve timezone issue in availability slots
-docs: update API documentation
-style: format code with PSR standards
-refactor: optimize database queries
-test: add unit tests for service layer
-```
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
--   **Your Name** - _Initial Development_ - [GitHub](https://github.com/your-username)
-
-### Acknowledgments
-
--   [Laravel](https://laravel.com/) for the excellent PHP framework
--   [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
--   [Livewire](https://laravel-livewire.com/) for dynamic components
--   [Spatie](https://spatie.be/) for amazing Laravel packages
--   [Intervention Image](https://image.intervention.io/) for image processing
+![Landing principal](https://servispin.net/files/images/screenshot.webp)
 
 ---
 
-<div align="center">
+## Tabla de contenidos
 
-**Built with ❤️ and lots of ☕**
+- [Módulos](#módulos)
+- [Stack tecnológico](#stack-tecnológico)
+- [URLs](#urls)
+- [Inicio rápido](#inicio-rápido)
+- [Documentación](#documentación)
+- [Testing](#testing)
+- [Despliegue](#despliegue)
+- [Licencia](#licencia)
 
-⭐ If you like this project, give it a star!
+---
 
-[⬆ Back to top](#-servispin---appointment-management-system)
+## Módulos
 
-</div>
+| Módulo | Descripción | Ruta principal |
+|--------|-------------|----------------|
+| **Landing pública** | Home SSR con hero, servicios, galería, testimonios, GDPR cookies | `GET /` |
+| **Citas presenciales** | Reserva a domicilio con foto del aparato | `/appointments/book` |
+| **Asistencia remota** | Funnel público: pago SumUp + solicitud videollamada | `/asistencia-remota` |
+| **Bandeja pagos remotos** | Cotejo manual de referencias SumUp | `/admin/remote-assistance` |
+| **Historial de pagos** | Timeline de eventos de pago remoto | `/admin/remote-assistance/pagos` |
+| **Calendario admin** | FullCalendar con citas presenciales y remotas | `/admin/appointment-calendar` |
+| **Disponibilidad** | Reglas semanales y excepciones (festivos, cierres) | Admin availability |
+| **Servicios y marcas** | CRUD de servicios (duración, remoto, precio) y marcas | `/admin/services`, `/brands` |
+| **Galería** | Imágenes de la home | `/gallery-images` |
+| **Blog / posts** | Contenido con Livewire | `/posts` |
+| **Usuarios y roles** | Jetstream + Spatie Permission | `/users`, `/dashboard` |
+| **Datos de empresa** | Logo, contacto, SEO empresa | `/company-data` |
+| **Contacto** | Formulario público con throttle | `POST /contact/submit` |
+| **Legal** | Privacidad, cookies, aviso legal | `/privacidad`, `/cookies`, `/aviso-legal` |
+| **Google Meet** | Generación manual/automática de enlaces (Calendar API) | Ver `docs/ssd/001-asistencia-remota/` |
+| **Email transaccional** | Confirmaciones, recordatorios, remoto | Resend |
+| **SEO** | Meta tags (Artesaos SEOTools) | Vistas admin/blog |
+| **Almacenamiento fotos** | Fotos de citas en disco `public` | `storage/app/public/appointment_photos/` |
+
+---
+
+## Stack tecnológico
+
+### Backend (`composer.json`)
+
+| Paquete | Versión requerida | Notas |
+|---------|-------------------|-------|
+| PHP | ^8.4 | |
+| Laravel Framework | ^13.8 | v13.20+ |
+| Livewire | ^3.8.2 | CRUD admin |
+| Laravel Jetstream | ^5.5 | Auth, 2FA, perfil |
+| Laravel Sanctum | ^4.3 | API tokens |
+| Laravel Socialite | ^5.28 | Google OAuth |
+| Intervention Image Laravel | ^4.1 | Resize fotos citas |
+| Spatie Laravel Permission | ^8.3 | Roles Admin/Usuario |
+| Spatie Google Calendar | ^3.8 | Enlaces Meet |
+| Resend Laravel | ^1.4 | Email transaccional |
+| Artesaos SEOTools | ^1.4 | SEO meta |
+| Flysystem AWS S3 | ^3.32 | Supabase legacy (opcional) |
+
+### Frontend
+
+| Capa | Tecnología | Uso |
+|------|------------|-----|
+| Landing + formularios públicos | Tailwind CSS **4.x** (browser CDN) | `welcome.blade.php`, citas, remoto |
+| Panel admin | Tailwind 3.x + Vite + Alpine.js | CRUD, calendario, sidebar |
+| Tipografía | Plus Jakarta Sans | Global |
+| Build | Vite 4 + npm | Assets admin (`npm run build`) |
+
+### DevOps
+
+- **Laravel Sail** (Docker) — entorno local
+- **PHPUnit 12** — tests (incl. suite asistencia remota)
+- **Laravel Pint** — estilo PHP
+
+---
+
+## URLs
+
+| Entorno | URL |
+|---------|-----|
+| **Producción** | https://servispin.net |
+| **Reserva presencial** | https://servispin.net/appointments/book |
+| **Asistencia remota** | https://servispin.net/asistencia-remota |
+| **Panel admin** | https://servispin.net/dashboard |
+| **API base** | https://servispin.net/api |
+| **Desarrollo (Sail)** | http://localhost |
+
+> En producción, configurar `APP_URL=https://servispin.net` en `.env` (afecta enlaces de storage, emails y URLs generadas).
+
+---
+
+## Inicio rápido
+
+### Prerrequisitos
+
+- Docker Desktop (Sail) o PHP 8.4 + MySQL 8+
+- Composer 2.7+
+- Node.js 18+ (build assets admin)
+
+### Instalación con Sail
+
+```bash
+git clone <repo-url> servispin && cd servispin
+cp .env.example .env
+composer install
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail artisan storage:link
+npm install && npm run build
+```
+
+Abrir en desarrollo: **http://localhost**
+
+### Verificación
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+---
+
+## Documentación
+
+| Documento | Contenido |
+|-----------|-----------|
+| [docs/landing/README.md](docs/landing/README.md) | Landing pública, SEO, performance, screenshots |
+| [docs/ssd/001-asistencia-remota/](docs/ssd/001-asistencia-remota/) | Spec, plan y tareas del módulo remoto |
+| [docs/ssd/001-asistencia-remota/README-google-meet.md](docs/ssd/001-asistencia-remota/README-google-meet.md) | OAuth Google Meet / Calendar |
+| [docs/modulo-asistencia-tecnico.md](docs/modulo-asistencia-tecnico.md) | Notas de producto (SumUp, videollamada) |
+
+### Screenshots
+
+| Vista | URL |
+|-------|-----|
+| Landing hero | https://servispin.net/files/images/screenshot.webp |
+| Promo asistencia remota | https://servispin.net/files/images/asistencia-online.webp |
+
+---
+
+## Testing
+
+```bash
+# Todos los tests
+./vendor/bin/sail artisan test
+
+# Solo asistencia remota
+./vendor/bin/sail artisan test --filter=RemoteAssistance
+```
+
+Cobertura principal: reservas, disponibilidad, verificación de pago, cancelaciones, recordatorios, calendario admin.
+
+---
+
+## Despliegue
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+php artisan storage:link
+```
+
+Variables críticas en producción:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://servispin.net
+MAIL_MAILER=resend
+```
+
+---
+
+## Licencia
+
+MIT — ver [LICENSE](LICENSE).
+
+**Servispin** · Las Palmas de Gran Canaria · [servispin.net](https://servispin.net)

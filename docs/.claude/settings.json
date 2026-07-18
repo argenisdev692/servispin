@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(./vendor/bin/sail up*)",
+      "Bash(./vendor/bin/sail down)",
+      "Bash(./vendor/bin/sail ps*)",
+      "Bash(./vendor/bin/sail logs*)",
+      "Bash(./vendor/bin/sail bash)",
+      "Bash(./vendor/bin/sail shell)",
+      "Bash(./vendor/bin/sail artisan *)",
+      "Bash(./vendor/bin/sail composer *)",
+      "Bash(./vendor/bin/sail pest*)",
+      "Bash(./vendor/bin/sail test*)",
+      "Bash(./vendor/bin/sail phpunit*)",
+      "Bash(./vendor/bin/sail pint*)",
+      "Bash(./vendor/bin/sail node*)",
+      "Bash(./vendor/bin/sail npm *)",
+      "Bash(./vendor/bin/sail npx *)",
+      "Bash(./vendor/bin/sail mysql*)",
+      "Bash(./vendor/bin/sail psql*)",
+      "Bash(./vendor/bin/sail redis*)",
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run build-ssr)",
+      "Bash(npm run lint*)",
+      "Bash(npm run type-check*)",
+      "Bash(npm run format*)",
+      "Bash(npm audit*)",
+      "Bash(npx volt-vue *)",
+      "Bash(npx tsc*)",
+      "Bash(npx eslint*)",
+      "Bash(npx prettier*)",
+      "Bash(npx vue-tsc*)",
+      "Bash(composer audit)",
+      "Bash(composer show*)",
+      "Bash(composer outdated*)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Read",
+      "Edit",
+      "Write",
+      "Grep",
+      "Glob"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git rebase*)",
+      "Bash(rm *)",
+      "Bash(./vendor/bin/sail artisan migrate:fresh*)",
+      "Bash(./vendor/bin/sail artisan db:wipe*)",
+      "Bash(./vendor/bin/sail artisan migrate --force*)",
+      "Bash(./vendor/bin/sail down --volumes*)",
+      "Bash(./vendor/bin/sail composer remove*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(rm -rf /*)",
+      "Bash(php *)",
+      "Bash(php artisan *)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/secrets/**)",
+      "Read(**/storage/oauth-*.key)",
+      "Read(**/storage/oauth-*.pub)"
+    ]
+  },
+  "env": {
+    "NODE_ENV": "development",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1"
+  },
+  "mcpServers": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "c:\\Users\\Lenovo\\Documents\\PROYECTOS\\CLAUDE-CODE-LARAVEL-VUE"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "tavily": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "tavily-mcp"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
+    },
+    "laravel-boost": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["./vendor/bin/sail", "artisan", "boost:mcp"]
+    }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[hook] file modified'"
+          }
+        ]
+      }
+    ]
+  }
+}
