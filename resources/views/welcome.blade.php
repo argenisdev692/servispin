@@ -207,13 +207,28 @@
     }
 
     .navbar-sticky {
-        position: fixed;
-        top: 0;
+        position: relative;
         left: 0;
         right: 0;
         z-index: 1000;
         transition: all 0.3s ease;
         background: transparent;
+    }
+
+    #site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    .remote-assistance-banner {
+        background: linear-gradient(90deg, #6d28d9 0%, #2563eb 50%, #0891b2 100%);
+    }
+
+    .remote-assistance-banner a:hover {
+        color: #fff;
     }
 
     .navbar-sticky .nav-link {
@@ -503,6 +518,31 @@
         box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
     }
 
+    .hero-cta-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 600;
+        border-radius: 9999px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .hero-cta-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 639px) {
+        .hero-cta-btn {
+            width: 100%;
+            white-space: normal;
+        }
+    }
+
     .whatsapp-float {
         position: fixed;
         bottom: 24px;
@@ -641,7 +681,23 @@
          poder respetar el consentimiento (no hay JS que lo bloquee), lo que
          incumpliría el opt-in del GDPR. --}}
 
-    <!--====== NAVBAR START ======-->
+    <!--====== REMOTE ASSISTANCE BANNER + NAVBAR START ======-->
+    <header id="site-header">
+        <div class="remote-assistance-banner text-white text-sm" role="region" aria-label="Asistencia técnica remota">
+            <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+                <span class="inline-flex items-center gap-2">
+                    <i class="fa-solid fa-video" aria-hidden="true"></i>
+                    <strong>Nuevo:</strong> Asistencia técnica por videollamada
+                </span>
+                <span class="hidden sm:inline text-white/70" aria-hidden="true">·</span>
+                <span class="text-white/90 hidden md:inline">Te guiamos en directo desde donde estés, sin visita a domicilio</span>
+                <a href="{{ route('remote-assistance.landing') }}" target="_blank" rel="noopener noreferrer"
+                   class="font-semibold underline underline-offset-2 decoration-white/60 hover:decoration-white whitespace-nowrap">
+                    Saber más →
+                </a>
+            </div>
+        </div>
+
     <nav class="navbar-sticky" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
@@ -656,6 +712,7 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="nav-link font-medium transition-colors">Inicio</a>
                     <a href="#ourservices" class="nav-link font-medium transition-colors">Servicios</a>
+                    <a href="{{ route('remote-assistance.landing') }}" class="nav-link font-medium transition-colors">Asistencia remota</a>
                     <a href="#testimonial" class="nav-link font-medium transition-colors">Testimonios</a>
                     <a href="#contact" class="nav-link font-medium transition-colors">Contacto</a>
                     <a href="{{ route('appointments.book') }}" target="_blank" class="btn-secondary text-sm px-6 py-3">
@@ -672,6 +729,7 @@
                 <div class="flex flex-col space-y-3">
                     <a href="#home" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Inicio</a>
                     <a href="#ourservices" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Servicios</a>
+                    <a href="{{ route('remote-assistance.landing') }}" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Asistencia remota</a>
                     <a href="#testimonial" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Testimonios</a>
                     <a href="#contact" class="text-slate-700 hover:text-cyan-500 font-medium transition-colors py-2">Contacto</a>
                     <a href="{{ route('appointments.book') }}" target="_blank" class="btn-secondary text-sm text-center">
@@ -681,7 +739,8 @@
             </div>
         </div>
     </nav>
-    <!--====== NAVBAR END ======-->
+    </header>
+    <!--====== REMOTE ASSISTANCE BANNER + NAVBAR END ======-->
 
     <!--====== HERO SECTION START ======-->
     <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -717,15 +776,21 @@
                 </div>
 
                 @if ($companyData && $companyData->phone)
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center buttons-fade">
-                        <a href="javascript:abrirWhatsApp('+34643940970')" class="btn-secondary w-full sm:w-auto">
-                            <i class="fa-brands fa-whatsapp mr-2"></i>Contactar por WhatsApp
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3 max-w-4xl mx-auto buttons-fade">
+                        <a href="javascript:abrirWhatsApp('+34643940970')" class="hero-cta-btn btn-secondary">
+                            <i class="fa-brands fa-whatsapp mr-1.5"></i>WhatsApp
                         </a>
-                        <a href="{{ route('appointments.book') }}" target="_blank" class="bg-white text-cyan-600 hover:bg-slate-100 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
-                            <i class="fa-solid fa-calendar-days mr-2"></i>Agendar Cita Ahora
+                        <a href="{{ route('appointments.book') }}" target="_blank" rel="noopener noreferrer"
+                           class="hero-cta-btn bg-white text-cyan-600 hover:bg-slate-100">
+                            <i class="fa-solid fa-calendar-days mr-1.5"></i>Agendar cita
                         </a>
-                        <a href="tel:+34643940970" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-cyan-600 px-8 py-4 rounded-full font-semibold transition-all w-full sm:w-auto">
-                            <i class="fa-solid fa-phone mr-2"></i>Llamar Ahora
+                        <a href="{{ route('remote-assistance.landing') }}" target="_blank" rel="noopener noreferrer"
+                           class="hero-cta-btn bg-violet-600 hover:bg-violet-700 text-white border border-violet-400/50">
+                            <i class="fa-solid fa-video mr-1.5"></i>Videollamada
+                        </a>
+                        <a href="tel:+34643940970"
+                           class="hero-cta-btn bg-transparent border-2 border-white text-white hover:bg-white hover:text-cyan-600">
+                            <i class="fa-solid fa-phone mr-1.5"></i>Llamar
                         </a>
                     </div>
                 @endif
@@ -1364,7 +1429,7 @@
                     Asistencia técnica en directo desde cualquier parte del mundo. Sin esperar a que
                     nadie se desplace: te guiamos paso a paso.
                 </p>
-                <a href="{{ route('remote-assistance.landing') }}"
+                <a href="{{ route('remote-assistance.landing') }}" target="_blank" rel="noopener noreferrer"
                    class="inline-block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition">
                     Saber más
                 </a>
