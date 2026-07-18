@@ -951,10 +951,8 @@
                             // Siempre mostrar el contenedor de fotos, independientemente de si hay foto o no
                             photoContainer.classList.remove('hidden');
 
-                            if (props.equipmentPhotoPath) {
-                                // Usar una URL absoluta para la imagen con la ruta correcta
-                                modalEventPhoto.src = '{{ url('/') }}' + '/storage/app/public/' +
-                                    props.equipmentPhotoPath;
+                            if (props.equipmentPhotoUrl) {
+                                modalEventPhoto.src = props.equipmentPhotoUrl;
                                 console.log('Loading photo from:', modalEventPhoto.src);
 
                                 // Manejar errores de carga de imagen sin ocultar

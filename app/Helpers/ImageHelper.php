@@ -10,31 +10,29 @@ use Intervention\Image\Laravel\Facades\Image;
 class ImageHelper
 {
     /**
-     * Store and resize an image to Supabase Storage.
+     * Store and resize an image on a local or configured disk.
      *
      * @param  mixed  $image  File upload or binary string
      * @param  string  $storagePath  Relative path within the storage (e.g., 'appointment_photos')
-     * @param  string  $disk  Storage disk to use (default: 'supabase')
+     * @param  string  $disk  Storage disk to use (default: 'public')
      * @return string|null Relative path of the stored image, or null on failure
      */
-    public static function storeAndResizeLocally($image, $storagePath, $disk = 'supabase')
+    public static function storeAndResizeLocally($image, $storagePath, $disk = 'public')
     {
         try {
             Log::info('Starting local image processing', ['storage_path' => $storagePath]);
 
             // Handle both file uploads and binary data
             if (is_string($image) && ! is_file($image)) {
-                // Binary data
-                $interventionImage = Image::read($image);
+                $interventionImage = Image::decodeBinary($image);
                 Log::info('Processing binary image data for local storage');
             } else {
-                // File upload
                 if (! $image || ! $image->isValid()) {
                     Log::error('Invalid image file provided for local storage.');
 
                     return null;
                 }
-                $interventionImage = Image::read($image);
+                $interventionImage = Image::decodePath($image->getRealPath());
                 Log::info('Processing uploaded file for local storage', [
                     'original_name' => $image->getClientOriginalName() ?? 'N/A',
                 ]);

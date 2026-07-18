@@ -77,7 +77,7 @@ class StoreRemoteAssistanceRequest extends FormRequest
             // FR-2: declaración de pago. Cesar coteja esto contra la app de SumUp.
             'payment_reference' => 'required|string|max:128',
             'payment_amount' => 'required|numeric|min:0|max:99999.99',
-            'payer_name' => 'required|string|max:255',
+            'payer_name' => ['required', 'string', 'min:3', 'max:20', 'regex:/^[\p{L}]+(?: [\p{L}]+)*$/u'],
 
             'equipment_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'notes' => 'nullable|string|max:2000',
@@ -103,6 +103,9 @@ class StoreRemoteAssistanceRequest extends FormRequest
             'payment_reference.required' => 'La referencia del pago es obligatoria: sin ella no podemos comprobar que el cobro entró.',
             'payment_amount.required' => 'Indica el importe que has pagado.',
             'payer_name.required' => 'Indica el nombre con el que hiciste el pago.',
+            'payer_name.min' => 'El nombre del pagador debe tener al menos 3 caracteres.',
+            'payer_name.max' => 'El nombre del pagador no puede superar 20 caracteres.',
+            'payer_name.regex' => 'El nombre del pagador solo puede contener letras y espacios.',
             'client_first_name.min' => 'El nombre debe tener al menos 3 letras.',
             'client_first_name.max' => 'El nombre no puede superar 15 caracteres.',
             'client_first_name.regex' => 'El nombre solo puede contener letras, sin espacios.',

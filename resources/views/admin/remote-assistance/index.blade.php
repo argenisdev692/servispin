@@ -9,169 +9,156 @@
 --}}
 
 @section('content')
-    <div :class="{ 'theme-dark': dark }" x-data="data()" lang="es">
-        <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
+    <div class="bg-gray-50 min-h-screen py-8">
+        <div class="container px-6 mx-auto max-w-6xl">
 
-            <x-menu-sidebar />
-
-            <div class="flex flex-col flex-1 w-full">
-                <x-header-dashboard />
-
-                <main class="h-full overflow-y-auto">
-                    <div class="container px-6 mx-auto py-6 max-w-6xl">
-
-                        @include('admin.remote-assistance._header', ['current' => 'Bandeja'])
-
-                        <div class="mb-6">
-                            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Asistencia remota</h1>
-                            <p class="text-gray-600 dark:text-gray-400">Pagos declarados pendientes de cotejar en SumUp.</p>
-                        </div>
-
-                        @include('admin.remote-assistance._nav', ['pendingCount' => $pendingCount])
-
-        {{-- FR-15: citas pagadas y confirmadas que se quedaron sin enlace porque
-             el provider automático falló. Son las urgentes: el cliente ya pagó y
-             tiene una cita a la que no puede entrar. --}}
-        @if ($awaitingLink->isNotEmpty())
-            <div class="bg-red-50 border border-red-300 rounded-lg p-5 mb-8">
-                <h2 class="text-lg font-semibold text-red-900 mb-2">
-                    ⚠️ {{ $awaitingLink->count() }} cita(s) confirmada(s) sin enlace
-                </h2>
-                <p class="text-sm text-red-800 mb-4">
-                    Estos clientes han pagado y su cita está confirmada, pero no se pudo generar el
-                    enlace automáticamente. Añádelo a mano cuanto antes.
-                </p>
-                <ul class="space-y-4">
-                    @foreach ($awaitingLink as $appointment)
-                        <li class="text-sm text-red-900 border border-red-200 rounded p-3 bg-white">
-                            <p class="mb-2">
-                                <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
-                                — {{ $appointment->start_time->format('d/m/Y H:i') }}
-                                ({{ $appointment->client_email }})
-                            </p>
-                            <form class="link-form flex flex-col sm:flex-row gap-2" data-id="{{ $appointment->id }}">
-                                <input type="url" name="meeting_url" required
-                                       placeholder="https://meet.google.com/…"
-                                       class="flex-1 rounded-md border-gray-300 text-sm">
-                                <button type="submit"
-                                        class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-md font-semibold text-sm whitespace-nowrap">
-                                    Guardar y reenviar
-                                </button>
-                            </form>
-                            <p class="link-feedback text-xs mt-1 hidden"></p>
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">Asistencia remota</h1>
+                <p class="text-gray-600">Pagos declarados pendientes de cotejar en SumUp.</p>
             </div>
-        @endif
 
-        @if (! $providerIsAutomatic)
-            <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6 text-sm text-blue-900">
-                El generador de enlaces está en <strong>modo manual</strong>: tendrás que pegar el enlace
-                de la videollamada al confirmar cada cita.
-            </div>
-        @endif
+            @include('admin.remote-assistance._nav', ['pendingCount' => $pendingCount])
 
-        @forelse ($appointments as $appointment)
-            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4" data-appointment="{{ $appointment->id }}">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {{-- Lo que hay que cotejar con SumUp, primero y en grande --}}
-                    <div class="md:col-span-1 bg-gray-50 rounded p-4">
-                        <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Referencia SumUp</p>
-                        <p class="text-lg font-mono font-bold text-gray-900 break-all mb-3">
-                            {{ $appointment->payment_reference }}
-                        </p>
-                        <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Importe declarado</p>
-                        <p class="text-2xl font-bold text-gray-900 mb-3">
-                            {{ number_format($appointment->payment_amount, 2) }} {{ $appointment->payment_currency }}
-                        </p>
-                        <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Pagador</p>
-                        <p class="text-sm text-gray-900">{{ $appointment->payer_name }}</p>
-                        <p class="text-xs text-gray-500 mt-3">
-                            Declarado {{ $appointment->payment_claimed_at?->diffForHumans() }}
-                        </p>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">
-                                    {{ $appointment->client_first_name }} {{ $appointment->client_last_name }}
-                                </h3>
-                                <p class="text-sm text-gray-600">
-                                    {{ $appointment->client_email }} · {{ $appointment->client_phone }}
+            {{-- FR-15: citas pagadas y confirmadas que se quedaron sin enlace porque
+                 el provider automático falló. Son las urgentes: el cliente ya pagó y
+                 tiene una cita a la que no puede entrar. --}}
+            @if ($awaitingLink->isNotEmpty())
+                <div class="bg-red-50 border border-red-300 rounded-lg p-5 mb-8">
+                    <h2 class="text-lg font-semibold text-red-900 mb-2">
+                        ⚠️ {{ $awaitingLink->count() }} cita(s) confirmada(s) sin enlace
+                    </h2>
+                    <p class="text-sm text-red-800 mb-4">
+                        Estos clientes han pagado y su cita está confirmada, pero no se pudo generar el
+                        enlace automáticamente. Añádelo a mano cuanto antes.
+                    </p>
+                    <ul class="space-y-4">
+                        @foreach ($awaitingLink as $appointment)
+                            <li class="text-sm text-red-900 border border-red-200 rounded p-3 bg-white">
+                                <p class="mb-2">
+                                    <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
+                                    — {{ $appointment->start_time->format('d/m/Y H:i') }}
+                                    ({{ $appointment->client_email }})
                                 </p>
-                            </div>
-                            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded font-semibold uppercase">
-                                Pago sin verificar
-                            </span>
+                                <form class="link-form flex flex-col sm:flex-row gap-2" data-id="{{ $appointment->id }}">
+                                    <input type="url" name="meeting_url" required
+                                           placeholder="https://meet.google.com/…"
+                                           class="flex-1 rounded-md border-gray-300 text-sm">
+                                    <button type="submit"
+                                            class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-md font-semibold text-sm whitespace-nowrap">
+                                        Guardar y reenviar
+                                    </button>
+                                </form>
+                                <p class="link-feedback text-xs mt-1 hidden"></p>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if (! $providerIsAutomatic)
+                <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6 text-sm text-blue-900">
+                    El generador de enlaces está en <strong>modo manual</strong>: tendrás que pegar el enlace
+                    de la videollamada al confirmar cada cita.
+                </div>
+            @endif
+
+            @forelse ($appointments as $appointment)
+                <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4" data-appointment="{{ $appointment->id }}">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {{-- Lo que hay que cotejar con SumUp, primero y en grande --}}
+                        <div class="md:col-span-1 bg-gray-50 rounded p-4">
+                            <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Referencia SumUp</p>
+                            <p class="text-lg font-mono font-bold text-gray-900 break-all mb-3">
+                                {{ $appointment->payment_reference }}
+                            </p>
+                            <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Importe declarado</p>
+                            <p class="text-2xl font-bold text-gray-900 mb-3">
+                                {{ number_format($appointment->payment_amount, 2) }} {{ $appointment->payment_currency }}
+                            </p>
+                            <p class="text-xs uppercase tracking-wide text-gray-500 mb-1">Pagador</p>
+                            <p class="text-sm text-gray-900">{{ $appointment->payer_name }}</p>
+                            <p class="text-xs text-gray-500 mt-3">
+                                Declarado {{ $appointment->payment_claimed_at?->diffForHumans() }}
+                            </p>
                         </div>
 
-                        {{-- FR-6: la hora, siempre con su huso. Y la del cliente,
-                             porque puede estar en cualquier parte del mundo. --}}
-                        <p class="text-sm text-gray-700 mb-1">
-                            <strong>{{ $appointment->start_time->format('d/m/Y H:i') }}</strong>
-                            <span class="text-gray-500">({{ config('remote_assistance.business_timezone') }})</span>
-                        </p>
-                        @if ($appointment->client_timezone && $appointment->client_timezone !== config('remote_assistance.business_timezone'))
-                            <p class="text-sm text-gray-500 mb-3">
-                                Para el cliente:
-                                {{ $appointment->start_time->copy()->setTimezone($appointment->client_timezone)->format('d/m/Y H:i') }}
-                                ({{ $appointment->client_timezone }})
-                            </p>
-                        @endif
-
-                        <p class="text-sm text-gray-700 mb-1">
-                            <strong>Servicio:</strong> {{ $appointment->service?->name }}
-                            @if ($appointment->brand)
-                                · <strong>Marca:</strong> {{ $appointment->brand->name }}
-                            @endif
-                        </p>
-                        <p class="text-sm text-gray-700 mb-4">
-                            <strong>Avería:</strong> {{ $appointment->issue_description }}
-                        </p>
-
-                        @if ($appointment->equipment_photo_url)
-                            <a href="{{ $appointment->equipment_photo_url }}" target="_blank"
-                               class="text-sm text-blue-600 hover:underline">Ver foto del aparato</a>
-                        @endif
-
-                        <form class="verify-form mt-4 space-y-3" data-id="{{ $appointment->id }}">
-                            @if (! $providerIsAutomatic)
-                                <input type="url" name="meeting_url" placeholder="https://… enlace de la videollamada"
-                                       class="w-full rounded-md border-gray-300 text-sm">
-                            @endif
-                            <input type="text" name="reason" placeholder="Motivo (solo si rechazas)"
-                                   class="w-full rounded-md border-gray-300 text-sm">
-
-                            <div class="flex gap-3">
-                                <button type="button" data-decision="verify"
-                                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
-                                    Confirmar y enviar enlace
-                                </button>
-                                <button type="button" data-decision="reject"
-                                        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded">
-                                    Rechazar
-                                </button>
+                        <div class="md:col-span-2">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        {{ $appointment->client_first_name }} {{ $appointment->client_last_name }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        {{ $appointment->client_email }} · {{ $appointment->client_phone }}
+                                    </p>
+                                </div>
+                                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded font-semibold uppercase">
+                                    Pago sin verificar
+                                </span>
                             </div>
-                            <p class="form-feedback text-sm hidden"></p>
-                        </form>
+
+                            {{-- FR-6: la hora, siempre con su huso. Y la del cliente,
+                                 porque puede estar en cualquier parte del mundo. --}}
+                            <p class="text-sm text-gray-700 mb-1">
+                                <strong>{{ $appointment->start_time->format('d/m/Y H:i') }}</strong>
+                                <span class="text-gray-500">({{ config('remote_assistance.business_timezone') }})</span>
+                            </p>
+                            @if ($appointment->client_timezone && $appointment->client_timezone !== config('remote_assistance.business_timezone'))
+                                <p class="text-sm text-gray-500 mb-3">
+                                    Para el cliente:
+                                    {{ $appointment->start_time->copy()->setTimezone($appointment->client_timezone)->format('d/m/Y H:i') }}
+                                    ({{ $appointment->client_timezone }})
+                                </p>
+                            @endif
+
+                            <p class="text-sm text-gray-700 mb-1">
+                                <strong>Servicio:</strong> {{ $appointment->service?->name }}
+                                @if ($appointment->brand)
+                                    · <strong>Marca:</strong> {{ $appointment->brand->name }}
+                                @endif
+                            </p>
+                            <p class="text-sm text-gray-700 mb-4">
+                                <strong>Avería:</strong> {{ $appointment->issue_description }}
+                            </p>
+
+                            @if ($appointment->equipment_photo_url)
+                                <a href="{{ $appointment->equipment_photo_url }}" target="_blank"
+                                   class="text-sm text-blue-600 hover:underline">Ver foto del aparato</a>
+                            @endif
+
+                            <form class="verify-form mt-4 space-y-3" data-id="{{ $appointment->id }}">
+                                @if (! $providerIsAutomatic)
+                                    <input type="url" name="meeting_url" placeholder="https://… enlace de la videollamada"
+                                           class="w-full rounded-md border-gray-300 text-sm">
+                                @endif
+                                <input type="text" name="reason" placeholder="Motivo (solo si rechazas)"
+                                       class="w-full rounded-md border-gray-300 text-sm">
+
+                                <div class="flex gap-3">
+                                    <button type="button" data-decision="verify"
+                                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded">
+                                        Confirmar y enviar enlace
+                                    </button>
+                                    <button type="button" data-decision="reject"
+                                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded">
+                                        Rechazar
+                                    </button>
+                                </div>
+                                <p class="form-feedback text-sm hidden"></p>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-                <p class="text-gray-600">No hay pagos pendientes de verificar.</p>
-            </div>
-        @endforelse
+            @empty
+                <div class="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                    <p class="text-gray-600">No hay pagos pendientes de verificar.</p>
+                </div>
+            @endforelse
 
-        <div class="mt-6">
-            {{ $appointments->links() }}
-        </div>
-
-                    </div>
-                </main>
+            <div class="mt-6">
+                {{ $appointments->links() }}
             </div>
+
         </div>
     </div>
 @endsection

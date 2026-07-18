@@ -111,6 +111,7 @@ class AppointmentCalendarController extends Controller
                     'address' => $appointment->address,
                     'issue' => $appointment->issue_description,
                     'equipmentPhotoPath' => $appointment->equipment_photo_path,
+                    'equipmentPhotoUrl' => $appointment->equipment_photo_url,
                     // Datos propios de la modalidad remota
                     'modality' => $appointment->modality,
                     'isRemote' => $isRemote,

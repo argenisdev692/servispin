@@ -190,7 +190,7 @@ class Appointment extends Model
     }
 
     /**
-     * Get the public URL for the equipment photo from Supabase Storage
+     * Get the public URL for the equipment photo (local public disk or Supabase).
      */
     public function getEquipmentPhotoUrlAttribute()
     {
@@ -199,9 +199,13 @@ class Appointment extends Model
         }
 
         try {
+            if (Storage::disk('public')->exists($this->equipment_photo_path)) {
+                return Storage::disk('public')->url($this->equipment_photo_path);
+            }
+
             return Storage::disk('supabase')->url($this->equipment_photo_path);
         } catch (\Exception $e) {
-            Log::error('Error getting photo URL from Supabase', [
+            Log::error('Error getting equipment photo URL', [
                 'appointment_id' => $this->id,
                 'photo_path' => $this->equipment_photo_path,
                 'error' => $e->getMessage(),

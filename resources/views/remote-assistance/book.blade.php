@@ -238,7 +238,10 @@
                             Nombre del pagador <span class="required-asterisk">*</span>
                         </label>
                         <input type="text" name="payer_name" id="payer_name" required
-                               class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                               minlength="3" maxlength="20" autocomplete="name"
+                               placeholder="Nombre y apellido"
+                               class="capitalize mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Como aparece en SumUp (3–20 letras, puede incluir espacio).</p>
                     </div>
                 </div>
             </div>
@@ -292,10 +295,12 @@
             const clientFirstNameInput = document.getElementById('client_first_name');
             const clientLastNameInput = document.getElementById('client_last_name');
             const clientPhoneInput = document.getElementById('client_phone');
+            const payerNameInput = document.getElementById('payer_name');
             const equipmentPhotoInput = document.getElementById('equipment_photo');
             const photoSizeError = document.getElementById('photo-size-error');
             const photoPreview = document.getElementById('photo-preview');
             const namePattern = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u;
+            const payerNamePattern = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?: [A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/u;
 
             const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '{{ $businessTimezone }}';
             document.getElementById('client_timezone').value = clientTimezone;
@@ -315,6 +320,17 @@
 
             sanitizeNameInput(clientFirstNameInput);
             sanitizeNameInput(clientLastNameInput);
+
+            payerNameInput.addEventListener('input', function () {
+                this.value = this.value
+                    .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .slice(0, 20);
+            });
+
+            payerNameInput.addEventListener('blur', function () {
+                this.value = this.value.trim();
+            });
 
             if (clientPhoneInput) {
                 iti = window.intlTelInput(clientPhoneInput, {
@@ -485,6 +501,12 @@
                 if (lastName.length < 3 || lastName.length > 15 || !namePattern.test(lastName)) {
                     messages.push('El apellido debe tener entre 3 y 15 letras, sin espacios.');
                     clientLastNameInput.classList.add('border-red-500');
+                }
+
+                const payerName = payerNameInput.value.trim();
+                if (payerName.length < 3 || payerName.length > 20 || !payerNamePattern.test(payerName)) {
+                    messages.push('El nombre del pagador debe tener entre 3 y 20 letras (puede incluir un espacio).');
+                    payerNameInput.classList.add('border-red-500');
                 }
 
                 if (iti && (!clientPhoneInput.value.trim() || !iti.isValidNumber())) {

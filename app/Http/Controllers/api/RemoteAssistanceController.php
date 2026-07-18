@@ -102,7 +102,7 @@ class RemoteAssistanceController extends Controller
         $photoPath = null;
         if ($request->hasFile('equipment_photo') && $request->file('equipment_photo')->isValid()) {
             try {
-                $photoPath = ImageHelper::storeAndResizeLocally($request->file('equipment_photo'), 'appointment_photos', 'supabase');
+                $photoPath = ImageHelper::storeAndResizeLocally($request->file('equipment_photo'), 'appointment_photos', 'public');
             } catch (Throwable $uploadError) {
                 Log::error('Error procesando la foto de la solicitud remota: '.$uploadError->getMessage());
 
@@ -139,7 +139,7 @@ class RemoteAssistanceController extends Controller
                         'payment_reference' => $data['payment_reference'],
                         'payment_amount' => $data['payment_amount'],
                         'payment_currency' => 'EUR',
-                        'payer_name' => $data['payer_name'],
+                        'payer_name' => mb_convert_case(trim($data['payer_name']), MB_CASE_TITLE, 'UTF-8'),
                         'payment_claimed_at' => now(),
 
                         // FR-3: sin enlace. No existe forma de generarlo aquí.
@@ -154,9 +154,9 @@ class RemoteAssistanceController extends Controller
                     $this->sendRequestedEmail($appointment);
                 },
                 function (Throwable $dbError) use ($photoPath) {
-                    if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
-                        Storage::disk('supabase')->delete($photoPath);
-                        Log::warning('Foto revertida de Supabase tras fallo de BD: '.$photoPath);
+                    if ($photoPath && Storage::disk('public')->exists($photoPath)) {
+                        Storage::disk('public')->delete($photoPath);
+                        Log::warning('Foto revertida del almacenamiento local tras fallo de BD: '.$photoPath);
                     }
                 }
             );
@@ -178,8 +178,8 @@ class RemoteAssistanceController extends Controller
         } catch (Throwable $e) {
             Log::error('Error creando la solicitud de asistencia remota: '.$e->getMessage(), ['exception' => $e]);
 
-            if ($photoPath && Storage::disk('supabase')->exists($photoPath)) {
-                Storage::disk('supabase')->delete($photoPath);
+            if ($photoPath && Storage::disk('public')->exists($photoPath)) {
+                Storage::disk('public')->delete($photoPath);
             }
 
             return response()->json([
