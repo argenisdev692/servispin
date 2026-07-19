@@ -127,7 +127,7 @@
             <h3>Detalles de la Cita:</h3>
             <p><strong>Servicio:</strong> {{ $appointment->service }}</p>
             <p><strong>Fecha y hora:</strong>
-                {{ \Carbon\Carbon::parse($appointment->start_time)->formatLocalized('%A %d de %B de %Y a las %H:%M') }}
+                {{ \Carbon\Carbon::parse($appointment->start_time)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY [a las] HH:mm') }}
             </p>
             <p><strong>Dirección:</strong> {{ $appointment->address }}</p>
             @if (!empty($appointment->issue))

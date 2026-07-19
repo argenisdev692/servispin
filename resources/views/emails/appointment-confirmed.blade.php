@@ -146,7 +146,7 @@
             @endif
             <p><strong>Estado:</strong> <span class="status-tag">Confirmada</span></p>
             <p><strong>Fecha y hora:</strong>
-                {{ \Carbon\Carbon::parse($appointment->start_time)->formatLocalized('%A %d de %B de %Y a las %H:%M') }}
+                {{ \Carbon\Carbon::parse($appointment->start_time)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY [a las] HH:mm') }}
             </p>
             <p><strong>Duración estimada:</strong> {{ $appointment->service ? $appointment->service->duration : '?' }}
                 minutos</p>

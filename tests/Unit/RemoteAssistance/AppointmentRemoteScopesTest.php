@@ -40,6 +40,20 @@ class AppointmentRemoteScopesTest extends TestCase
     }
 
     #[Test]
+    public function pending_onsite_confirmation_solo_cuenta_citas_presenciales_pendientes(): void
+    {
+        $pendiente = Appointment::factory()->create(['status' => Appointment::STATUS_PENDING]);
+        Appointment::factory()->confirmed()->create();
+        Appointment::factory()->remote()->create();
+        Appointment::factory()->cancelled()->create();
+
+        $bandeja = Appointment::pendingOnsiteConfirmation()->get();
+
+        $this->assertCount(1, $bandeja);
+        $this->assertTrue($bandeja->first()->is($pendiente));
+    }
+
+    #[Test]
     public function pending_payment_verification_es_la_bandeja_de_cesar(): void
     {
         // Solo debe salir la remota con pago declarado sin verificar.

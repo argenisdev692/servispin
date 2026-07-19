@@ -146,6 +146,16 @@ class Appointment extends Model
     }
 
     /**
+     * Citas presenciales que el admin debe confirmar o rechazar en el calendario.
+     * No incluye remotas: esas van por la bandeja de asistencia remota.
+     */
+    public function scopePendingOnsiteConfirmation($query)
+    {
+        return $query->where('modality', self::MODALITY_ONSITE)
+            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_NEW]);
+    }
+
+    /**
      * Bandeja de Cesar: citas remotas cuyo pago dice el cliente que hizo, pero
      * que nadie ha cotejado todavía contra SumUp.
      */

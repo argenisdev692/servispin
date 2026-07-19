@@ -1,5 +1,8 @@
  <!-- Desktop sidebar -->
-@php $remotePendingCount = \App\Models\Appointment::pendingPaymentVerification()->count(); @endphp
+@php
+    $remotePendingCount = \App\Models\Appointment::pendingPaymentVerification()->count();
+    $calendarPendingCount = \App\Models\Appointment::pendingOnsiteConfirmation()->count();
+@endphp
  <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
      <div class="py-4 text-gray-500 dark:text-gray-400">
          <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="{{ route('dashboard') }}">
@@ -95,6 +98,9 @@
                          </path>
                      </svg>
                      <span class="ml-4">Calendario Citas</span>
+                     @if ($calendarPendingCount > 0)
+                         <span class="ml-auto bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $calendarPendingCount }}</span>
+                     @endif
                  </a>
              </li>
 
@@ -295,6 +301,9 @@
                          </path>
                      </svg>
                      <span class="ml-4">Calendario Citas</span>
+                     @if ($calendarPendingCount > 0)
+                         <span class="ml-auto bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $calendarPendingCount }}</span>
+                     @endif
                  </a>
              </li>
 
