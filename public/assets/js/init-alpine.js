@@ -1,19 +1,27 @@
 function data() {
     function getThemeFromLocalStorage() {
-        // if user already changed the theme, use it
-        if (window.localStorage.getItem("dark")) {
-            return JSON.parse(window.localStorage.getItem("dark"));
+        const theme = window.localStorage.getItem("admin-theme");
+        if (theme === "dark") {
+            return true;
+        }
+        if (theme === "light") {
+            return false;
         }
 
-        // else return their preferences
-        return (
-            !!window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-        );
+        // Migrar preferencia antigua (seguía prefers-color-scheme → todo oscuro en Edge)
+        const legacy = window.localStorage.getItem("dark");
+        if (legacy !== null) {
+            const isDark = JSON.parse(legacy);
+            window.localStorage.setItem("admin-theme", isDark ? "dark" : "light");
+            window.localStorage.removeItem("dark");
+            return isDark;
+        }
+
+        return false;
     }
 
     function setThemeToLocalStorage(value) {
-        window.localStorage.setItem("dark", value);
+        window.localStorage.setItem("admin-theme", value ? "dark" : "light");
     }
 
     return {

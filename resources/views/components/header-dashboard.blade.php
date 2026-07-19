@@ -1,7 +1,7 @@
- <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-     <div class="container flex items-center justify-between h-full px-6 mx-auto text-blue-600 dark:text-purple-300">
+ <header class="z-10 py-3 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
+     <div class="container flex items-center justify-between h-full px-6 mx-auto text-blue-600 dark:text-blue-400">
          <!-- Mobile hamburger -->
-         <button class="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
+         <button class="p-2 -ml-1 rounded-lg md:hidden text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
              @click="toggleSideMenu" aria-label="Menu">
              <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                  <path fill-rule="evenodd"
@@ -9,22 +9,22 @@
                      clip-rule="evenodd"></path>
              </svg>
          </button>
-         <!-- Search input -->
+
          <div class="flex justify-center flex-1 lg:mr-32">
-             <div class="relative w-full max-w-xl mr-6 focus-within:text-purple-500">
-
-
-             </div>
+             <div class="relative w-full max-w-xl mr-6"></div>
          </div>
-         <ul class="flex items-center flex-shrink-0 space-x-6">
+
+         <ul class="flex items-center flex-shrink-0 gap-2 sm:gap-4">
              <!-- Theme toggler -->
              <li class="flex">
-                 <button class="rounded-md focus:outline-none focus:shadow-outline-purple" @click="toggleTheme"
-                     aria-label="Toggle color mode">
+                 <button type="button"
+                     class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-colors"
+                     @click="toggleTheme"
+                     :aria-label="dark ? 'Activar modo claro' : 'Activar modo oscuro'"
+                     :title="dark ? 'Modo claro' : 'Modo oscuro'">
                      <template x-if="!dark">
                          <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z">
-                             </path>
+                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z"></path>
                          </svg>
                      </template>
                      <template x-if="dark">
@@ -42,14 +42,14 @@
                  <x-slot name="trigger">
                      @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                          <button
-                             class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                             <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}"
+                             class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition">
+                             <img class="h-9 w-9 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-700" src="{{ Auth::user()->profile_photo_url }}"
                                  alt="{{ Auth::user()->name }}" />
                          </button>
                      @else
                          <span class="inline-flex rounded-md">
                              <button type="button"
-                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                 class="inline-flex items-center px-3 py-2 border border-slate-200 dark:border-slate-700 text-sm leading-4 font-medium rounded-lg text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition ease-in-out duration-150">
                                  {{ Auth::user()->name }}
 
                                  <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -63,7 +63,6 @@
                  </x-slot>
 
                  <x-slot name="content">
-                     <!-- Account Management -->
                      <div class="block px-4 py-2 text-xs text-gray-400">
                          {{ __('Manage Account') }}
                      </div>
@@ -78,15 +77,15 @@
                          </x-dropdown-link>
                      @endif
 
-                     <div class="border-t border-gray-200"></div>
+                     <div class="border-t border-gray-200 dark:border-slate-700"></div>
 
-                     <!-- Authentication -->
-                     <form method="POST" action="{{ route('logout') }}" x-data>
+                     <form method="POST" action="{{ route('logout') }}">
                          @csrf
 
-                         <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
+                         <button type="submit"
+                             class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-slate-700 transition duration-150 ease-in-out">
                              {{ __('Log Out') }}
-                         </x-dropdown-link>
+                         </button>
                      </form>
                  </x-slot>
              </x-dropdown>

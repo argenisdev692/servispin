@@ -89,25 +89,90 @@
         .fc-timegrid-event {
             padding: 1px 2px !important;
         }
+
+        .fc-event,
+        .fc-event .fc-event-main,
+        .fc-timegrid-event,
+        .fc-daygrid-event {
+            color: #fff !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+        }
+
+        .fc-event-content-custom {
+            background: transparent !important;
+        }
+
+        .fc-event.fc-status-pending,
+        .fc-event.fc-status-pending .fc-event-main {
+            --fc-event-bg-color: #3b82f6;
+            --fc-event-border-color: #2563eb;
+            background-color: #3b82f6 !important;
+            border-color: #2563eb !important;
+        }
+
+        .fc-event.fc-status-confirmed,
+        .fc-event.fc-status-confirmed .fc-event-main {
+            --fc-event-bg-color: #10b981;
+            --fc-event-border-color: #059669;
+            background-color: #10b981 !important;
+            border-color: #059669 !important;
+        }
+
+        .fc-event.fc-status-cancelled,
+        .fc-event.fc-status-cancelled .fc-event-main {
+            --fc-event-bg-color: #ef4444;
+            --fc-event-border-color: #dc2626;
+            background-color: #ef4444 !important;
+            border-color: #dc2626 !important;
+        }
+
+        .fc-event.fc-status-completed,
+        .fc-event.fc-status-completed .fc-event-main {
+            --fc-event-bg-color: #6b7280;
+            --fc-event-border-color: #4b5563;
+            background-color: #6b7280 !important;
+            border-color: #4b5563 !important;
+        }
+
+        .fc-event.fc-status-new,
+        .fc-event.fc-status-new .fc-event-main {
+            --fc-event-bg-color: #f59e0b;
+            --fc-event-border-color: #d97706;
+            background-color: #f59e0b !important;
+            border-color: #d97706 !important;
+        }
+
+        .fc-event.fc-event-remote {
+            border-left-width: 4px !important;
+            border-left-color: #7c3aed !important;
+        }
+
+        #eventDetailModal,
+        #remoteAppointmentModal {
+            z-index: 9999;
+        }
+
+        .calendar-status-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-right: 1rem;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .calendar-status-legend i {
+            display: inline-block;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 0.25rem;
+        }
     </style>
 @endpush
 
 @section('content')
-    {{-- Use standard admin layout structure --}}
-    <div :class="{ 'theme-dark': dark }" x-data="data()" lang="es"> {{-- Assuming data() provides dark mode toggle etc. --}}
-        <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
-
-            <!-- MENU SIDEBAR -->
-            <x-menu-sidebar />
-            <!-- END MENU SIDEBAR -->
-
-            <div class="flex flex-col flex-1 w-full">
-
-                <!-- HEADER -->
-                <x-header-dashboard />
-                <!-- END HEADER -->
-
-                <main class="h-full overflow-y-auto">
+    <x-admin-shell lang="es">
                     <div class="container px-6 mx-auto grid">
 
                         {{-- Page Title --}}
@@ -126,22 +191,26 @@
                         </div>
 
                         {{-- Calendar Container --}}
-                        <div class="bg-white dark:bg-gray-800 shadow-md rounded p-4 mb-4">
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-md rounded-lg p-4 mb-4">
+                            <div class="calendar-status-legend flex flex-wrap gap-y-2 mb-4 px-1">
+                                <span><i style="background:#3b82f6"></i> Pendiente</span>
+                                <span><i style="background:#10b981"></i> Confirmada</span>
+                                <span><i style="background:#ef4444"></i> Cancelada</span>
+                                <span><i style="background:#6b7280"></i> Completada</span>
+                                <span><i style="background:#7c3aed"></i> Borde = remota</span>
+                            </div>
                             <div id='calendar'></div>
                         </div>
 
                         {{-- Simple Modal for Event Details (using basic HTML/Tailwind) --}}
-                        <div id="eventDetailModal" class="fixed z-50 inset-0 overflow-y-auto hidden"
+                        <div id="eventDetailModal" class="fixed inset-0 overflow-y-auto hidden"
                             aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                            <div
-                                class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true">
-                                </div>
-                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
-                                    aria-hidden="true">&#8203;</span>
+                            <div class="absolute inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"
+                                data-modal-backdrop="eventDetailModal"></div>
+                            <div class="absolute inset-0 flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0 pointer-events-none">
                                 <div
-                                    class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
+                                    class="relative pointer-events-auto inline-block w-full align-bottom bg-white dark:bg-slate-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                    <div class="bg-white dark:bg-slate-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
                                         {{-- Close (X) button in top right corner --}}
                                         <button type="button" id="closeEventModalBtn" aria-label="Cerrar"
                                             class="absolute top-3 right-3 z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-600 p-0 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
@@ -211,7 +280,7 @@
                                         </div>
                                     </div>
                                     <div
-                                        class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-col gap-3 justify-center">
+                                        class="bg-slate-50 dark:bg-slate-800 px-4 py-3 sm:px-6 sm:flex sm:flex-col gap-3 justify-center relative z-10">
                                         {{-- Botones presenciales (Confirmar / Rechazar cita) --}}
                                         <div id="statusActionButtons" class="flex space-x-4 justify-center">
                                             <button type="button" id="confirmAppointmentBtn"
@@ -281,13 +350,14 @@
                              El cliente llama por teléfono, paga por QR y Cesar la da
                              de alta desde el hueco, sin pasar por la web.
                              Se AÑADE junto al modal de detalles; no se toca aquél. --}}
-                        <div id="remoteAppointmentModal" class="fixed z-50 inset-0 overflow-y-auto hidden"
+                        <div id="remoteAppointmentModal" class="fixed inset-0 overflow-y-auto hidden"
                             aria-labelledby="remote-modal-title" role="dialog" aria-modal="true">
-                            <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                                <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true"></div>
+                            <div class="absolute inset-0 transition-opacity bg-gray-500/75" aria-hidden="true"
+                                data-modal-backdrop="remoteAppointmentModal"></div>
+                            <div class="absolute inset-0 flex min-h-full items-end justify-center px-4 pt-4 pb-20 sm:items-center sm:p-0 pointer-events-none">
                                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                                <div class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                                <div class="relative pointer-events-auto inline-block w-full px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-slate-900 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
                                     <div class="flex items-center justify-between gap-3 mb-4">
                                         <h3 class="text-lg font-medium leading-6 text-gray-900" id="remote-modal-title">
                                             Nueva cita remota
@@ -451,10 +521,7 @@
                         {{-- End Remote Modal --}}
 
                     </div>
-                </main>
-            </div>
-        </div>
-    </div>
+    </x-admin-shell>
 @endsection
 
 @push('scripts')
@@ -634,6 +701,14 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOM loaded, initializing calendar");
+
+            ['eventDetailModal', 'remoteAppointmentModal'].forEach(function(modalId) {
+                const modalEl = document.getElementById(modalId);
+                if (modalEl && modalEl.parentElement !== document.body) {
+                    document.body.appendChild(modalEl);
+                }
+            });
+
             var calendarEl = document.getElementById('calendar');
 
             if (!calendarEl) {
@@ -657,6 +732,42 @@
             const providerIsAutomatic = @json($providerIsAutomatic);
             let currentAppointmentId = null;
             let currentEventProps = null;
+
+            const appointmentStatusColors = {
+                Pending: { bg: '#3b82f6', border: '#2563eb' },
+                Confirmed: { bg: '#10b981', border: '#059669' },
+                Cancelled: { bg: '#ef4444', border: '#dc2626' },
+                Completed: { bg: '#6b7280', border: '#4b5563' },
+                New: { bg: '#f59e0b', border: '#d97706' },
+            };
+
+            function applyEventStatusStyles(info) {
+                const status = info.event.extendedProps.status || 'Pending';
+                const statusClass = 'fc-status-' + String(status).toLowerCase();
+                const colors = appointmentStatusColors[status] || appointmentStatusColors.Pending;
+
+                info.el.classList.add(statusClass);
+                if (info.event.extendedProps.isRemote) {
+                    info.el.classList.add('fc-event-remote');
+                }
+
+                const targets = [info.el, info.el.querySelector('.fc-event-main')].filter(Boolean);
+                targets.forEach(function(target) {
+                    target.style.setProperty('--fc-event-bg-color', colors.bg);
+                    target.style.setProperty('--fc-event-border-color', colors.border);
+                    target.style.backgroundColor = colors.bg;
+                    target.style.borderColor = info.event.extendedProps.isRemote ? '#7c3aed' : colors.border;
+                });
+            }
+
+            function resetActionButtonState(button) {
+                const btnText = button.querySelector('.normal-btn-text');
+                const processingText = button.querySelector('.processing-btn-text');
+                if (btnText) btnText.classList.remove('hidden');
+                if (processingText) processingText.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'opacity-70', 'cursor-not-allowed');
+            }
 
             // --- CSRF Token for AJAX --- 
             $.ajaxSetup({
@@ -705,6 +816,19 @@
                     // },
 
                     // Renderizado personalizado de eventos
+                    eventClassNames: function(arg) {
+                        const status = arg.event.extendedProps.status || 'Pending';
+                        const classes = ['fc-status-' + String(status).toLowerCase()];
+                        if (arg.event.extendedProps.isRemote) {
+                            classes.push('fc-event-remote');
+                        }
+                        return classes;
+                    },
+
+                    eventDidMount: function(info) {
+                        applyEventStatusStyles(info);
+                    },
+
                     eventContent: function(arg) {
                         let content = document.createElement('div');
                         content.classList.add('fc-event-content-custom');
@@ -942,6 +1066,8 @@
                                 if (addLinkInput) addLinkInput.value = props.meetingUrl || '';
                             }
 
+                            resetActionButtonState(confirmAppointmentBtn);
+                            resetActionButtonState(declineAppointmentBtn);
                             configureModalActions(props);
 
                             // Mostrar la foto si está disponible
@@ -1021,15 +1147,18 @@
 
                     statusActionButtons.classList.remove('hidden');
 
-                    if (props.status === 'Confirmed' || (isRemote && props.paymentStatus !== 'verified')) {
+                    if (props.status === 'Confirmed') {
                         confirmAppointmentBtn.disabled = true;
                         confirmAppointmentBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    } else if (!isRemote) {
+                    } else if (isRemote) {
+                        confirmAppointmentBtn.disabled = true;
+                        confirmAppointmentBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
                         confirmAppointmentBtn.disabled = false;
                         confirmAppointmentBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     }
 
-                    if (props.status === 'Cancelled' || (isRemote && pendingPayment)) {
+                    if (props.status === 'Cancelled' || props.status === 'Completed') {
                         declineAppointmentBtn.disabled = true;
                         declineAppointmentBtn.classList.add('opacity-50', 'cursor-not-allowed');
                     } else {
@@ -1194,12 +1323,14 @@
                     console.log("Modal closed by button");
                 });
 
-                // Close modal on clicking outside with explicit style update
+                // Close modal on clicking backdrop
+                document.querySelectorAll('[data-modal-backdrop="eventDetailModal"]').forEach(function (backdrop) {
+                    backdrop.addEventListener('click', closeEventModal);
+                });
+
                 eventDetailModal.addEventListener('click', function(event) {
-                    if (event.target === eventDetailModal) { // Check if click is on the backdrop
-                        eventDetailModal.classList.add('hidden');
-                        eventDetailModal.style.display = 'none';
-                        console.log("Modal closed by clicking outside");
+                    if (event.target === eventDetailModal) {
+                        closeEventModal();
                     }
                 });
 

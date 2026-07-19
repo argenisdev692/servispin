@@ -58,6 +58,80 @@
             background-color: #3b82f6;
             border-radius: 7px;
         }
+
+        .admin-shell.dark ::-webkit-scrollbar-track {
+            background-color: #1e293b;
+        }
+
+        .admin-shell.dark ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+
+        .admin-shell.dark ::-webkit-scrollbar-thumb:hover {
+            background-color: #3b82f6;
+        }
+
+        /* SweetAlert2 por encima de modales del calendario (z-index 9999) */
+        .swal2-container {
+            z-index: 10050 !important;
+        }
+
+        /* Logo: variantes por contexto (sidebar admin vs asistencia remota) */
+        .app-logo--sidebar {
+            display: block;
+        }
+
+        .app-logo--sidebar .app-logo-img {
+            display: block;
+            height: calc(2.5rem + 5px);
+            width: auto;
+        }
+
+        .app-logo--sidebar .app-logo-img--dark {
+            display: none;
+        }
+
+        .admin-shell.dark .app-logo--sidebar .app-logo-img--light {
+            display: none;
+        }
+
+        .admin-shell.dark .app-logo--sidebar .app-logo-img--dark {
+            display: block;
+        }
+
+        .app-logo--remote {
+            display: block;
+            text-align: center;
+        }
+
+        .app-logo--remote .app-logo-img {
+            display: block;
+            height: calc(3rem + 5px);
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .app-logo--remote .app-logo-img--dark {
+            display: none;
+        }
+
+        .app-logo--appointment {
+            display: block;
+            text-align: center;
+        }
+
+        .app-logo--appointment .app-logo-img {
+            display: block;
+            height: calc(2.75rem + 5px);
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .app-logo--appointment .app-logo-img--dark {
+            display: none;
+        }
     </style>
 
     {{-- Configuración de Tailwind v4 en línea (el browser build no lee tailwind.config.js).
@@ -70,7 +144,12 @@
     <style type="text/tailwindcss">
         @theme {
             --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --color-admin-primary: #2563eb;
+            --color-admin-primary-dark: #3b82f6;
         }
+
+        /* Dark solo dentro del panel admin (toggle), no por prefers-color-scheme de Edge/OS */
+        @custom-variant dark (&:where(.admin-shell.dark, .admin-shell.dark *));
 
         @layer base {
             button,
@@ -145,6 +224,54 @@
 
             [type='radio']:checked {
                 background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+            }
+
+            .admin-shell.dark [type='text'],
+            .admin-shell.dark [type='email'],
+            .admin-shell.dark [type='url'],
+            .admin-shell.dark [type='password'],
+            .admin-shell.dark [type='number'],
+            .admin-shell.dark [type='date'],
+            .admin-shell.dark [type='datetime-local'],
+            .admin-shell.dark [type='month'],
+            .admin-shell.dark [type='search'],
+            .admin-shell.dark [type='tel'],
+            .admin-shell.dark [type='time'],
+            .admin-shell.dark [type='week'],
+            .admin-shell.dark [multiple],
+            .admin-shell.dark textarea,
+            .admin-shell.dark select {
+                background-color: #1e293b;
+                border-color: #475569;
+                color: #f1f5f9;
+            }
+
+            .admin-shell.dark [type='checkbox'],
+            .admin-shell.dark [type='radio'] {
+                background-color: #1e293b;
+                border-color: #64748b;
+            }
+        }
+
+        @layer components {
+            .admin-card {
+                @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm;
+            }
+
+            .admin-page-title {
+                @apply text-2xl font-bold text-slate-900 dark:text-slate-50;
+            }
+
+            .admin-page-subtitle {
+                @apply text-slate-600 dark:text-slate-400;
+            }
+
+            .admin-nav-link {
+                @apply inline-flex items-center w-full text-sm font-semibold transition-all duration-150 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50;
+            }
+
+            .admin-nav-link--active {
+                @apply px-4 py-3 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 ring-1 ring-inset ring-blue-200/80 dark:ring-blue-800/60 shadow-sm;
             }
         }
     </style>

@@ -74,7 +74,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     {{-- Logo --}}
                     <div class="flex justify-center mb-4">
-                        <x-application-mark class="block h-12 w-auto" />
+                        <x-application-mark variant="appointment" />
                     </div>
 
                     <h1 class="text-3xl font-semibold mb-4 text-center text-gray-800">Agendar una cita</h1>

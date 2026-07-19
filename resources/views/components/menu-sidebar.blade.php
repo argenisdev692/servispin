@@ -3,24 +3,20 @@
     $remotePendingCount = \App\Models\Appointment::pendingPaymentVerification()->count();
     $calendarPendingCount = \App\Models\Appointment::pendingOnsiteConfirmation()->count();
 @endphp
- <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
-     <div class="py-4 text-gray-500 dark:text-gray-400">
-         <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="{{ route('dashboard') }}">
-             <!-- Logo -->
-
-
-             <x-application-mark class="block h-10 w-auto" />
-
-         </a>
+ <aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 md:block flex-shrink-0">
+     <div class="py-4 text-slate-600 dark:text-slate-400">
+         <div class="flex justify-center px-4">
+             <a class="text-lg font-bold text-slate-800 dark:text-slate-100" href="{{ route('dashboard') }}">
+                 <x-application-mark variant="sidebar" />
+             </a>
+         </div>
          <h1
-             class="text-center text-base font-bold leading-none tracking-tighter text-indigo-500 md:text-base lg:text-sm">
+             class="text-center text-base font-bold leading-none tracking-tighter text-blue-600 dark:text-blue-400 md:text-base lg:text-sm">
              Welcome,
              {{ Auth::user()->username }} </h1>
          <ul class="mt-6">
-             <li class="relative px-6 py-3">
-                 <span class="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
-                     aria-hidden="true"></span>
-                 <a class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('dashboard') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('dashboard') }}">
                      <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
                          stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -88,8 +84,8 @@
              </li>
 
              {{-- Appointment Calendar Link --}}
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.appointment.calendar.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.appointment.calendar.index') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.appointment.calendar.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -104,8 +100,8 @@
                  </a>
              </li>
 
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.remote-assistance.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.remote-assistance.*') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.remote-assistance.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -119,8 +115,8 @@
              </li>
 
              <!-- Holidays/Exceptions Management Link -->
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.availability-exceptions.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.availability-exceptions.index') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.availability-exceptions.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -133,8 +129,8 @@
              </li>
 
              @can('manage admin')
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('users') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('users') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('users') }}">
 
 
@@ -146,8 +142,8 @@
                          <span class="ml-4">Users</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('brands.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('brands.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('brands.index') }}">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
@@ -158,8 +154,8 @@
                          <span class="ml-4">Brands</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('services.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('services.*') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('services.index') }}">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
@@ -170,8 +166,8 @@
                          <span class="ml-4">Services</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('company-data.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('company-data.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('company-data.index') }}">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
@@ -182,8 +178,8 @@
                          <span class="ml-4">Company Data</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('gallery-images.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('gallery-images.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('gallery-images.index') }}">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
@@ -206,25 +202,25 @@
      x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"></div>
- <aside class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden"
+ <aside class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 md:hidden"
      x-show="isSideMenuOpen" x-transition:enter="transition ease-in-out duration-150"
      x-transition:enter-start="opacity-0 transform -translate-x-20" x-transition:enter-end="opacity-100"
      x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0 transform -translate-x-20" @click.away="closeSideMenu"
      @keydown.escape="closeSideMenu">
-     <div class="py-4 text-gray-500 dark:text-gray-400">
-         <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="{{ route('dashboard') }}">
-             <x-application-mark class="block h-10 w-auto" />
-         </a>
+     <div class="py-4 text-slate-600 dark:text-slate-400">
+         <div class="flex justify-center px-4">
+             <a class="text-lg font-bold text-slate-800 dark:text-slate-100" href="{{ route('dashboard') }}">
+                 <x-application-mark variant="sidebar" />
+             </a>
+         </div>
          <h1
              class="text-center text-base font-bold leading-none tracking-tighter text-indigo-500 md:text-7xl lg:text-sm">
              Welcome,
              {{ Auth::user()->username }} </h1>
          <ul class="mt-6">
-             <li class="relative px-6 py-3">
-                 <span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
-                     aria-hidden="true"></span>
-                 <a class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('dashboard') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('dashboard') }}">
                      <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
                          stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -291,8 +287,8 @@
              </li>
 
              {{-- Appointment Calendar Link (Mobile) --}}
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.appointment.calendar.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.appointment.calendar.index') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.appointment.calendar.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -307,8 +303,8 @@
                  </a>
              </li>
 
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.remote-assistance.*') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.remote-assistance.*') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.remote-assistance.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -322,8 +318,8 @@
              </li>
 
              <!-- Holidays/Exceptions Management Link -->
-             <li class="relative px-6 py-3">
-                 <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('admin.availability-exceptions.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+             <li class="relative px-4 py-1">
+                 <a class="admin-nav-link {{ request()->routeIs('admin.availability-exceptions.index') ? 'admin-nav-link--active' : '' }}"
                      href="{{ route('admin.availability-exceptions.index') }}">
                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -336,8 +332,8 @@
              </li>
 
              @can('manage admin')
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('users') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('users') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('users') }}">
                          {{-- Existing Users Icon (Mobile) --}}
                          <svg class="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="1em"
@@ -348,8 +344,8 @@
                          <span class="ml-4">Users</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('brands.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('brands.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('brands.index') }}">
                          {{-- Heroicon: tag (Mobile) --}}
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -361,8 +357,8 @@
                          <span class="ml-4">Brands</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('company-data.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('company-data.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('company-data.index') }}">
                          {{-- Existing Company Data Icon (Mobile) --}}
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -374,8 +370,8 @@
                          <span class="ml-4">Company Data</span>
                      </a>
                  </li>
-                 <li class="relative px-6 py-3">
-                     <a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 {{ request()->routeIs('gallery-images.index') ? 'dark:text-gray-100 text-gray-800' : '' }}"
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('gallery-images.index') ? 'admin-nav-link--active' : '' }}"
                          href="{{ route('gallery-images.index') }}">
                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">

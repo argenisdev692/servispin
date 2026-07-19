@@ -1,27 +1,8 @@
-<div :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
-
-
-
-    <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
-        <!-- MENU SIDEBAR -->
-        <x-menu-sidebar />
-        <!-- END MENU SIDEBAR -->
-        <div class="flex flex-col flex-1 w-full">
-
-            <!-- HEADER -->
-            <x-header-dashboard />
-            <!-- END HEADER -->
-
-            <!-- PANEL MAIN CATEGORIES -->
-            <!--INCLUDE ALERTS MESSAGES-->
+<x-admin-shell lang="en">
 
             <x-message-success />
 
-
-            <!-- END INCLUDE ALERTS MESSAGES-->
-
-            <main class="h-full overflow-y-auto">
-                <div class="container px-6 mx-auto grid">
+            <div class="container px-6 mx-auto grid">
 
                     <!-- CTA -->
                     <div
@@ -290,18 +271,7 @@
                         <!-- MODAL -->
                     </div>
 
-
-                </div>
-            </main>
-
-
-            <!-- END PANEL MAIN CATEGORIES -->
-
-        </div>
-    </div>
-
-
-</div>
+</x-admin-shell>
 
 <style>
     .relative {

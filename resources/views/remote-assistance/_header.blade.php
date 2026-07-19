@@ -9,7 +9,7 @@
     {{-- Logo --}}
     <div class="flex justify-center mb-4">
         <a href="{{ url('/') }}" aria-label="Ir al inicio de Servispin">
-            <x-application-mark class="block h-12 w-auto" />
+            <x-application-mark variant="remote" />
         </a>
     </div>
 

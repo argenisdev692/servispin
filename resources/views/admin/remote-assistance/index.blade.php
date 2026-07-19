@@ -9,15 +9,7 @@
 --}}
 
 @section('content')
-    <div x-data="data()" lang="es">
-        <div class="flex h-screen bg-gray-50" :class="{ 'overflow-hidden': isSideMenuOpen }">
-
-            <x-menu-sidebar />
-
-            <div class="flex flex-col flex-1 w-full">
-                <x-header-dashboard />
-
-                <main class="h-full overflow-y-auto bg-gray-50">
+    <x-admin-shell lang="es">
                     <div class="container px-6 mx-auto py-6 max-w-6xl">
 
             <div class="mb-6">
@@ -168,10 +160,7 @@
             </div>
 
                     </div>
-                </main>
-            </div>
-        </div>
-    </div>
+    </x-admin-shell>
 @endsection
 
 @push('scripts')

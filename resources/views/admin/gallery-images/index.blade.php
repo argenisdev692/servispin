@@ -1,18 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
-        <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
-            <!-- MENU SIDEBAR -->
-            <x-menu-sidebar />
-            <!-- END MENU SIDEBAR -->
-
-            <div class="flex flex-col flex-1 w-full">
-                <!-- HEADER -->
-                <x-header-dashboard />
-                <!-- END HEADER -->
-
-                <main class="h-full overflow-y-auto">
+    <x-admin-shell lang="en">
                 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Gallery Images</h2>
 
@@ -54,7 +43,6 @@
                     </div>
 
                 </div>
-            </main>
 
             {{-- Add Modal --}}
             <x-crud.modal id="galleryImageModal" title="Gallery Image" formId="galleryImageForm"
@@ -107,9 +95,7 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+    </x-admin-shell>
 @endsection
 
 @push('styles')

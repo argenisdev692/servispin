@@ -1,24 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
-        <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
-
-            <!-- MENU SIDEBAR -->
-            <x-menu-sidebar />
-            <!-- END MENU SIDEBAR -->
-
-            <div class="flex flex-col flex-1 w-full">
-
-                <!-- HEADER -->
-                <x-header-dashboard />
-                <!-- END HEADER -->
-
-                <!--INCLUDE ALERTS MESSAGES (Optional, if you want success messages here too)-->
-                {{-- <x-message-success /> --}}
-                <!-- END INCLUDE ALERTS MESSAGES-->
-
-                <main class="h-full overflow-y-auto">
+    <x-admin-shell lang="en">
                     <div class="container px-6 mx-auto grid">
 
                         {{-- Page Title / Breadcrumb Area --}}
@@ -261,11 +244,7 @@
                         {{-- End Modal --}}
 
                     </div> {{-- End container --}}
-                </main>
-
-            </div> {{-- End flex flex-col --}}
-        </div> {{-- End flex h-screen --}}
-    </div>
+    </x-admin-shell>
 
     @push('scripts')
         {{-- International Telephone Input Library --}}
@@ -598,13 +577,13 @@
                 width: 100%;
             }
 
-            .dark .iti__country-list {
+            .admin-shell.dark .iti__country-list {
                 background-color: #4a5568;
                 color: #e2e8f0;
                 border-color: #2d3748;
             }
 
-            .dark .iti__country.iti__highlight {
+            .admin-shell.dark .iti__country.iti__highlight {
                 background-color: #2d3748;
             }
         </style>

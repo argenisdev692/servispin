@@ -98,8 +98,9 @@ class AppointmentCalendarController extends Controller
                 'title' => ($isRemote ? '📹 ' : '').($appointment->service->name ?? 'Servicio Desconocido'), // Ahora el título es el servicio
                 'start' => $appointment->start_time->toIso8601String(), // Use ISO 8601 format
                 'end' => $appointment->end_time->toIso8601String(),
+                'backgroundColor' => $color,
+                'borderColor' => $isRemote ? '#7c3aed' : $color,
                 'color' => $color,
-                'borderColor' => $isRemote ? '#7c3aed' : $color, // violeta = remota
                 // Add any other custom properties you might want in the eventClick popup
                 'extendedProps' => [
                     'service' => $appointment->service->name ?? 'N/A',
