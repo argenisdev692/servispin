@@ -4,7 +4,6 @@ namespace App\Services\Backup;
 
 use App\Models\Backup\BackupFile;
 use App\Models\User;
-use App\Repositories\Backup\BackupHistoryRepositoryInterface;
 
 final class BackupActivityLogService
 {

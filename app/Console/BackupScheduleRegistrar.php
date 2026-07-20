@@ -11,7 +11,7 @@ final class BackupScheduleRegistrar
         $mutexName = (string) config('backup-retention.scheduler_mutex_name', 'spatie-backup-pipeline');
         $mutexExpires = (int) config('backup-retention.scheduler_mutex_expires_minutes', 180);
 
-        $schedule->command('backup:run')
+        $schedule->command('backup:run --only-db')
             ->dailyAt('02:00')
             ->name($mutexName)
             ->createMutexNameUsing($mutexName)

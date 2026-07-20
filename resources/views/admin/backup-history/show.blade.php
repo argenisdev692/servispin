@@ -2,78 +2,79 @@
 
 @section('content')
     <x-admin-shell lang="es">
-        <div class="container-fluid px-4 py-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div class="container px-6 mx-auto py-6 max-w-4xl">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="h3 mb-1">Detalle del Backup</h1>
-                    <p class="text-muted mb-0">{{ $details->filename }}</p>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Detalle del Backup</h1>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">{{ $details->filename }}</p>
                 </div>
-                <a href="{{ route('admin.backup-history.index') }}" class="btn btn-outline-secondary btn-sm">
+                <a
+                    href="{{ route('admin.backup-history.index') }}"
+                    class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                    title="Volver"
+                >
                     <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 </a>
             </div>
 
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <dl class="row mb-0">
-                        <dt class="col-sm-3">Nombre del archivo</dt>
-                        <dd class="col-sm-9">{{ $details->filename }}</dd>
+            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Nombre del archivo</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100">{{ $details->filename }}</dd>
 
-                        <dt class="col-sm-3">Fecha</dt>
-                        <dd class="col-sm-9">{{ $details->formattedDate }}</dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Fecha</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100">{{ $details->formattedDate }}</dd>
 
-                        <dt class="col-sm-3">Tamaño</dt>
-                        <dd class="col-sm-9">{{ $details->formattedSize }}</dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Tamaño</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100">{{ $details->formattedSize }}</dd>
 
-                        <dt class="col-sm-3">Disco</dt>
-                        <dd class="col-sm-9">{{ $details->disk }}</dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Disco</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100">{{ $details->disk }}</dd>
 
-                        <dt class="col-sm-3">Ruta</dt>
-                        <dd class="col-sm-9"><code>{{ $details->path }}</code></dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Ruta</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100"><code class="rounded bg-slate-100 px-2 py-1 text-xs dark:bg-slate-900">{{ $details->path }}</code></dd>
 
-                        <dt class="col-sm-3">Estado</dt>
-                        <dd class="col-sm-9">
-                            <span class="badge {{ $details->statusBadgeClass }}">{{ $details->status }}</span>
-                        </dd>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Estado</dt>
+                    <dd class="sm:col-span-2">
+                        <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $details->statusBadgeClass }}">{{ $details->status }}</span>
+                    </dd>
 
-                        <dt class="col-sm-3">Creado hace...</dt>
-                        <dd class="col-sm-9">{{ $details->createdAgo }}</dd>
-                    </dl>
+                    <dt class="text-sm font-medium text-slate-500 dark:text-slate-400">Creado hace...</dt>
+                    <dd class="sm:col-span-2 text-sm text-slate-900 dark:text-slate-100">{{ $details->createdAgo }}</dd>
+                </dl>
 
-                    <div class="d-flex gap-2 mt-4">
-                        @can('download', $backupFile)
-                            @if ($details->exists)
-                                <a href="{{ route('admin.backup-history.download', $backupFile) }}" class="btn btn-primary btn-sm" title="Download">
-                                    <i class="fa-solid fa-download" aria-hidden="true"></i>
-                                </a>
-                            @endif
-                        @endcan
-
-                        @can('delete', $backupFile)
-                            <button
-                                type="button"
-                                class="btn btn-danger btn-sm backup-delete-button"
-                                title="Delete"
-                                data-destroy-url="{{ route('admin.backup-history.destroy', $backupFile) }}"
-                                data-filename="{{ $details->filename }}"
+                <div class="mt-6 flex gap-2">
+                    @can('download', $backupFile)
+                        @if ($details->exists)
+                            <a
+                                href="{{ route('admin.backup-history.download', ['backupFile' => $backupFile->getRouteKey()]) }}"
+                                class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                                title="Descargar"
                             >
-                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                            </button>
-                        @endcan
-                    </div>
+                                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                            </a>
+                        @endif
+                    @endcan
+
+                    @can('delete', $backupFile)
+                        <button
+                            type="button"
+                            class="backup-delete-button inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                            title="Eliminar"
+                            data-destroy-url="{{ route('admin.backup-history.destroy', ['backupFile' => $backupFile->getRouteKey()]) }}"
+                            data-filename="{{ $details->filename }}"
+                        >
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                        </button>
+                    @endcan
                 </div>
             </div>
         </div>
     </x-admin-shell>
 @endsection
 
-@push('styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-@endpush
-
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/backup-history-datatable.js') }}"></script>
+    <script src="{{ asset('js/backup-history-manager.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             window.initBackupHistoryDeleteButtons({

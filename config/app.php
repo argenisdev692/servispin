@@ -1,8 +1,8 @@
 <?php
 
 use App\Providers\AppServiceProvider;
-use App\Providers\BackupRetentionServiceProvider;
 use App\Providers\AuthServiceProvider;
+use App\Providers\BackupRetentionServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\JetstreamServiceProvider;

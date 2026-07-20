@@ -2,58 +2,85 @@
 
 @section('content')
     <x-admin-shell lang="es">
-        <div class="container-fluid px-4 py-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div class="container px-6 mx-auto py-6 max-w-7xl">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 class="h3 mb-1">Historial de Backups</h1>
-                    <p class="text-muted mb-0">Backups generados por Spatie Laravel Backup.</p>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Historial de Backups</h1>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Backups generados por Spatie Laravel Backup.</p>
                 </div>
-                <a href="{{ route('admin.backup-history.index') }}" class="btn btn-outline-secondary btn-sm">
+                <button
+                    type="button"
+                    id="backup-history-refresh"
+                    class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                    title="Actualizar"
+                >
                     <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-                </a>
+                </button>
             </div>
 
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="backup-history-table" class="table table-striped table-hover align-middle w-100">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Nombre del archivo</th>
-                                    <th>Tamaño</th>
-                                    <th>Disco</th>
-                                    <th>Estado</th>
-                                    <th>Creado hace...</th>
-                                    <th class="text-end">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="relative w-full sm:max-w-xs">
+                    <input
+                        type="search"
+                        id="backup-history-search"
+                        placeholder="Buscar por archivo, disco o estado..."
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    >
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <label for="backup-history-length">Mostrar</label>
+                    <select
+                        id="backup-history-length"
+                        class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
                 </div>
             </div>
+
+            <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-700/50">
+                            <tr>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="0">Fecha</th>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="1">Nombre del archivo</th>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="2">Tamaño</th>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="3">Disco</th>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="4">Estado</th>
+                                <th class="backup-history-sort px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300" data-column="5">Creado hace...</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backup-history-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                            <tr>
+                                <td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                                    Cargando backups...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="backup-history-pagination" class="mt-4 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between"></div>
         </div>
     </x-admin-shell>
 @endsection
 
-@push('styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-@endpush
-
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    <script src="{{ asset('js/backup-history-datatable.js') }}"></script>
+    <script src="{{ asset('js/backup-history-manager.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            window.initBackupHistoryDatatable({
-                tableSelector: '#backup-history-table',
+            window.initBackupHistoryManager({
+                tableBodySelector: '#backup-history-body',
+                paginationSelector: '#backup-history-pagination',
+                searchSelector: '#backup-history-search',
+                lengthSelector: '#backup-history-length',
+                refreshSelector: '#backup-history-refresh',
+                sortSelector: '.backup-history-sort',
                 datatableUrl: @json(route('admin.backup-history.datatable')),
                 csrfToken: @json(csrf_token()),
             });

@@ -123,7 +123,7 @@ class BackupHistoryTest extends TestCase
             ->assertJsonFragment([
                 'filename' => 'missing.zip',
                 'status' => 'Missing',
-                'status_badge_class' => 'bg-danger',
+                'status_badge_class' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
             ]);
     }
 

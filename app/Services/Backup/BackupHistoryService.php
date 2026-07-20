@@ -99,6 +99,7 @@ final class BackupHistoryService
     private function mapRow(User $user, BackupFile $backupFile): BackupHistoryRowData
     {
         $status = $this->resolveStatus($backupFile);
+        $routeKey = $backupFile->getRouteKey();
 
         return new BackupHistoryRowData(
             id: $backupFile->id,
@@ -109,9 +110,9 @@ final class BackupHistoryService
             status: $status['label'],
             statusBadgeClass: $status['badge_class'],
             createdAgo: $backupFile->createdAt->diffForHumans(),
-            showUrl: route('admin.backup-history.show', $backupFile),
-            downloadUrl: route('admin.backup-history.download', $backupFile),
-            destroyUrl: route('admin.backup-history.destroy', $backupFile),
+            showUrl: route('admin.backup-history.show', ['backupFile' => $routeKey]),
+            downloadUrl: route('admin.backup-history.download', ['backupFile' => $routeKey]),
+            destroyUrl: route('admin.backup-history.destroy', ['backupFile' => $routeKey]),
             canDownload: $user->can('download', $backupFile),
             canDelete: $user->can('delete', $backupFile),
             exists: $backupFile->exists,
@@ -144,13 +145,13 @@ final class BackupHistoryService
         if ($backupFile->isMissing()) {
             return [
                 'label' => 'Missing',
-                'badge_class' => 'bg-danger',
+                'badge_class' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
             ];
         }
 
         return [
             'label' => 'Available',
-            'badge_class' => 'bg-success',
+            'badge_class' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
         ];
     }
 

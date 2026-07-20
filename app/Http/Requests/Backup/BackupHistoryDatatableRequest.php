@@ -34,8 +34,19 @@ final class BackupHistoryDatatableRequest extends FormRequest
      */
     public function datatablePayload(): array
     {
-        $this->validate($this->rules());
-
-        return $this->all();
+        return [
+            'draw' => (int) $this->input('draw', 0),
+            'start' => max(0, (int) $this->input('start', 0)),
+            'length' => max(1, min(100, (int) $this->input('length', 10))),
+            'search' => [
+                'value' => (string) $this->input('search.value', $this->input('search', [])['value'] ?? ''),
+            ],
+            'order' => [
+                [
+                    'column' => (int) $this->input('order.0.column', 0),
+                    'dir' => $this->input('order.0.dir', 'desc') === 'asc' ? 'asc' : 'desc',
+                ],
+            ],
+        ];
     }
 }

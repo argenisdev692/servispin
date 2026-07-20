@@ -2,10 +2,9 @@
 
 namespace App\Models\Backup;
 
-use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Support\Carbon;
 
-final class BackupFile implements UrlRoutable
+final class BackupFile
 {
     public function __construct(
         public readonly string $id,
@@ -27,14 +26,9 @@ final class BackupFile implements UrlRoutable
         return 'id';
     }
 
-    public function resolveRouteBinding($value, $field = null): ?self
+    public function __toString(): string
     {
-        return null;
-    }
-
-    public function resolveSoftDeleteRouteBinding($value, $field = null): ?self
-    {
-        return null;
+        return $this->id;
     }
 
     public function isMissing(): bool

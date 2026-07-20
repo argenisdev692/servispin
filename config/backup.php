@@ -10,6 +10,7 @@ use Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotificatio
 use Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy;
 use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays;
 use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes;
+use Spatie\DbDumper\Compressors\GzipCompressor;
 
 return [
 
@@ -23,12 +24,10 @@ return [
         'source' => [
             'files' => [
                 /*
-                 * The list of directories and files that will be included in the backup.
+                 * Solo base de datos: dejar vacío para no incluir código fuente.
+                 * En hosting compartido (2 GB) evita zips de ~150+ MB.
                  */
-                'include' => [
-                    base_path(),
-                    // storage_path(),  // Include if you use zero downtime deployments and don't follow symlinks
-                ],
+                'include' => [],
 
                 /*
                  * These directories and files will be excluded from the backup.
@@ -105,7 +104,7 @@ return [
          *
          * If you do not want any compressor at all, set it to null.
          */
-        'database_dump_compressor' => null,
+        'database_dump_compressor' => GzipCompressor::class,
 
         /*
          * If specified, the database dumped file name will contain a timestamp (e.g.: 'Y-m-d-H-i-s').
@@ -301,7 +300,7 @@ return [
             'disks' => ['local'],
             'health_checks' => [
                 MaximumAgeInDays::class => 1,
-                MaximumStorageInMegabytes::class => 5000,
+                MaximumStorageInMegabytes::class => (int) env('BACKUP_MAX_STORAGE_MB', 500),
             ],
         ],
 
@@ -366,7 +365,7 @@ return [
              * this amount of megabytes has been reached.
              * Set null for unlimited size.
              */
-            'delete_oldest_backups_when_using_more_megabytes_than' => 5000,
+            'delete_oldest_backups_when_using_more_megabytes_than' => (int) env('BACKUP_MAX_STORAGE_MB', 500),
         ],
 
         /*

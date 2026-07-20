@@ -3,6 +3,8 @@
 namespace App\Models\Backup;
 
 use App\Enums\Backup\BackupDeletionType;
+use App\Models\User;
+use Database\Factories\Backup\BackupHistoryRecordFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +13,7 @@ use Illuminate\Support\Str;
 
 class BackupHistoryRecord extends Model
 {
-    /** @use HasFactory<\Database\Factories\Backup\BackupHistoryRecordFactory> */
+    /** @use HasFactory<BackupHistoryRecordFactory> */
     use HasFactory;
 
     use SoftDeletes;
@@ -59,7 +61,7 @@ class BackupHistoryRecord extends Model
 
     public function deletedBy(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'deleted_by_user_id');
+        return $this->belongsTo(User::class, 'deleted_by_user_id');
     }
 
     public function isFilePresent(): bool

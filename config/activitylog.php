@@ -1,5 +1,7 @@
 <?php
 
+use Spatie\Activitylog\Models\Activity;
+
 return [
 
     'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
@@ -12,7 +14,7 @@ return [
 
     'subject_returns_soft_deleted_models' => false,
 
-    'activity_model' => Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Activity::class,
 
     'table_name' => env('ACTIVITY_LOGGER_TABLE_NAME', 'activity_log'),
 
