@@ -190,6 +190,17 @@
                          <span class="ml-4">Gallery</span>
                      </a>
                  </li>
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('admin.backup-history.*') ? 'admin-nav-link--active' : '' }}"
+                         href="{{ route('admin.backup-history.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm5 3h6m-6 4h4" />
+                         </svg>
+                         <span class="ml-4">Historial de Backups</span>
+                     </a>
+                 </li>
              @endcan
          </ul>
 
@@ -380,6 +391,17 @@
                              </path>
                          </svg>
                          <span class="ml-4">Gallery</span>
+                     </a>
+                 </li>
+                 <li class="relative px-4 py-1">
+                     <a class="admin-nav-link {{ request()->routeIs('admin.backup-history.*') ? 'admin-nav-link--active' : '' }}"
+                         href="{{ route('admin.backup-history.index') }}">
+                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                 d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm5 3h6m-6 4h4" />
+                         </svg>
+                         <span class="ml-4">Historial de Backups</span>
                      </a>
                  </li>
              @endcan

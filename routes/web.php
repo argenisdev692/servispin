@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BackupHistoryController;
 use App\Http\Controllers\Admin\AppointmentCalendarController;
 use App\Http\Controllers\Admin\AvailabilityExceptionController;
 use App\Http\Controllers\Admin\RemoteAssistanceAdminController;
@@ -222,6 +223,15 @@ Route::middleware(['throttle:global'])->group(function () {
             Route::get('/events', [AppointmentCalendarController::class, 'events'])->name('events'); // Gets events for the calendar
             Route::patch('/events/{appointment}', [AppointmentCalendarController::class, 'update'])->name('update'); // Handles drag-and-drop updates
             Route::patch('/status/{id}', [AppointmentCalendarController::class, 'updateStatus'])->name('status.update'); // Ruta para actualizar el estado (confirmar/rechazar)
+        });
+
+        // Backup History Routes
+        Route::prefix('admin/backup-history')->name('admin.backup-history.')->group(function () {
+            Route::get('/', [BackupHistoryController::class, 'index'])->name('index');
+            Route::get('/datatable', [BackupHistoryController::class, 'datatable'])->name('datatable');
+            Route::get('/{backupFile}', [BackupHistoryController::class, 'show'])->name('show');
+            Route::get('/{backupFile}/download', [BackupHistoryController::class, 'download'])->name('download');
+            Route::delete('/{backupFile}', [BackupHistoryController::class, 'destroy'])->name('destroy');
         });
 
         // Gallery Image Routes

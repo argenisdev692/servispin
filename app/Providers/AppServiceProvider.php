@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Repositories\Backup\BackupHistoryRepository;
+use App\Repositories\Backup\BackupHistoryRepositoryInterface;
+use App\Services\Backup\ResolveBackupFileBinding;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(BackupHistoryRepositoryInterface::class, BackupHistoryRepository::class);
     }
 
     /**
@@ -22,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::bind('backupFile', ResolveBackupFileBinding::class);
+
         // Definir rate limiters
 
         // API rate limiter: 60 requests per minute

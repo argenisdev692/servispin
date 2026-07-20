@@ -31,6 +31,8 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/release-unverified.log'));
+
+        app(BackupScheduleRegistrar::class)->register($schedule);
     }
 
     /**
