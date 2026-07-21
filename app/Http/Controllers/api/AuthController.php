@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
@@ -27,49 +26,9 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validar los datos del formulario, incluyendo la unicidad del correo electrónico
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'role_id' => 'required|exists:roles,id', // Asegúrate de que el campo 'role_id' exista en la tabla 'roles'
-        ]);
-
-        // Si la validación falla, devolver errores de validación
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Generar un número aleatorio de 3 dígitos
-        $randomNumber = rand(100, 999);
-
-        // Crear el usuario
-        $user = User::create([
-            'name' => $request->input('name'),
-            'username' => $request->input('name').$randomNumber,
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-        ]);
-
-        // Encontrar el rol por ID
-        $role = Role::find($request->input('role_id'));
-
-        if (! $role) {
-            return response()->json(['error' => 'Invalid role ID'], 422);
-        }
-
-        // Asignar el rol al usuario
-        $user->assignRole($role);
-
-        // Generar un token de autenticación y asignarlo al usuario
-        $user->token = $user->createToken('API Token')->plainTextToken;
-
-        // Envía la notificación de verificación de correo electrónico
-        $user->sendEmailVerificationNotification();
-
-        $message = 'User data was successfully registered';
-
-        return response()->json(['user' => $user, 'message' => $message, 'token' => $user->token], 201);
+        return response()->json([
+            'message' => 'El registro no está disponible. Acceso solo para miembros.',
+        ], 403);
     }
 
     // USER LOGIN

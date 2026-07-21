@@ -38,6 +38,12 @@ return [
     'calendar_id' => env('GOOGLE_CALENDAR_ID'),
 
     /*
+     * Redirect URI para el flujo OAuth en navegador (Sail / localhost).
+     * Debe coincidir con redirect_uris del cliente Desktop: http://localhost
+     */
+    'oauth_redirect_uri' => env('GOOGLE_CALENDAR_OAUTH_REDIRECT_URI', 'http://localhost'),
+
+    /*
      *  The email address of the user account to impersonate.
      */
     'user_to_impersonate' => env('GOOGLE_CALENDAR_IMPERSONATE'),

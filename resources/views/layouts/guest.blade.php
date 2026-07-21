@@ -97,6 +97,34 @@
     <div class="font-sans text-gray-900 antialiased">
         {{ $slot }}
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (session('members_only'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Acceso solo para miembros',
+                    text: 'El registro no está disponible. Si eres del equipo, inicia sesión con tu cuenta existente o contacta al administrador.',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#2563eb',
+                });
+            });
+        </script>
+    @endif
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#2563eb',
+                });
+            });
+        </script>
+    @endif
 </body>
 
 </html>

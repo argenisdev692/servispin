@@ -3,11 +3,13 @@
 use App\Http\Controllers\Admin\AppointmentCalendarController;
 use App\Http\Controllers\Admin\AvailabilityExceptionController;
 use App\Http\Controllers\Admin\BackupHistoryController;
+use App\Http\Controllers\Admin\GoogleCalendarOAuthController;
 use App\Http\Controllers\Admin\RemoteAssistanceAdminController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Api\AppointmentController;
-use App\Http\Controllers\Api\AvailabilityController; // LARAVEL SOCIALITE
-use App\Http\Controllers\Api\RemoteAssistanceController;
+use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\RemoteAssistanceController; // LARAVEL SOCIALITE
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CompanyDataController;
 use App\Http\Controllers\ContactController; // Import the new controller
@@ -17,12 +19,9 @@ use App\Livewire\PostComponent; // Import the remote assistance controller
 use App\Livewire\UsersCrud; // Import the new admin controller
 use App\Models\CompanyData; // Import the remote assistance admin controller
 use App\Models\GalleryImage; // Import the brand controller
-use App\Models\User; // Import the availability exception controller
-use Illuminate\Support\Facades\Auth; // Import the service controller
+use App\Services\GoogleCalendarOAuthService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; // Import the contact controller
-use Laravel\Socialite\Facades\Socialite;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 // Import the gallery image controller
 
@@ -40,66 +39,38 @@ use Spatie\Permission\Models\Role;
 // Aplicar rate limiter global a todas las rutas web
 Route::middleware(['throttle:global'])->group(function () {
 
-    Route::get('/', function () {
+    Route::get('/', function (Request $request) {
+        $code = trim((string) $request->query('code', ''));
+        $scope = $request->query('scope');
+
+        if (app(GoogleCalendarOAuthService::class)->isCalendarOAuthCallback(
+            $code,
+            is_string($scope) ? $scope : null
+        )) {
+            return app(GoogleCalendarOAuthController::class)->callback($request);
+        }
+
         $galleryImages = GalleryImage::orderBy('sort_order', 'asc')->get();
 
         return view('welcome', compact('galleryImages'));
     });
 
     Route::get('/posts/{postId}', [PostController::class, 'showPost'])->name('posts.show');
-    // /------------- ROUTE GOOGLE AUTH ---------///
-    Route::get('/google-auth/redirect', function () {
-        return Socialite::driver('google')->redirect();
+    // Registro cerrado: solo miembros existentes pueden acceder
+    Route::get('/register', function () {
+        return redirect()->route('login')->with('members_only', true);
+    })->name('register');
+
+    Route::post('/register', function () {
+        return redirect()->route('login')->with('members_only', true);
     });
 
-    Route::get('/google-auth/callback', function () {
-        $googleUser = Socialite::driver('google')->user();
-
-        $randomNumber = rand(100, 999);
-        $nameWithoutSpaces = strtolower(str_replace(' ', '', $googleUser->name));
-
-        // Check if user exists with the same email address
-        $existingUser = User::where('email', $googleUser->email)->first();
-
-        if ($existingUser) {
-            if (! $existingUser->email_verified_at) {
-                // User exists but email isn't verified, set verification with DateNow
-                $existingUser->email_verified_at = now();
-                $existingUser->save();
-            }
-
-            // Existing user with verified email, log them in
-            Auth::login($existingUser);
-
-            return redirect('/dashboard');
-        } else {
-            $user = User::updateOrCreate([
-                'google_id' => $googleUser->id,
-            ], [
-                'name' => $googleUser->name,
-                'username' => $nameWithoutSpaces.$randomNumber,
-                'email' => $googleUser->email,
-                'email_verified_at' => now(),
-                'password' => bcrypt('finance123='),
-            ], function ($user) {
-                if ($user->wasRecentlyCreated) {
-                    $user->email_verified_at = now();
-                }
-            });
-
-            // Assign default role if not already assigned
-            $defaultRole = Role::find(2); // Reemplaza 2 con el ID del rol por defecto
-            if (! $user->hasRole($defaultRole)) {
-                $user->assignRole($defaultRole);
-            }
-
-            // Log in the newly created user
-            Auth::login($user);
-
-            return redirect('/dashboard');
-        }
-    });
-
+    // /------------- ROUTE GOOGLE AUTH (Socialite) ---------///
+    Route::get('/google-auth/redirect', [GoogleAuthController::class, 'redirect']);
+    Route::get('/google-auth/callback', [GoogleAuthController::class, 'callback']);
+    // Alias compatible con GOOGLE_REDIRECT_URI=/auth/google/callback
+    Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
+    Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
     // /------------- END ROUTE GOOGLE AUTH ---------///
 
     // Rutas públicas para el sistema de citas (no requieren autenticación)
@@ -206,6 +177,10 @@ Route::middleware(['throttle:global'])->group(function () {
             ->name('admin.remote-assistance.index');
         Route::get('admin/remote-assistance/pagos', [RemoteAssistanceAdminController::class, 'paymentHistory'])
             ->name('admin.remote-assistance.payments');
+
+        // OAuth Google Calendar/Meet — flujo por navegador (recomendado con Sail)
+        Route::get('admin/google-calendar/oauth/connect', [GoogleCalendarOAuthController::class, 'connect'])
+            ->name('admin.google-calendar.oauth.connect');
 
         // Rutas protegidas para la gestión de disponibilidad
         Route::prefix('admin/availability')->name('admin.availability.')->group(function () {

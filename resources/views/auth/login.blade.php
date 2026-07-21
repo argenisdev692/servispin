@@ -138,10 +138,11 @@
                 </div>
 
                 <div class="flex items-center justify-center  ">
-                    <p class="text-center text-sm text-gray-500">Don't have an account? <a
-                            href="{{ route('register') }}"
-                            class="text-indigo-500 transition duration-100 hover:text-indigo-600 active:text-indigo-700">Sign
-                            Up </a>
+                    <p class="text-center text-sm text-gray-500">¿No tienes cuenta?
+                        <button type="button" id="members-only-alert"
+                            class="text-indigo-500 transition duration-100 hover:text-indigo-600 active:text-indigo-700 bg-transparent border-0 p-0 font-inherit">
+                            Registrarse
+                        </button>
                     </p>
                 </div>
             </form>
@@ -165,6 +166,16 @@
     </style>
 
     <script>
+        document.getElementById('members-only-alert')?.addEventListener('click', function() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Acceso solo para miembros',
+                text: 'El registro no está disponible. Si eres del equipo, inicia sesión con tu cuenta existente o contacta al administrador.',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#2563eb',
+            });
+        });
+
         function togglePasswordVisibility() {
             const passwordInput = document.querySelector('#password');
             const toggleButton = document.querySelector('#toggle-password');

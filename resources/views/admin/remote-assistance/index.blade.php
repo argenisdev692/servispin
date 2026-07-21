@@ -19,6 +19,19 @@
 
             @include('admin.remote-assistance._nav', ['pendingCount' => $pendingCount])
 
+            <x-message-success />
+
+            @php($googleTokenMissing = ! file_exists(storage_path('app/google-calendar/oauth-token.json')))
+            @if ($googleTokenMissing)
+                <div class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 text-sm text-amber-900">
+                    Google Calendar no está conectado. Para generar enlaces Meet automáticos,
+                    <a href="{{ route('admin.google-calendar.oauth.connect') }}" class="font-semibold underline">
+                        conecta la cuenta de Google
+                    </a>
+                    (servispin19@gmail.com).
+                </div>
+            @endif
+
             {{-- FR-15: citas pagadas y confirmadas que se quedaron sin enlace porque
                  el provider automático falló. Son las urgentes: el cliente ya pagó y
                  tiene una cita a la que no puede entrar. --}}
