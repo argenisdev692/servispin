@@ -85,6 +85,71 @@ class GoogleMeetLinkProviderTest extends TestCase
         $provider->linkFor(Appointment::factory()->remote()->make());
     }
 
+    #[Test]
+    public function invita_al_cliente_con_cualquier_email_valido_incluido_outlook(): void
+    {
+        $provider = new class extends GoogleMeetLinkProvider
+        {
+            public ?Event $built = null;
+
+            protected function createGoogleEvent(Appointment $appointment): Event
+            {
+                $event = new Event;
+                $clientName = trim($appointment->client_first_name.' '.$appointment->client_last_name);
+                $this->addClientAsAttendee($event, $appointment, $clientName);
+                $this->built = $event;
+
+                $event->googleEvent->setId('evt_invite');
+                $event->googleEvent->setHangoutLink('https://meet.google.com/xyz-abcd-efg');
+
+                return $event;
+            }
+        };
+
+        $appointment = Appointment::factory()->remote()->make([
+            'client_email' => 'cliente@outlook.com',
+            'client_first_name' => 'Ana',
+            'client_last_name' => 'Pérez',
+        ]);
+
+        $provider->linkFor($appointment);
+
+        $attendees = $provider->built?->googleEvent->getAttendees() ?? [];
+        $this->assertCount(1, $attendees);
+        $this->assertSame('cliente@outlook.com', $attendees[0]->getEmail());
+        $this->assertSame('Ana Pérez', $attendees[0]->getDisplayName());
+    }
+
+    #[Test]
+    public function no_invita_si_el_email_del_cliente_no_es_valido(): void
+    {
+        $provider = new class extends GoogleMeetLinkProvider
+        {
+            public ?Event $built = null;
+
+            protected function createGoogleEvent(Appointment $appointment): Event
+            {
+                $event = new Event;
+                $this->addClientAsAttendee($event, $appointment, 'Sin Email');
+                $this->built = $event;
+
+                $event->googleEvent->setId('evt_no_invite');
+                $event->googleEvent->setHangoutLink('https://meet.google.com/xyz-abcd-efg');
+
+                return $event;
+            }
+        };
+
+        $appointment = Appointment::factory()->remote()->make([
+            'client_email' => 'no-es-un-email',
+        ]);
+
+        $provider->linkFor($appointment);
+
+        $attendees = $provider->built?->googleEvent->getAttendees();
+        $this->assertTrue($attendees === null || $attendees === []);
+    }
+
     /**
      * Provider con la creación del evento sustituida por un doble que devuelve
      * un Event con el hangoutLink y el id indicados.

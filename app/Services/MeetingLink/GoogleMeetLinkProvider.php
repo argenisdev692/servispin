@@ -71,7 +71,7 @@ class GoogleMeetLinkProvider implements MeetingLinkProvider
     }
 
     /**
-     * Crea el evento en Google Calendar con enlace de Meet.
+     * Crea el evento en Google Calendar con enlace de Meet e invita al cliente.
      *
      * Aislado en su propio método protegido para que los tests puedan
      * sobreescribirlo sin tocar la red: la lógica de este provider (persistir
@@ -82,19 +82,51 @@ class GoogleMeetLinkProvider implements MeetingLinkProvider
      * (Atlantic/Canary), que es como viven en `start_time`. Spatie toma el huso
      * del propio Carbon, así que Google muestra la hora correcta sin conversión
      * a UTC (plan §9 R-5).
+     *
+     * El cliente se añade como asistente con cualquier email válido (Gmail,
+     * Outlook, Yahoo…). Google envía la invitación ICS; no hace falta que tenga
+     * cuenta Google para unirse al Meet (entra como invitado en el navegador).
+     * `sendUpdates=all` es lo que dispara ese email de invitación de Calendar.
      */
     protected function createGoogleEvent(Appointment $appointment): Event
     {
+        $clientName = trim(
+            ($appointment->client_first_name ?? '').' '.($appointment->client_last_name ?? '')
+        );
+
         $event = new Event;
-        $event->name = 'Asistencia remota — '
-            .$appointment->client_first_name.' '.$appointment->client_last_name;
+        $event->name = 'Asistencia remota — '.($clientName !== '' ? $clientName : 'cliente');
         $event->description = $appointment->issue_description ?? '';
         $event->startDateTime = $appointment->start_time;
         $event->endDateTime = $appointment->end_time;
 
+        $this->addClientAsAttendee($event, $appointment, $clientName);
         $event->addMeetLink();
 
-        return $event->save();
+        // sendUpdates=all → Google notifica al asistente (Gmail, Outlook, etc.)
+        return $event->save('insertEvent', ['sendUpdates' => 'all']);
+    }
+
+    /**
+     * Invita al email del cliente al evento (Calendar + Meet), si es válido.
+     */
+    protected function addClientAsAttendee(Event $event, Appointment $appointment, string $clientName): void
+    {
+        $email = strtolower(trim((string) ($appointment->client_email ?? '')));
+
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Log::warning('GoogleMeetLinkProvider: cita sin email de cliente válido; evento sin invitación.', [
+                'appointment_id' => $appointment->id,
+            ]);
+
+            return;
+        }
+
+        $event->addAttendee([
+            'email' => $email,
+            'name' => $clientName !== '' ? $clientName : $email,
+            'responseStatus' => 'needsAction',
+        ]);
     }
 
     /**

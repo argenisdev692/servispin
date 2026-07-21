@@ -250,7 +250,17 @@ php artisan google:oauth-token --manual
 
 ---
 
-## 8. Prueba de humo
+## 8. Invitación al cliente (Gmail, Outlook, etc.)
+
+Al confirmar una cita remota, el sistema crea el evento en **tu** calendario e
+**invita al email del cliente** como asistente (`sendUpdates=all`).
+
+- Funciona con **cualquier email** (Gmail, Outlook/Hotmail, Yahoo, corporativo…).
+- El cliente recibe la invitación de Google Calendar (ICS) además del email de ServiSpin.
+- **No necesita cuenta Google** para entrar al Meet: abre el enlace en el navegador como invitado.
+- Los recordatorios de 24 h / 30 min de ServiSpin siguen enviándose aparte (cron).
+
+## 9. Prueba de humo
 
 Con OAuth y token ya creados:
 
@@ -275,7 +285,7 @@ el email / ficha llevan un Meet real.
 
 ---
 
-## 9. Checklist final (mismo proyecto)
+## 10. Checklist final (mismo proyecto)
 
 - [ ] Un solo proyecto Google Cloud
 - [ ] **Google Calendar API** habilitada
@@ -290,7 +300,7 @@ el email / ficha llevan un Meet real.
 
 ---
 
-## 10. Errores frecuentes
+## 11. Errores frecuentes
 
 | Error | Causa | Qué hacer |
 |---|---|---|
