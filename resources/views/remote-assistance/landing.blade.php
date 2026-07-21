@@ -63,7 +63,7 @@
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             <div class="absolute inset-x-0 bottom-0 p-5 sm:p-8">
                 <p class="text-white text-xl sm:text-3xl font-bold drop-shadow mb-1">
-                    ¿Lavadora rota? Te ayudamos por videollamada.
+                    ¿Tu electrodoméstico falló? Te ayudamos por videollamada.
                 </p>
                 <p class="text-white/90 text-sm sm:text-lg drop-shadow">
                     Estés donde estés, en cualquier parte del mundo. ¿Te inicias en la reparación?

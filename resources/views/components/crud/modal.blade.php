@@ -30,7 +30,7 @@
 
 <div id="{{ $id }}" class="fixed inset-0 z-50 hidden items-center justify-center">
     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all max-w-lg w-full">
+    <div class="relative z-10 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all max-w-lg w-full">
         <div id="modalHeader"
             class="px-4 py-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-600 {{ $headerClass }}">
             <h3 id="modalTitle" class="w-full text-lg leading-6 font-medium text-white text-center">

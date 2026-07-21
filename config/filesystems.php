@@ -39,7 +39,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // En hosting (docroot = raíz del proyecto) /storage/* está bloqueado
+            // por .htaccess. Servimos vía ruta Laravel /storage-public/{path}.
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage-public',
             'visibility' => 'public',
             'throw' => false,
         ],

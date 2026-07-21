@@ -222,10 +222,15 @@ Route::middleware(['throttle:global'])->group(function () {
         });
     });
 
-    // Public route for serving gallery images (must be outside auth middleware)
+    // Public routes for serving files from storage/app/public
+    // (must be outside auth; /storage/* is blocked by .htaccess on shared hosting)
     Route::get('storage-gallery/{path}', [GalleryImageController::class, 'serveFile'])
         ->where('path', '.*')
         ->name('gallery.serve');
+
+    Route::get('storage-public/{path}', [GalleryImageController::class, 'serveFile'])
+        ->where('path', '.*')
+        ->name('storage.public');
 
     // Contact form routes
     Route::post('/contact/submit', [ContactController::class, 'submitForm'])->middleware('throttle:contact')->name('contact.submit');

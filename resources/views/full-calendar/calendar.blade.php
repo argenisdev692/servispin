@@ -4,9 +4,23 @@
 @push('styles')
     {{-- Use a specific version of FullCalendar --}}
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     {{-- Add meta CSRF token if not in main layout --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
+        #remoteAppointmentModal .iti {
+            width: 100%;
+            display: block;
+        }
+
+        #remoteAppointmentModal .iti__flag-container {
+            z-index: 20;
+        }
+
+        #remoteAppointmentModal .required-asterisk {
+            color: #ef4444;
+            margin-left: 2px;
+        }
         /* Optional: Customize calendar appearance */
         #calendar {
             max-width: 1100px;
@@ -203,84 +217,86 @@
                         </div>
 
                         {{-- Simple Modal for Event Details (using basic HTML/Tailwind) --}}
-                        <div id="eventDetailModal" class="fixed inset-0 overflow-y-auto hidden"
+                        <div id="eventDetailModal" class="fixed inset-0 z-[9999] hidden"
                             aria-labelledby="modal-title" role="dialog" aria-modal="true">
                             <div class="absolute inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"
                                 data-modal-backdrop="eventDetailModal"></div>
-                            <div class="absolute inset-0 flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0 pointer-events-none">
+                            <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
                                 <div
-                                    class="relative pointer-events-auto inline-block w-full align-bottom bg-white dark:bg-slate-900 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                                    <div class="bg-white dark:bg-slate-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 relative">
-                                        {{-- Close (X) button in top right corner --}}
+                                    class="relative pointer-events-auto flex w-full max-w-lg max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white text-left shadow-xl dark:bg-slate-900">
+                                    {{-- Header fijo: título + X siempre visibles --}}
+                                    <div class="relative shrink-0 border-b border-slate-200 bg-white px-4 py-3 pr-14 dark:border-slate-700 dark:bg-slate-900">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 truncate"
+                                            id="modalEventTitle"></h3>
                                         <button type="button" id="closeEventModalBtn" aria-label="Cerrar"
-                                            class="absolute top-3 right-3 z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-600 p-0 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                            class="absolute top-2.5 right-3 z-20 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-600 p-0 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                             <svg class="block h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
-                                        <div class="sm:flex sm:items-start">
-                                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full pr-8">
-                                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100"
-                                                    id="modalEventTitle"></h3>
-                                                <div class="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                                                    <p><strong>Cliente:</strong> <span id="modalEventClient"></span></p>
-                                                    <p><strong>Email:</strong> <span id="modalEventEmail"></span></p>
-                                                    <p><strong>Teléfono:</strong> <span id="modalEventPhone"></span></p>
-                                                    <p><strong>Servicio:</strong> <span id="modalEventService"></span></p>
-                                                    <p><strong>Estado:</strong> <span id="modalEventStatus"
-                                                            class="px-2 py-1 text-xs font-bold rounded-full"></span></p>
+                                    </div>
 
-                                                    {{-- Sección remota: pago, enlace, acciones --}}
-                                                    <div id="remoteSection" class="hidden mt-3 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-700 space-y-2">
-                                                        <p class="text-xs font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200">📹 Asistencia remota</p>
-                                                        <p><strong>Pago:</strong> <span id="modalPaymentStatus"></span></p>
-                                                        <p><strong>Referencia SumUp:</strong> <span id="modalPaymentReference" class="font-mono"></span></p>
-                                                        <p><strong>Importe:</strong> <span id="modalPaymentAmount"></span></p>
-                                                        <p><strong>Pagador:</strong> <span id="modalPayerName"></span></p>
-                                                        <p id="modalClientTimezoneRow" class="hidden"><strong>Huso cliente:</strong> <span id="modalClientTimezone"></span></p>
-                                                        <p id="modalMeetingUrlRow" class="hidden"><strong>Enlace:</strong>
-                                                            <a id="modalMeetingUrl" href="#" target="_blank" class="text-blue-600 underline break-all"></a>
-                                                        </p>
-                                                        <p id="modalMeetingFailed" class="hidden text-red-700 text-xs font-semibold">⚠️ Confirmada sin enlace — pégalo abajo.</p>
+                                    {{-- Cuerpo con scroll --}}
+                                    <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+                                        <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <p><strong>Cliente:</strong> <span id="modalEventClient"></span></p>
+                                            <p><strong>Email:</strong> <span id="modalEventEmail"></span></p>
+                                            <p><strong>Teléfono:</strong> <span id="modalEventPhone"></span></p>
+                                            <p><strong>Servicio:</strong> <span id="modalEventService"></span></p>
+                                            <p><strong>Estado:</strong> <span id="modalEventStatus"
+                                                    class="px-2 py-1 text-xs font-bold rounded-full"></span></p>
 
-                                                        <div id="remoteVerifyActions" class="hidden space-y-2 pt-2">
-                                                            @unless ($providerIsAutomatic)
-                                                                <input type="url" id="remoteMeetingUrlInput" placeholder="https://… enlace de videollamada"
-                                                                    class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
-                                                            @endunless
-                                                            <input type="text" id="remoteRejectReason" placeholder="Motivo (solo si rechazas el pago)"
-                                                                class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
-                                                        </div>
+                                            {{-- Sección remota: pago, enlace, acciones --}}
+                                            <div id="remoteSection" class="hidden mt-3 p-3 rounded-lg border border-violet-200 bg-violet-50 dark:bg-violet-900/20 dark:border-violet-700 space-y-2">
+                                                <p class="text-xs font-bold uppercase tracking-wide text-violet-800 dark:text-violet-200">📹 Asistencia remota</p>
+                                                <p><strong>Pago:</strong> <span id="modalPaymentStatus"></span></p>
+                                                <p><strong>Referencia SumUp:</strong> <span id="modalPaymentReference" class="font-mono"></span></p>
+                                                <p><strong>Importe:</strong> <span id="modalPaymentAmount"></span></p>
+                                                <p><strong>Pagador:</strong> <span id="modalPayerName"></span></p>
+                                                <p id="modalClientTimezoneRow" class="hidden"><strong>Huso cliente:</strong> <span id="modalClientTimezone"></span></p>
+                                                <p id="modalMeetingUrlRow" class="hidden"><strong>Enlace:</strong>
+                                                    <a id="modalMeetingUrl" href="#" target="_blank" class="text-blue-600 underline break-all"></a>
+                                                </p>
+                                                <p id="modalMeetingFailed" class="hidden text-red-700 text-xs font-semibold">⚠️ Confirmada sin enlace — pégalo abajo.</p>
 
-                                                        <div id="remoteLinkActions" class="hidden space-y-2 pt-2">
-                                                            <input type="url" id="addMeetingUrlInput" placeholder="https://meet.google.com/…"
-                                                                class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
-                                                        </div>
-                                                    </div>
+                                                <div id="remoteVerifyActions" class="hidden space-y-2 pt-2">
+                                                    @unless ($providerIsAutomatic)
+                                                        <input type="url" id="remoteMeetingUrlInput" placeholder="https://… enlace de videollamada"
+                                                            class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                    @endunless
+                                                    <input type="text" id="remoteRejectReason" placeholder="Motivo (solo si rechazas el pago)"
+                                                        class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                </div>
 
-                                                    <p id="modalAddressRow"><strong>Dirección:</strong> <span id="modalEventAddress"
-                                                            class="whitespace-pre-wrap"></span></p>
-                                                    <p><strong>Problema:</strong> <span id="modalEventIssue"
-                                                            class="whitespace-pre-wrap"></span></p>
-                                                    <p><strong>Notas:</strong> <span id="modalEventNotes"
-                                                            class="whitespace-pre-wrap"></span></p>
+                                                <div id="remoteLinkActions" class="hidden space-y-2 pt-2">
+                                                    <input type="url" id="addMeetingUrlInput" placeholder="https://meet.google.com/…"
+                                                        class="w-full rounded-md border-gray-300 text-sm dark:bg-gray-700 dark:border-gray-600">
+                                                </div>
+                                            </div>
 
-                                                    <!-- Sección para la imagen del equipo -->
-                                                    <div id="photoContainer" class="mt-4 hidden">
-                                                        <p><strong>Foto del equipo:</strong></p>
-                                                        <div class="mt-2 flex justify-center">
-                                                            <img id="modalEventPhoto" src="" alt="Foto del equipo"
-                                                                class="max-w-full max-h-64 rounded-lg shadow-md object-contain" />
-                                                        </div>
-                                                    </div>
+                                            <p id="modalAddressRow"><strong>Dirección:</strong> <span id="modalEventAddress"
+                                                    class="whitespace-pre-wrap"></span></p>
+                                            <p><strong>Problema:</strong> <span id="modalEventIssue"
+                                                    class="whitespace-pre-wrap"></span></p>
+                                            <p><strong>Notas:</strong> <span id="modalEventNotes"
+                                                    class="whitespace-pre-wrap"></span></p>
+
+                                            <!-- Sección para la imagen del equipo -->
+                                            <div id="photoContainer" class="mt-4 hidden">
+                                                <p><strong>Foto del equipo:</strong></p>
+                                                <div class="mt-2 flex justify-center">
+                                                    <img id="modalEventPhoto" src="" alt="Foto del equipo"
+                                                        class="max-w-full max-h-48 rounded-lg shadow-md object-contain" />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    {{-- Footer fijo con acciones --}}
                                     <div
-                                        class="bg-slate-50 dark:bg-slate-800 px-4 py-3 sm:px-6 sm:flex sm:flex-col gap-3 justify-center relative z-10">
+                                        class="shrink-0 border-t border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800 sm:px-6 flex flex-col gap-3 justify-center relative z-10">
                                         {{-- Botones presenciales (Confirmar / Rechazar cita) --}}
                                         <div id="statusActionButtons" class="flex space-x-4 justify-center">
                                             <button type="button" id="confirmAppointmentBtn"
@@ -350,20 +366,20 @@
                              El cliente llama por teléfono, paga por QR y Cesar la da
                              de alta desde el hueco, sin pasar por la web.
                              Se AÑADE junto al modal de detalles; no se toca aquél. --}}
-                        <div id="remoteAppointmentModal" class="fixed inset-0 overflow-y-auto hidden"
+                        <div id="remoteAppointmentModal" class="fixed inset-0 z-[9999] hidden"
                             aria-labelledby="remote-modal-title" role="dialog" aria-modal="true">
                             <div class="absolute inset-0 transition-opacity bg-gray-500/75" aria-hidden="true"
                                 data-modal-backdrop="remoteAppointmentModal"></div>
-                            <div class="absolute inset-0 flex min-h-full items-end justify-center px-4 pt-4 pb-20 sm:items-center sm:p-0 pointer-events-none">
-                                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                                <div class="relative pointer-events-auto inline-block w-full px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white dark:bg-slate-900 rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
-                                    <div class="flex items-center justify-between gap-3 mb-4">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-900" id="remote-modal-title">
+                            <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                                <div
+                                    class="relative pointer-events-auto flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white text-left shadow-xl dark:bg-slate-900">
+                                    {{-- Header fijo --}}
+                                    <div class="flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 dark:border-slate-700 sm:px-6">
+                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100" id="remote-modal-title">
                                             Nueva cita remota
                                         </h3>
                                         <button type="button" id="closeRemoteModalBtn" aria-label="Cerrar"
-                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-slate-800">
                                             <svg class="block h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M6 18L18 6M6 6l12 12" />
@@ -371,7 +387,9 @@
                                         </button>
                                     </div>
 
-                                    <form id="remoteAppointmentForm" class="space-y-4 text-left">
+                                    <form id="remoteAppointmentForm" class="flex min-h-0 flex-1 flex-col">
+                                        {{-- Cuerpo con scroll: fecha/hora y resto visibles --}}
+                                        <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 text-left sm:px-6">
                                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Fecha</label>
@@ -407,24 +425,40 @@
 
                                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                                                <input type="text" name="client_first_name" required
-                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                <label for="remoteClientFirstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Nombre <span class="required-asterisk">*</span>
+                                                </label>
+                                                <input type="text" name="client_first_name" id="remoteClientFirstName" required
+                                                    minlength="3" maxlength="15" autocomplete="given-name"
+                                                    placeholder="Primer nombre"
+                                                    class="capitalize w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                <p class="text-xs text-gray-500 mt-1">Solo letras, sin espacios (3–15).</p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">Apellidos</label>
-                                                <input type="text" name="client_last_name" required
-                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                <label for="remoteClientLastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Apellido <span class="required-asterisk">*</span>
+                                                </label>
+                                                <input type="text" name="client_last_name" id="remoteClientLastName" required
+                                                    minlength="3" maxlength="15" autocomplete="family-name"
+                                                    placeholder="Primer apellido"
+                                                    class="capitalize w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                <p class="text-xs text-gray-500 mt-1">Solo letras, sin espacios (3–15).</p>
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">Email</label>
-                                                <input type="email" name="client_email" required
-                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                <label for="remoteClientEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Email <span class="required-asterisk">*</span>
+                                                </label>
+                                                <input type="email" name="client_email" id="remoteClientEmail" required
+                                                    autocomplete="email" maxlength="255"
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-                                                <input type="tel" name="client_phone"
-                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                                                <label for="remoteClientPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    Teléfono <span class="required-asterisk">*</span>
+                                                </label>
+                                                <input type="tel" name="client_phone" id="remoteClientPhone" required
+                                                    autocomplete="tel"
+                                                    class="w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
                                             </div>
                                         </div>
 
@@ -467,44 +501,70 @@
                                                 class="w-full mt-1 border-gray-300 rounded-md shadow-sm"></textarea>
                                         </div>
 
-                                        <div class="p-4 rounded-md bg-gray-50">
+                                        <div class="p-4 rounded-md bg-gray-50 dark:bg-slate-800">
                                             <label class="flex items-center">
                                                 <input type="checkbox" name="payment_verified" id="remotePaymentVerified"
                                                     class="border-gray-300 rounded">
-                                                <span class="ml-2 text-sm font-medium text-gray-900">
+                                                <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                                                     Ya he comprobado el pago en SumUp
                                                 </span>
                                             </label>
                                             {{-- FR-3: sin marcar esto, la cita queda pendiente y SIN enlace,
                                                  igual que en el formulario público. El atajo del admin no es
                                                  una puerta trasera al control de pago. --}}
-                                            <p class="mt-1 text-xs text-gray-600">
+                                            <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
                                                 Si no lo marcas, la cita queda pendiente de verificar y
                                                 <strong>no se envía ningún enlace</strong> al cliente.
                                             </p>
 
                                             <div id="remotePaymentFields" class="hidden mt-3 space-y-3">
-                                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                                    <input type="text" name="payment_reference" placeholder="Referencia SumUp"
-                                                        class="border-gray-300 rounded-md shadow-sm">
-                                                    <input type="number" step="0.01" min="0" name="payment_amount" placeholder="Importe €"
-                                                        class="border-gray-300 rounded-md shadow-sm">
-                                                    <input type="text" name="payer_name" placeholder="Nombre del pagador"
-                                                        class="border-gray-300 rounded-md shadow-sm">
+                                                <div>
+                                                    <label for="remotePaymentReference" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Referencia SumUp <span class="required-asterisk">*</span>
+                                                    </label>
+                                                    <input type="text" name="payment_reference" id="remotePaymentReference"
+                                                        maxlength="128" placeholder="Referencia del recibo"
+                                                        class="uppercase w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                </div>
+                                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                                    <div>
+                                                        <label for="remotePaymentAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Importe € <span class="required-asterisk">*</span>
+                                                        </label>
+                                                        <input type="number" step="0.01" min="0" name="payment_amount" id="remotePaymentAmount"
+                                                            placeholder="0.00"
+                                                            class="w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                    </div>
+                                                    <div>
+                                                        <label for="remotePayerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Nombre del pagador <span class="required-asterisk">*</span>
+                                                        </label>
+                                                        <input type="text" name="payer_name" id="remotePayerName"
+                                                            minlength="3" maxlength="20" placeholder="Nombre y apellido"
+                                                            class="capitalize w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                        <p class="text-xs text-gray-500 mt-1">3–20 letras (puede incluir espacio).</p>
+                                                    </div>
                                                 </div>
                                                 @unless ($providerIsAutomatic)
                                                     {{-- Con proveedor manual nadie genera el enlace: sin él, el
                                                          cliente recibiría un "confirmada" sin forma de entrar. --}}
-                                                    <input type="url" name="meeting_url" id="remoteMeetingUrl"
-                                                        placeholder="https://… enlace de la videollamada"
-                                                        class="w-full border-gray-300 rounded-md shadow-sm">
+                                                    <div>
+                                                        <label for="remoteMeetingUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Enlace videollamada <span class="required-asterisk">*</span>
+                                                        </label>
+                                                        <input type="url" name="meeting_url" id="remoteMeetingUrl"
+                                                            placeholder="https://… enlace de la videollamada"
+                                                            class="w-full mt-1 border-gray-300 rounded-md shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-gray-100">
+                                                    </div>
                                                 @endunless
                                             </div>
                                         </div>
 
                                         <div id="remoteFormErrors" class="hidden p-3 text-sm text-red-800 border border-red-200 rounded bg-red-50"></div>
+                                        </div>
 
-                                        <div class="flex gap-3 pt-2">
+                                        {{-- Footer fijo --}}
+                                        <div class="flex shrink-0 gap-3 border-t border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800 sm:px-6">
                                             <button type="submit" id="remoteSubmitBtn"
                                                 class="flex-1 px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50">
                                                 Crear cita remota
@@ -528,6 +588,8 @@
     {{-- FullCalendar JS --}}
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/es.global.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
 
     {{-- Tooltip library (Tippy.js) --}}
     <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -580,6 +642,14 @@
 
             remoteCalendarApi = info.view.calendar;
 
+            // Cerrar el modal de detalle si estuviera abierto, para no mezclar
+            // acciones de confirmación con el alta remota.
+            const detailModal = document.getElementById('eventDetailModal');
+            if (detailModal) {
+                detailModal.classList.add('hidden');
+                detailModal.style.display = 'none';
+            }
+
             // "2026-07-20T10:00:00+01:00" → fecha y hora tal cual, sin convertir.
             // En la vista de mes el clic no trae hora (allDay) y se deja vacía
             // para que Cesar la escriba.
@@ -600,18 +670,130 @@
                 const submitBtn = document.getElementById('remoteSubmitBtn');
                 const paidCheckbox = document.getElementById('remotePaymentVerified');
                 const paymentFields = document.getElementById('remotePaymentFields');
+                const firstNameInput = document.getElementById('remoteClientFirstName');
+                const lastNameInput = document.getElementById('remoteClientLastName');
+                const emailInput = document.getElementById('remoteClientEmail');
+                const phoneInput = document.getElementById('remoteClientPhone');
+                const paymentReferenceInput = document.getElementById('remotePaymentReference');
+                const paymentAmountInput = document.getElementById('remotePaymentAmount');
+                const payerNameInput = document.getElementById('remotePayerName');
+                const meetingUrlInput = document.getElementById('remoteMeetingUrl');
+                const namePattern = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u;
+                const payerNamePattern = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?: [A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/u;
+                let remoteIti = null;
+
+                function capitalizeWord(str) {
+                    if (!str) return str;
+                    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+                }
+
+                function capitalizeWords(str) {
+                    if (!str) return str;
+                    return str.replace(/\S+/gu, capitalizeWord);
+                }
+
+                function sanitizeNameInput(input) {
+                    input.addEventListener('input', function () {
+                        this.value = this.value
+                            .replace(/\s+/g, '')
+                            .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '')
+                            .slice(0, 15);
+                        this.classList.remove('border-red-500');
+                    });
+                    input.addEventListener('blur', function () {
+                        this.value = capitalizeWord(this.value.trim());
+                    });
+                }
+
+                sanitizeNameInput(firstNameInput);
+                sanitizeNameInput(lastNameInput);
+
+                emailInput.addEventListener('input', function () {
+                    this.classList.remove('border-red-500');
+                });
+
+                payerNameInput.addEventListener('input', function () {
+                    this.value = this.value
+                        .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, '')
+                        .replace(/\s{2,}/g, ' ')
+                        .slice(0, 20);
+                    this.classList.remove('border-red-500');
+                });
+                payerNameInput.addEventListener('blur', function () {
+                    this.value = capitalizeWords(this.value.trim());
+                });
+
+                paymentReferenceInput.addEventListener('input', function () {
+                    const cursorPos = this.selectionStart;
+                    this.value = this.value.toUpperCase().slice(0, 128);
+                    this.setSelectionRange(cursorPos, cursorPos);
+                    this.classList.remove('border-red-500');
+                });
+
+                if (phoneInput && window.intlTelInput) {
+                    remoteIti = window.intlTelInput(phoneInput, {
+                        initialCountry: 'es',
+                        preferredCountries: ['es'],
+                        separateDialCode: true,
+                        utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js',
+                        autoPlaceholder: 'aggressive',
+                    });
+
+                    phoneInput.addEventListener('input', function () {
+                        this.classList.remove('border-red-500');
+                        const isSpanish = remoteIti.getSelectedCountryData().iso2 === 'es';
+                        const cursorPos = this.selectionStart;
+                        const spacesBefore = (this.value.substring(0, cursorPos).match(/ /g) || []).length;
+                        const digits = this.value.replace(/\D/g, '');
+
+                        if (isSpanish) {
+                            let formattedValue = '';
+                            for (let i = 0; i < Math.min(digits.length, 9); i++) {
+                                if (i === 3 || i === 5 || i === 7) formattedValue += ' ';
+                                formattedValue += digits[i];
+                            }
+                            if (this.value !== formattedValue) {
+                                this.value = formattedValue;
+                                const spacesAfter = (formattedValue.substring(0, cursorPos).match(/ /g) || []).length;
+                                this.setSelectionRange(
+                                    cursorPos + (spacesAfter - spacesBefore),
+                                    cursorPos + (spacesAfter - spacesBefore)
+                                );
+                            }
+                        } else if (digits.length > 15) {
+                            this.value = this.value.substring(0, this.value.length - 1);
+                        }
+                    });
+
+                    phoneInput.addEventListener('countrychange', function () {
+                        const digits = this.value.replace(/\D/g, '');
+                        if (remoteIti.getSelectedCountryData().iso2 === 'es' && digits.length > 0) {
+                            let formattedValue = '';
+                            const limited = digits.substring(0, 9);
+                            for (let i = 0; i < limited.length; i++) {
+                                if (i === 3 || i === 5 || i === 7) formattedValue += ' ';
+                                formattedValue += limited[i];
+                            }
+                            this.value = formattedValue;
+                        }
+                    });
+                }
 
                 function closeRemoteModal() {
                     remoteModal.classList.add('hidden');
                     remoteForm.reset();
                     paymentFields.classList.add('hidden');
                     errorsEl.classList.add('hidden');
+                    [firstNameInput, lastNameInput, emailInput, phoneInput, paymentReferenceInput, paymentAmountInput, payerNameInput]
+                        .forEach(function (el) {
+                            if (el) el.classList.remove('border-red-500');
+                        });
+                    if (remoteIti) remoteIti.setNumber('');
                 }
 
                 document.getElementById('closeRemoteModalBtn').addEventListener('click', closeRemoteModal);
                 document.getElementById('cancelRemoteBtn').addEventListener('click', closeRemoteModal);
 
-                // Los datos del pago solo tienen sentido si Cesar ya lo cobró.
                 paidCheckbox.addEventListener('change', function() {
                     paymentFields.classList.toggle('hidden', !paidCheckbox.checked);
                 });
@@ -619,43 +801,97 @@
                 function showRemoteErrors(messages) {
                     errorsEl.innerHTML = messages.map(m => '<div>• ' + m + '</div>').join('');
                     errorsEl.classList.remove('hidden');
+                    errorsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                function validateRemoteForm() {
+                    const messages = [];
+                    [firstNameInput, lastNameInput, emailInput, phoneInput, paymentReferenceInput, paymentAmountInput, payerNameInput]
+                        .forEach(function (el) {
+                            if (el) el.classList.remove('border-red-500');
+                        });
+
+                    const date = document.getElementById('remoteDate').value;
+                    const time = document.getElementById('remoteTime').value;
+                    if (!date || !time) {
+                        messages.push('Indica la fecha y la hora de la cita.');
+                    }
+
+                    const firstName = firstNameInput.value.trim();
+                    const lastName = lastNameInput.value.trim();
+                    if (!firstName || firstName.length < 3 || firstName.length > 15 || !namePattern.test(firstName)) {
+                        messages.push('El nombre debe tener entre 3 y 15 letras, sin espacios.');
+                        firstNameInput.classList.add('border-red-500');
+                    }
+                    if (!lastName || lastName.length < 3 || lastName.length > 15 || !namePattern.test(lastName)) {
+                        messages.push('El apellido debe tener entre 3 y 15 letras, sin espacios.');
+                        lastNameInput.classList.add('border-red-500');
+                    }
+                    if (!emailInput.value.trim()) {
+                        messages.push('Introduce el email del cliente.');
+                        emailInput.classList.add('border-red-500');
+                    }
+                    if (remoteIti && (!phoneInput.value.trim() || !remoteIti.isValidNumber())) {
+                        messages.push('Introduce un teléfono válido.');
+                        phoneInput.classList.add('border-red-500');
+                    }
+
+                    if (paidCheckbox.checked) {
+                        if (!paymentReferenceInput.value.trim()) {
+                            messages.push('Introduce la referencia del recibo de SumUp.');
+                            paymentReferenceInput.classList.add('border-red-500');
+                        }
+                        if (!paymentAmountInput.value || Number(paymentAmountInput.value) < 0) {
+                            messages.push('Introduce el importe pagado.');
+                            paymentAmountInput.classList.add('border-red-500');
+                        }
+                        const payerName = payerNameInput.value.trim();
+                        if (payerName.length < 3 || payerName.length > 20 || !payerNamePattern.test(payerName)) {
+                            messages.push('El nombre del pagador debe tener entre 3 y 20 letras (puede incluir un espacio).');
+                            payerNameInput.classList.add('border-red-500');
+                        }
+                        if (meetingUrlInput && !meetingUrlInput.value.trim()) {
+                            messages.push('Pega el enlace de la videollamada.');
+                            meetingUrlInput.classList.add('border-red-500');
+                        }
+                    }
+
+                    return [...new Set(messages)];
                 }
 
                 remoteForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     errorsEl.classList.add('hidden');
 
-                    const date = document.getElementById('remoteDate').value;
-                    const time = document.getElementById('remoteTime').value;
-
-                    if (!date || !time) {
-                        showRemoteErrors(['Indica la fecha y la hora de la cita.']);
+                    const validationErrors = validateRemoteForm();
+                    if (validationErrors.length) {
+                        showRemoteErrors(validationErrors);
                         return;
                     }
 
+                    const date = document.getElementById('remoteDate').value;
+                    const time = document.getElementById('remoteTime').value;
                     const fd = new FormData(remoteForm);
+
                     const payload = {
                         service_id: fd.get('service_id'),
                         brand_id: fd.get('brand_id') || null,
-                        client_first_name: fd.get('client_first_name'),
-                        client_last_name: fd.get('client_last_name'),
-                        client_email: fd.get('client_email'),
-                        client_phone: fd.get('client_phone') || null,
-                        issue_description: fd.get('issue_description') || null,
+                        client_first_name: capitalizeWord(firstNameInput.value.trim()),
+                        client_last_name: capitalizeWord(lastNameInput.value.trim()),
+                        client_email: emailInput.value.trim().toLowerCase(),
+                        client_phone: remoteIti && remoteIti.isValidNumber() ? remoteIti.getNumber() : null,
+                        issue_description: (fd.get('issue_description') || '').trim() || null,
                         client_timezone: fd.get('client_timezone'),
-                        // El backend exige Y-m-d H:i:s en huso del negocio. Ya lo está.
                         start_time: date + ' ' + time + ':00',
-                        // Se manda explícito: un checkbox sin marcar no viaja en el
-                        // FormData y la regla es `required|boolean`.
                         payment_verified: paidCheckbox.checked,
                     };
 
                     if (paidCheckbox.checked) {
-                        payload.payment_reference = fd.get('payment_reference') || null;
-                        payload.payment_amount = fd.get('payment_amount') || null;
-                        payload.payer_name = fd.get('payer_name') || null;
-                        if (fd.get('meeting_url')) {
-                            payload.meeting_url = fd.get('meeting_url');
+                        payload.payment_reference = paymentReferenceInput.value.trim().toUpperCase();
+                        payload.payment_amount = paymentAmountInput.value || null;
+                        payload.payer_name = capitalizeWords(payerNameInput.value.trim());
+                        if (meetingUrlInput && meetingUrlInput.value.trim()) {
+                            payload.meeting_url = meetingUrlInput.value.trim();
                         }
                     }
 
@@ -682,9 +918,6 @@
                             return;
                         }
 
-                        // El solapamiento (FR-7) lo decide el backend, no el JS:
-                        // duplicar esa regla aquí sería tener dos verdades que
-                        // pueden contradecirse. Aquí solo se muestra el 422.
                         const messages = json.errors
                             ? Object.values(json.errors).flat()
                             : [json.message || 'No se pudo crear la cita.'];
@@ -1201,7 +1434,8 @@
                 }
 
                 verifyPaymentBtn.addEventListener('click', async function () {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     const payload = { decision: 'verify' };
                     const urlInput = document.getElementById('remoteMeetingUrlInput');
@@ -1220,7 +1454,7 @@
 
                     verifyPaymentBtn.disabled = true;
                     const { res, json } = await patchJson(
-                        `{{ url('admin/appointments') }}/${currentAppointmentId}/verify-payment`,
+                        `{{ url('admin/appointments') }}/${appointmentId}/verify-payment`,
                         payload
                     );
                     verifyPaymentBtn.disabled = false;
@@ -1236,7 +1470,8 @@
                 });
 
                 rejectPaymentBtn.addEventListener('click', async function () {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     const reason = document.getElementById('remoteRejectReason').value;
                     const result = await Swal.fire({
@@ -1252,7 +1487,7 @@
 
                     rejectPaymentBtn.disabled = true;
                     const { res, json } = await patchJson(
-                        `{{ url('admin/appointments') }}/${currentAppointmentId}/verify-payment`,
+                        `{{ url('admin/appointments') }}/${appointmentId}/verify-payment`,
                         { decision: 'reject', reason: reason || undefined }
                     );
                     rejectPaymentBtn.disabled = false;
@@ -1267,7 +1502,8 @@
                 });
 
                 saveMeetingLinkBtn.addEventListener('click', async function () {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     const meetingUrl = document.getElementById('addMeetingUrlInput').value;
                     if (!meetingUrl) {
@@ -1277,7 +1513,7 @@
 
                     saveMeetingLinkBtn.disabled = true;
                     const { res, json } = await patchJson(
-                        `{{ url('admin/appointments') }}/${currentAppointmentId}/meeting-link`,
+                        `{{ url('admin/appointments') }}/${appointmentId}/meeting-link`,
                         { meeting_url: meetingUrl, resend_email: true }
                     );
                     saveMeetingLinkBtn.disabled = false;
@@ -1293,11 +1529,12 @@
                 });
 
                 resendConfirmationBtn.addEventListener('click', async function () {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     resendConfirmationBtn.disabled = true;
                     const { res, json } = await postJson(
-                        `{{ url('admin/appointments') }}/${currentAppointmentId}/resend-confirmation`
+                        `{{ url('admin/appointments') }}/${appointmentId}/resend-confirmation`
                     );
                     resendConfirmationBtn.disabled = false;
 
@@ -1336,7 +1573,8 @@
 
                 // Handle confirm appointment button
                 confirmAppointmentBtn.addEventListener('click', function() {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     Swal.fire({
                         title: 'Confirmar Cita',
@@ -1360,7 +1598,7 @@
 
                             // Send AJAX request to update appointment status
                             $.ajax({
-                                url: `{{ url('admin/appointment-calendar/status') }}/${currentAppointmentId}`,
+                                url: `{{ url('admin/appointment-calendar/status') }}/${appointmentId}`,
                                 type: 'PATCH',
                                 data: {
                                     status: 'Confirmed'
@@ -1403,7 +1641,8 @@
 
                 // Handle decline appointment button
                 declineAppointmentBtn.addEventListener('click', function() {
-                    if (!currentAppointmentId) return;
+                    const appointmentId = currentAppointmentId;
+                    if (!appointmentId) return;
 
                     Swal.fire({
                         title: 'Rechazar Cita',
@@ -1427,7 +1666,7 @@
 
                             // Send AJAX request to update appointment status
                             $.ajax({
-                                url: `{{ url('admin/appointment-calendar/status') }}/${currentAppointmentId}`,
+                                url: `{{ url('admin/appointment-calendar/status') }}/${appointmentId}`,
                                 type: 'PATCH',
                                 data: {
                                     status: 'Cancelled'

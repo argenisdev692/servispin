@@ -214,7 +214,8 @@ class Appointment extends Model
 
         try {
             if (Storage::disk('public')->exists($this->equipment_photo_path)) {
-                return Storage::disk('public')->url($this->equipment_photo_path);
+                // Prefer named route so URL works even if config cache is stale
+                return route('storage.public', ['path' => $this->equipment_photo_path]);
             }
 
             return Storage::disk('supabase')->url($this->equipment_photo_path);

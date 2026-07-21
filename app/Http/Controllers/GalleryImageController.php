@@ -76,15 +76,13 @@ class GalleryImageController extends BaseCrudController
             }
 
             if ($isImage && extension_loaded('fileinfo')) {
-                $image = Image::read($file->getRealPath());
+                $image = Image::decodePath($file->getRealPath());
 
                 $maxWidth = 1200;
                 $maxHeight = 1200;
 
                 $image->scaleDown($maxWidth, $maxHeight);
-
-                $encoded = $image->toJpeg(85);
-                file_put_contents($fullPath, (string) $encoded);
+                $image->save($fullPath, 85);
 
                 return ['path' => $relativePath, 'type' => 'image'];
             }
@@ -112,8 +110,16 @@ class GalleryImageController extends BaseCrudController
 
     public function serveFile($path)
     {
-        $fullPath = storage_path('app/public/'.$path);
-        if (! file_exists($fullPath)) {
+        // Normalize and block path traversal (.., absolute paths, etc.)
+        $path = str_replace('\\', '/', (string) $path);
+        if ($path === '' || str_contains($path, '..') || str_starts_with($path, '/')) {
+            abort(404);
+        }
+
+        $base = realpath(storage_path('app/public'));
+        $fullPath = $base ? realpath($base.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $path)) : false;
+
+        if (! $base || ! $fullPath || ! str_starts_with($fullPath, $base) || ! is_file($fullPath)) {
             abort(404);
         }
 

@@ -12,6 +12,9 @@ use Illuminate\Validation\Rule;
  * El cliente llama por teléfono y paga por QR sin pasar por la web. Los datos
  * del cliente se escriben a mano: no existe en el sistema y no hay lista de
  * donde elegirlo.
+ *
+ * Las reglas de nombre/teléfono/pagador alinean con StoreRemoteAssistanceRequest
+ * (formulario público) para no tener dos verdades distintas.
  */
 class StoreAdminRemoteAppointmentRequest extends FormRequest
 {
@@ -30,6 +33,8 @@ class StoreAdminRemoteAppointmentRequest extends FormRequest
 
     public function rules(): array
     {
+        $paymentVerified = $this->boolean('payment_verified');
+
         $rules = [
             'service_id' => [
                 'required',
@@ -37,11 +42,11 @@ class StoreAdminRemoteAppointmentRequest extends FormRequest
             ],
             'brand_id' => 'nullable|exists:brands,id',
 
-            // Escritos a mano: el cliente no existe en el sistema (US-6).
-            'client_first_name' => 'required|string|max:120',
-            'client_last_name' => 'required|string|max:135',
+            // Escritos a mano: mismas reglas que el formulario público.
+            'client_first_name' => ['required', 'string', 'min:3', 'max:15', 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u'],
+            'client_last_name' => ['required', 'string', 'min:3', 'max:15', 'regex:/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+$/u'],
             'client_email' => 'required|email|max:255',
-            'client_phone' => 'nullable|string|max:25',
+            'client_phone' => 'required|string|max:25',
             'issue_description' => 'nullable|string|max:5000',
             'notes' => 'nullable|string|max:2000',
 
@@ -51,9 +56,11 @@ class StoreAdminRemoteAppointmentRequest extends FormRequest
             // Si Cesar la marca como ya cobrada, queda registrado que fue él
             // quien lo verificó (FR-5).
             'payment_verified' => 'required|boolean',
-            'payment_reference' => 'nullable|string|max:128',
-            'payment_amount' => 'nullable|numeric|min:0|max:99999.99',
-            'payer_name' => 'nullable|string|max:255',
+            'payment_reference' => [$paymentVerified ? 'required' : 'nullable', 'string', 'max:128'],
+            'payment_amount' => [$paymentVerified ? 'required' : 'nullable', 'numeric', 'min:0', 'max:99999.99'],
+            'payer_name' => $paymentVerified
+                ? ['required', 'string', 'min:3', 'max:20', 'regex:/^[\p{L}]+(?: [\p{L}]+)*$/u']
+                : ['nullable', 'string', 'min:3', 'max:20', 'regex:/^[\p{L}]+(?: [\p{L}]+)*$/u'],
 
             'meeting_url' => [
                 $this->requiresManualLink() ? 'required' : 'nullable',
@@ -76,6 +83,19 @@ class StoreAdminRemoteAppointmentRequest extends FormRequest
         return [
             'meeting_url.required' => 'El proveedor está en modo manual: pega el enlace de la videollamada antes de crear la cita como pagada.',
             'service_id.exists' => 'El servicio seleccionado no es de asistencia remota.',
+            'client_first_name.min' => 'El nombre debe tener al menos 3 letras.',
+            'client_first_name.max' => 'El nombre no puede superar 15 caracteres.',
+            'client_first_name.regex' => 'El nombre solo puede contener letras, sin espacios.',
+            'client_last_name.min' => 'El apellido debe tener al menos 3 letras.',
+            'client_last_name.max' => 'El apellido no puede superar 15 caracteres.',
+            'client_last_name.regex' => 'El apellido solo puede contener letras, sin espacios.',
+            'client_phone.required' => 'El teléfono del cliente es obligatorio.',
+            'payment_reference.required' => 'La referencia del pago es obligatoria si ya has verificado el cobro.',
+            'payment_amount.required' => 'Indica el importe pagado si ya has verificado el cobro.',
+            'payer_name.required' => 'Indica el nombre del pagador si ya has verificado el cobro.',
+            'payer_name.min' => 'El nombre del pagador debe tener al menos 3 caracteres.',
+            'payer_name.max' => 'El nombre del pagador no puede superar 20 caracteres.',
+            'payer_name.regex' => 'El nombre del pagador solo puede contener letras y espacios.',
         ];
     }
 
