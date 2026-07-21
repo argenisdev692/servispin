@@ -46,6 +46,58 @@ class CancellationTest extends TestCase
         ]);
     }
 
+    #[Test]
+    public function cancelar_cita_confirmada_sin_enlace_avisa_cliente_y_tecnico(): void
+    {
+        $appointment = Appointment::factory()
+            ->remote()->confirmed()->paymentVerified()
+            ->for(Service::factory()->remote())
+            ->create([
+                'meeting_url' => null,
+                'meeting_link_failed_at' => now(),
+            ]);
+
+        $this->actingAs($this->admin)
+            ->patchJson(route('admin.appointments.cancel-awaiting-link', $appointment->id), [
+                'reason' => 'No se pudo generar Meet a tiempo',
+            ])
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => ['refund_pending' => true],
+            ]);
+
+        $fresh = $appointment->fresh();
+        $this->assertSame(Appointment::STATUS_CANCELLED, $fresh->status);
+        $this->assertSame(Appointment::PAYMENT_REFUND_PENDING, $fresh->payment_status);
+
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
+            return $mail->isForTechnician === false && $mail->refundPending === true;
+        });
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
+            return $mail->isForTechnician === true && $mail->refundPending === true;
+        });
+    }
+
+    #[Test]
+    public function no_se_puede_cancelar_awaiting_link_si_ya_tiene_enlace(): void
+    {
+        $appointment = Appointment::factory()
+            ->remote()->confirmed()->paymentVerified()
+            ->for(Service::factory()->remote())
+            ->create([
+                'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+                'meeting_link_failed_at' => null,
+            ]);
+
+        $this->actingAs($this->admin)
+            ->patchJson(route('admin.appointments.cancel-awaiting-link', $appointment->id))
+            ->assertStatus(422);
+
+        $this->assertSame(Appointment::STATUS_CONFIRMED, $appointment->fresh()->status);
+        Mail::assertNothingSent();
+    }
+
     // ---- US-5: cancelar una cita remota pagada ----
 
     #[Test]

@@ -167,6 +167,8 @@ Route::middleware(['throttle:global'])->group(function () {
                 ->name('verify-payment');
             Route::patch('/{id}/meeting-link', [RemoteAssistanceAdminController::class, 'updateMeetingLink'])
                 ->name('meeting-link');
+            Route::patch('/{id}/cancel-awaiting-link', [RemoteAssistanceAdminController::class, 'cancelAwaitingLink'])
+                ->name('cancel-awaiting-link');
             Route::post('/{id}/resend-confirmation', [RemoteAssistanceAdminController::class, 'resendConfirmation'])
                 ->name('resend-confirmation');
             Route::post('/remote', [RemoteAssistanceAdminController::class, 'store'])->name('remote.store');

@@ -36,22 +36,36 @@
                  el provider automático falló. Son las urgentes: el cliente ya pagó y
                  tiene una cita a la que no puede entrar. --}}
             @if ($awaitingLink->isNotEmpty())
-                <div class="bg-red-50 border border-red-300 rounded-lg p-5 mb-8">
-                    <h2 class="text-lg font-semibold text-red-900 mb-2">
+                <div id="awaiting-link-panel" class="bg-red-50 border border-red-300 rounded-lg p-5 mb-8">
+                    <h2 id="awaiting-link-title" class="text-lg font-semibold text-red-900 mb-2"
+                        data-count="{{ $awaitingLink->count() }}">
                         ⚠️ {{ $awaitingLink->count() }} cita(s) confirmada(s) sin enlace
                     </h2>
                     <p class="text-sm text-red-800 mb-4">
                         Estos clientes han pagado y su cita está confirmada, pero no se pudo generar el
                         enlace automáticamente. Añádelo a mano cuanto antes.
                     </p>
-                    <ul class="space-y-4">
+                    <ul id="awaiting-link-list" class="space-y-4">
                         @foreach ($awaitingLink as $appointment)
-                            <li class="text-sm text-red-900 border border-red-200 rounded p-3 bg-white">
-                                <p class="mb-2">
-                                    <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
-                                    — {{ $appointment->start_time->format('d/m/Y H:i') }}
-                                    ({{ $appointment->client_email }})
-                                </p>
+                            <li class="text-sm text-red-900 border border-red-200 rounded p-3 bg-white"
+                                data-awaiting-link="{{ $appointment->id }}">
+                                <div class="flex items-start justify-between gap-3 mb-2">
+                                    <p>
+                                        <strong>{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}</strong>
+                                        — {{ $appointment->start_time->format('d/m/Y H:i') }}
+                                        ({{ $appointment->client_email }})
+                                    </p>
+                                    <button type="button"
+                                            class="cancel-awaiting-link shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md text-red-700 hover:bg-red-100 border border-red-200"
+                                            data-id="{{ $appointment->id }}"
+                                            data-name="{{ $appointment->client_first_name }} {{ $appointment->client_last_name }}"
+                                            title="Cancelar cita"
+                                            aria-label="Cancelar cita">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                        </svg>
+                                    </button>
+                                </div>
                                 <form class="link-form flex flex-col sm:flex-row gap-2" data-id="{{ $appointment->id }}">
                                     <input type="url" name="meeting_url" required
                                            placeholder="https://meet.google.com/…"
@@ -178,6 +192,34 @@
 
 @push('scripts')
     <script>
+        function removeAwaitingLinkRow(id) {
+            const row = document.querySelector('[data-awaiting-link="' + id + '"]');
+            if (row) {
+                row.remove();
+            }
+            refreshAwaitingLinkBanner();
+        }
+
+        function refreshAwaitingLinkBanner() {
+            const panel = document.getElementById('awaiting-link-panel');
+            const title = document.getElementById('awaiting-link-title');
+            if (!panel) {
+                return;
+            }
+
+            const remaining = panel.querySelectorAll('[data-awaiting-link]').length;
+
+            if (remaining === 0) {
+                panel.remove();
+                return;
+            }
+
+            if (title) {
+                title.dataset.count = String(remaining);
+                title.textContent = '⚠️ ' + remaining + ' cita(s) confirmada(s) sin enlace';
+            }
+        }
+
         document.querySelectorAll('.verify-form').forEach(function (form) {
             const id = form.dataset.id;
             const feedback = form.querySelector('.form-feedback');
@@ -259,7 +301,7 @@
                     if (res.ok) {
                         feedback.textContent = json.message;
                         feedback.className = 'link-feedback text-xs mt-1 text-green-700';
-                        form.style.opacity = '0.5';
+                        removeAwaitingLinkRow(id);
                     } else {
                         const messages = json.errors ? Object.values(json.errors).flat().join(' ') : json.message;
                         feedback.textContent = messages;
@@ -270,6 +312,76 @@
                     feedback.textContent = 'Error de conexión.';
                     feedback.className = 'link-feedback text-xs mt-1 text-red-700';
                     form.querySelector('button').disabled = false;
+                }
+            });
+        });
+
+        document.querySelectorAll('.cancel-awaiting-link').forEach(function (btn) {
+            btn.addEventListener('click', async function () {
+                const id = btn.dataset.id;
+                const name = btn.dataset.name || 'este cliente';
+
+                const result = await Swal.fire({
+                    icon: 'warning',
+                    title: '¿Cancelar esta cita?',
+                    html: 'Se cancelará la sesión de <strong>' + name + '</strong>.<br>'
+                        + 'Se avisará al <strong>cliente</strong> y al <strong>técnico</strong> por email.<br>'
+                        + 'Si el pago estaba verificado, quedará <strong>reembolso pendiente</strong> en SumUp.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'No, volver',
+                    confirmButtonColor: '#b91c1c',
+                    cancelButtonColor: '#6b7280',
+                    reverseButtons: true,
+                    input: 'text',
+                    inputPlaceholder: 'Motivo opcional (interno)',
+                    inputAttributes: { maxlength: 255 },
+                });
+
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/admin/appointments/' + id + '/cancel-awaiting-link', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ reason: result.value || null })
+                    });
+                    const json = await res.json();
+
+                    if (res.ok) {
+                        removeAwaitingLinkRow(id);
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Cita cancelada',
+                            text: json.message,
+                            confirmButtonColor: '#2563eb',
+                        });
+                        return;
+                    }
+
+                    btn.disabled = false;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se pudo cancelar',
+                        text: json.message || 'Error desconocido',
+                        confirmButtonColor: '#2563eb',
+                    });
+                } catch (err) {
+                    btn.disabled = false;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'No se pudo contactar con el servidor.',
+                        confirmButtonColor: '#2563eb',
+                    });
                 }
             });
         });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAdminRemoteAppointmentRequest;
 use App\Http\Requests\UpdateMeetingLinkRequest;
 use App\Http\Requests\VerifyPaymentRequest;
+use App\Mail\RemoteAssistanceCancelled;
 use App\Mail\RemoteAssistanceConfirmed;
 use App\Mail\RemoteAssistanceRejected;
 use App\Models\Appointment;
@@ -21,6 +22,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Spatie\GoogleCalendar\Event as GoogleCalendarEvent;
 use Throwable;
 
 /**
@@ -461,6 +463,93 @@ class RemoteAssistanceAdminController extends Controller
     }
 
     /**
+     * Cancela una cita remota confirmada que quedó sin enlace (bandeja FR-15).
+     *
+     * Caso de uso: el provider automático falló y Cesar decide no pegar enlace
+     * a mano — cancela, libera el hueco, marca reembolso si el pago estaba
+     * verificado, y avisa al cliente y al técnico.
+     */
+    public function cancelAwaitingLink(Request $request, $id)
+    {
+        $user = $request->user();
+        if ($user === null || ! $user->hasRole('Admin', 'sanctum')) {
+            return response()->json(['success' => false, 'message' => 'No autorizado.'], 403);
+        }
+
+        $appointment = Appointment::find($id);
+
+        if (! $appointment || ! $appointment->isRemote()) {
+            return response()->json(['success' => false, 'message' => 'Cita remota no encontrada.'], 404);
+        }
+
+        if ($appointment->status !== Appointment::STATUS_CONFIRMED) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden cancelar citas remotas confirmadas desde esta acción.',
+            ], 422);
+        }
+
+        if ($appointment->meeting_url || $appointment->meeting_link_failed_at === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta acción es solo para citas confirmadas sin enlace automático.',
+            ], 422);
+        }
+
+        $reason = trim((string) $request->input('reason', ''));
+
+        try {
+            $appointment = $this->transactionService->run(
+                function () use ($appointment) {
+                    if ($appointment->payment_status === Appointment::PAYMENT_VERIFIED) {
+                        $appointment->payment_status = Appointment::PAYMENT_REFUND_PENDING;
+                    }
+
+                    $appointment->status = Appointment::STATUS_CANCELLED;
+                    $appointment->save();
+
+                    return $appointment;
+                },
+                function (Appointment $cancelled) use ($user, $reason) {
+                    $refundPending = $cancelled->payment_status === Appointment::PAYMENT_REFUND_PENDING;
+
+                    if ($refundPending) {
+                        $this->paymentEvents->log(
+                            $cancelled,
+                            AppointmentPaymentEvent::TYPE_REFUND_PENDING,
+                            $user,
+                            $reason !== '' ? $reason : null,
+                        );
+                    }
+
+                    $this->sendCancelledEmails($cancelled, $refundPending);
+                    $this->deleteGoogleCalendarEventIfAny($cancelled);
+                }
+            );
+
+            $refundPending = $appointment->payment_status === Appointment::PAYMENT_REFUND_PENDING;
+
+            return response()->json([
+                'success' => true,
+                'message' => $refundPending
+                    ? 'Cita cancelada. Avisados cliente y técnico. Reembolso pendiente en SumUp.'
+                    : 'Cita cancelada. Se ha notificado al cliente y al técnico.',
+                'data' => [
+                    'status' => $appointment->status,
+                    'payment_status' => $appointment->payment_status,
+                    'refund_pending' => $refundPending,
+                ],
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Error cancelando cita remota sin enlace: '.$e->getMessage(), [
+                'appointment_id' => $id,
+            ]);
+
+            return response()->json(['success' => false, 'message' => 'No se pudo cancelar la cita.'], 500);
+        }
+    }
+
+    /**
      * Reenvía el email de confirmación con el enlace actual.
      */
     public function resendConfirmation(Request $request, $id)
@@ -548,6 +637,61 @@ class RemoteAssistanceAdminController extends Controller
         } catch (Throwable $e) {
             Log::error('Error enviando el email de rechazo remoto', [
                 'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function sendCancelledEmails(Appointment $appointment, bool $refundPending): void
+    {
+        try {
+            $companyData = CompanyData::first();
+
+            if (! $companyData) {
+                Log::error('No hay company data para el email de cancelación remota', [
+                    'appointment_id' => $appointment->id,
+                ]);
+
+                return;
+            }
+
+            $appointment->load(['service', 'brand']);
+
+            Mail::to($appointment->client_email)
+                ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending));
+
+            if ($companyData->email) {
+                Mail::to($companyData->email)
+                    ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending, true));
+            }
+        } catch (Throwable $e) {
+            Log::error('Error enviando emails de cancelación remota', [
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Si el evento de Google llegó a crearse (aunque fallara el Meet), se intenta
+     * borrar para no dejar basura en el calendario. Fallo de Google ≠ fallo de cancelación.
+     */
+    private function deleteGoogleCalendarEventIfAny(Appointment $appointment): void
+    {
+        if (! $appointment->google_event_id) {
+            return;
+        }
+
+        try {
+            $event = GoogleCalendarEvent::find(
+                $appointment->google_event_id,
+                $appointment->google_calendar_id ?: null
+            );
+            $event->delete(null, ['sendUpdates' => 'all']);
+        } catch (Throwable $e) {
+            Log::warning('No se pudo borrar el evento de Google al cancelar', [
+                'appointment_id' => $appointment->id,
+                'google_event_id' => $appointment->google_event_id,
                 'error' => $e->getMessage(),
             ]);
         }
