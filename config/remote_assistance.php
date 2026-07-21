@@ -28,7 +28,7 @@ return [
     | de servicios. Esto solo alimenta el seeder.
     |
     */
-    'default_price' => env('REMOTE_ASSISTANCE_PRICE', 30.00),
+    'default_price' => env('REMOTE_ASSISTANCE_PRICE', 35.00),
     'default_duration' => env('REMOTE_ASSISTANCE_DURATION', 20), // minutos
 
     /*
