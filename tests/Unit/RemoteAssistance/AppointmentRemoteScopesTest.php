@@ -79,6 +79,11 @@ class AppointmentRemoteScopesTest extends TestCase
         Appointment::factory()->remote()->confirmed()->paymentVerified()->create([
             'meeting_url' => 'https://meet.google.com/abc-defg-hij',
         ]);
+        // Cancelada: ya no es urgencia de pegar enlace, aunque el flag siga.
+        Appointment::factory()->remote()->cancelled()->paymentVerified()->create([
+            'meeting_link_failed_at' => now(),
+            'meeting_url' => null,
+        ]);
 
         $pendientes = Appointment::awaitingManualLink()->get();
 

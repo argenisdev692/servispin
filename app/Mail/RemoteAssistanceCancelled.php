@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\NotifiesAppointmentParties;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
@@ -14,13 +15,12 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Cancelación de una cita remota (US-5).
  *
- * Si la cita estaba pagada, el email confirma que el reembolso está en marcha —
- * el cliente ha pagado por adelantado y tiene derecho a saber que va a recuperar
- * su dinero. El reembolso lo tramita Cesar en SumUp a mano (fuera de alcance);
- * aquí solo se le comunica.
+ * Destinatarios (mismo flujo que citas presenciales):
+ *  - cliente · company_data.email · user admin · CC MAIL_CC_EMAIL
  */
 class RemoteAssistanceCancelled extends Mailable
 {
+    use NotifiesAppointmentParties;
     use Queueable, SerializesModels;
 
     public $appointment;
@@ -29,18 +29,40 @@ class RemoteAssistanceCancelled extends Mailable
 
     public $refundPending;
 
-    public function __construct(Appointment $appointment, CompanyData $companyData, bool $refundPending = false)
-    {
+    public $isForTechnician;
+
+    public function __construct(
+        Appointment $appointment,
+        CompanyData $companyData,
+        bool $refundPending = false,
+        bool $isForTechnician = false
+    ) {
         $this->appointment = $appointment;
         $this->companyData = $companyData;
         $this->refundPending = $refundPending;
+        $this->isForTechnician = $isForTechnician;
+    }
+
+    public static function notifyParties(
+        Appointment $appointment,
+        CompanyData $companyData,
+        bool $refundPending = false
+    ): void {
+        static::dispatchToParties(
+            $appointment,
+            $companyData,
+            fn (bool $isForCompany) => new static($appointment, $companyData, $refundPending, $isForCompany)
+        );
     }
 
     public function envelope()
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            subject: 'Tu cita de asistencia remota ha sido cancelada',
+            cc: $this->operationalCc(),
+            subject: $this->isForTechnician
+                ? 'Cita remota cancelada: '.$this->appointment->client_first_name.' '.$this->appointment->client_last_name
+                : 'Tu cita de asistencia remota ha sido cancelada',
         );
     }
 

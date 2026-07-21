@@ -132,7 +132,8 @@ class ReminderTest extends TestCase
             RemoteAssistanceReminder::class,
             fn ($m) => $m->when === RemoteAssistanceReminder::WHEN_IMMINENT && ! $m->isForTechnician
         );
-        Mail::assertSentCount(2); // cliente + técnico, una vez
+        // cliente + company + admin, una vez cada uno
+        Mail::assertSentCount(3);
 
         $this->assertNotNull($appointment->fresh()->imminent_reminder_sent_at);
     }

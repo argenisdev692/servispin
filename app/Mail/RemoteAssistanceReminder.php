@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\NotifiesAppointmentParties;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
@@ -13,14 +14,10 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Recordatorio de una cita remota confirmada (US-3).
- *
- * Sirve para los dos momentos: 24 h antes y 30 min antes. Lleva SIEMPRE el
- * enlace y el huso explícito — un recordatorio sin enlace no serviría de nada, y
- * uno con la hora en el huso equivocado haría que el cliente se perdiera la cita
- * que ya pagó (R-5, el fallo más caro del módulo).
  */
 class RemoteAssistanceReminder extends Mailable
 {
+    use NotifiesAppointmentParties;
     use Queueable, SerializesModels;
 
     public const WHEN_TOMORROW = 'tomorrow';
@@ -47,12 +44,25 @@ class RemoteAssistanceReminder extends Mailable
         $this->isForTechnician = $isForTechnician;
     }
 
+    public static function notifyParties(
+        Appointment $appointment,
+        CompanyData $companyData,
+        string $when = self::WHEN_TOMORROW
+    ): void {
+        static::dispatchToParties(
+            $appointment,
+            $companyData,
+            fn (bool $isForCompany) => new static($appointment, $companyData, $when, $isForCompany)
+        );
+    }
+
     public function envelope()
     {
         $isImminent = $this->when === self::WHEN_IMMINENT;
 
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
+            cc: $this->operationalCc(),
             subject: $isImminent
                 ? 'Tu videollamada empieza en unos minutos'
                 : 'Recordatorio: tu videollamada de mañana',

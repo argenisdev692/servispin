@@ -17,6 +17,7 @@ Plataforma web para **Servispin** (reparación de electrodomésticos en Gran Can
 ## Tabla de contenidos
 
 - [Módulos](#módulos)
+- [Asistencia remota y Google Calendar (Spatie)](#asistencia-remota-y-google-calendar-spatie)
 - [Stack tecnológico](#stack-tecnológico)
 - [URLs](#urls)
 - [Inicio rápido](#inicio-rápido)
@@ -45,10 +46,72 @@ Plataforma web para **Servispin** (reparación de electrodomésticos en Gran Can
 | **Datos de empresa** | Logo, contacto, SEO empresa | `/company-data` |
 | **Contacto** | Formulario público con throttle | `POST /contact/submit` |
 | **Legal** | Privacidad, cookies, aviso legal | `/privacidad`, `/cookies`, `/aviso-legal` |
-| **Google Meet** | Generación manual/automática de enlaces (Calendar API) | Ver `docs/ssd/001-asistencia-remota/` |
+| **Google Meet** | Spatie Google Calendar + OAuth → enlace Meet al confirmar | Ver sección abajo |
 | **Email transaccional** | Confirmaciones, recordatorios, remoto | Resend |
 | **SEO** | Meta tags (Artesaos SEOTools) | Vistas admin/blog |
 | **Almacenamiento fotos** | Fotos de citas en disco `public` | `storage/app/public/appointment_photos/` |
+
+---
+
+## Asistencia remota y Google Calendar (Spatie)
+
+Módulo que cobra por adelantado (QR SumUp), verifica el pago a mano y solo entonces
+genera el enlace de videollamada. El enlace lo crea **Google Calendar API** vía el
+paquete **`spatie/laravel-google-calendar`** (perfil OAuth de usuario, no service account).
+
+### Flujo de negocio
+
+```
+Cliente                         Admin (Cesar)                    Sistema / Google
+  │                                  │                                │
+  ├─ Paga QR SumUp                   │                                │
+  ├─ Formulario /asistencia-remota ──────────────────────────────────►│ cita Pending + claimed
+  │◄─ email "solicitud recibida" (SIN Meet) ─────────────────────────┤
+  │                                  │                                │
+  │                                  ├─ bandeja /admin/remote-assistance
+  │                                  ├─ coteja SumUp → Confirmar ────►│
+  │                                  │                                ├─ Spatie Event + Meet
+  │◄─ email CON enlace Meet ─────────┴────────────────────────────────┤
+  │                                  │                                ├─ invita cliente al evento
+  ├─ recordatorios 24 h / 30 min (cron)                               │
+  └─ entra a meet.google.com/…                                        │
+```
+
+Si Google falla al generar Meet, la cita **se confirma igual** y queda en la bandeja
+FR-15 para pegar el enlace a mano (`meeting_link_failed_at`). Una cita pagada no se pierde.
+
+### Integración Spatie / Google Calendar
+
+| Pieza | Rol |
+|-------|-----|
+| `spatie/laravel-google-calendar` ^3.8 | Crear evento + `addMeetLink()` |
+| `GOOGLE_CALENDAR_AUTH_PROFILE=oauth` | Obligatorio para Meet en Gmail personal |
+| `REMOTE_ASSISTANCE_MEETING_PROVIDER=google_meet` | Activa el provider automático |
+| `GoogleMeetLinkProvider` | Implementa `MeetingLinkProvider`; lanza si no hay hangoutLink |
+| `storage/app/google-calendar/oauth-*.json` | Credenciales + token (no van a Git) |
+| `/admin/google-calendar/oauth/connect` | Login OAuth una vez |
+
+```env
+GOOGLE_CALENDAR_AUTH_PROFILE=oauth
+GOOGLE_CALENDAR_ID=servispin19@gmail.com
+REMOTE_ASSISTANCE_MEETING_PROVIDER=google_meet
+```
+
+Mientras Meet no esté listo: `REMOTE_ASSISTANCE_MEETING_PROVIDER=manual` (el admin pega el enlace).
+
+### Documentación detallada
+
+| Documento | Contenido |
+|-----------|-----------|
+| [docs/ssd/001-asistencia-remota/README.md](docs/ssd/001-asistencia-remota/README.md) | Flujo del módulo, rutas, config, crons |
+| [docs/ssd/001-asistencia-remota/README-google-meet.md](docs/ssd/001-asistencia-remota/README-google-meet.md) | Setup Google Cloud, OAuth Spatie, checklist y errores |
+| [docs/ssd/001-asistencia-remota/](docs/ssd/001-asistencia-remota/) | Spec, plan, research y tasks |
+
+Prueba de humo:
+
+```bash
+php artisan google:calendar-test --meet --keep
+```
 
 ---
 
@@ -139,8 +202,9 @@ Abrir en desarrollo: **http://localhost**
 | Documento | Contenido |
 |-----------|-----------|
 | [docs/landing/README.md](docs/landing/README.md) | Landing pública, SEO, performance, screenshots |
-| [docs/ssd/001-asistencia-remota/](docs/ssd/001-asistencia-remota/) | Spec, plan y tareas del módulo remoto |
-| [docs/ssd/001-asistencia-remota/README-google-meet.md](docs/ssd/001-asistencia-remota/README-google-meet.md) | OAuth Google Meet / Calendar |
+| [docs/ssd/001-asistencia-remota/README.md](docs/ssd/001-asistencia-remota/README.md) | Flujo del módulo remoto (pago → verificar → Meet) |
+| [docs/ssd/001-asistencia-remota/README-google-meet.md](docs/ssd/001-asistencia-remota/README-google-meet.md) | Google Calendar API + Spatie OAuth / Meet |
+| [docs/ssd/001-asistencia-remota/](docs/ssd/001-asistencia-remota/) | Spec, plan, research y tasks |
 | [docs/modulo-asistencia-tecnico.md](docs/modulo-asistencia-tecnico.md) | Notas de producto (SumUp, videollamada) |
 
 ### Screenshots

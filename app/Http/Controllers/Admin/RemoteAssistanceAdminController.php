@@ -603,16 +603,7 @@ class RemoteAssistanceAdminController extends Controller
                 return;
             }
 
-            $appointment->load(['service', 'brand']);
-
-            Mail::to($appointment->client_email)
-                ->send(new RemoteAssistanceConfirmed($appointment, $companyData));
-
-            // El técnico también recibe el enlace: es quien atiende la llamada.
-            if ($companyData->email) {
-                Mail::to($companyData->email)
-                    ->send(new RemoteAssistanceConfirmed($appointment, $companyData, true));
-            }
+            RemoteAssistanceConfirmed::notifyParties($appointment, $companyData);
         } catch (Throwable $e) {
             Log::error('Error enviando el email de confirmación remota', [
                 'appointment_id' => $appointment->id,
@@ -645,7 +636,7 @@ class RemoteAssistanceAdminController extends Controller
     private function sendCancelledEmails(Appointment $appointment, bool $refundPending): void
     {
         try {
-            $companyData = CompanyData::first();
+            $companyData = CompanyData::with('user')->first();
 
             if (! $companyData) {
                 Log::error('No hay company data para el email de cancelación remota', [
@@ -655,15 +646,7 @@ class RemoteAssistanceAdminController extends Controller
                 return;
             }
 
-            $appointment->load(['service', 'brand']);
-
-            Mail::to($appointment->client_email)
-                ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending));
-
-            if ($companyData->email) {
-                Mail::to($companyData->email)
-                    ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending, true));
-            }
+            RemoteAssistanceCancelled::notifyParties($appointment, $companyData, $refundPending);
         } catch (Throwable $e) {
             Log::error('Error enviando emails de cancelación remota', [
                 'appointment_id' => $appointment->id,

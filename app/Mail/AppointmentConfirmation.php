@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\NotifiesAppointmentParties;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
@@ -13,34 +14,15 @@ use Illuminate\Queue\SerializesModels;
 
 class AppointmentConfirmation extends Mailable
 {
+    use NotifiesAppointmentParties;
     use Queueable, SerializesModels;
 
-    /**
-     * The appointment instance.
-     *
-     * @var Appointment
-     */
     public $appointment;
 
-    /**
-     * The company data instance.
-     *
-     * @var CompanyData
-     */
     public $companyData;
 
-    /**
-     * Whether this email is for the company or the client.
-     *
-     * @var bool
-     */
     public $isForCompany;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
     public function __construct(Appointment $appointment, CompanyData $companyData, bool $isForCompany = false)
     {
         $this->appointment = $appointment;
@@ -48,27 +30,26 @@ class AppointmentConfirmation extends Mailable
         $this->isForCompany = $isForCompany;
     }
 
-    /**
-     * Get the message envelope.
-     *
-     * @return Envelope
-     */
+    public static function notifyParties(Appointment $appointment, CompanyData $companyData): void
+    {
+        static::dispatchToParties(
+            $appointment,
+            $companyData,
+            fn (bool $isForCompany) => new static($appointment, $companyData, $isForCompany)
+        );
+    }
+
     public function envelope()
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            cc: $this->companyData->adminEmail() ? [new Address($this->companyData->adminEmail())] : [],
+            cc: $this->operationalCc(),
             subject: $this->isForCompany
                 ? 'Nueva cita registrada: '.$this->appointment->client_first_name.' '.$this->appointment->client_last_name
                 : 'Confirmación de su cita con '.$this->companyData->company_name,
         );
     }
 
-    /**
-     * Get the message content definition.
-     *
-     * @return Content
-     */
     public function content()
     {
         return new Content(
@@ -76,11 +57,6 @@ class AppointmentConfirmation extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array
-     */
     public function attachments()
     {
         return [];

@@ -15,7 +15,6 @@ use App\Services\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -732,15 +731,7 @@ class AppointmentController extends Controller
             // Cargar relaciones necesarias
             $appointment->load(['service', 'brand']);
 
-            // Enviar correo al cliente
-            Mail::to($appointment->client_email)
-                ->send(new AppointmentConfirmation($appointment, $companyData));
-
-            // Enviar correo a la empresa
-            if ($companyData->email) {
-                Mail::to($companyData->email)
-                    ->send(new AppointmentConfirmation($appointment, $companyData, true));
-            }
+            AppointmentConfirmation::notifyParties($appointment, $companyData);
 
             Log::info('Appointment confirmation emails sent successfully', ['appointment_id' => $appointment->id]);
         } catch (\Exception $e) {
@@ -772,13 +763,9 @@ class AppointmentController extends Controller
 
             // Determinar qué tipo de correo enviar
             if ($status === 'confirmed') {
-                // Enviar correo de confirmación
-                Mail::to($appointment->client_email)
-                    ->send(new AppointmentConfirmed($appointment, $companyData));
+                AppointmentConfirmed::notifyParties($appointment, $companyData);
             } elseif ($status === 'cancelled') {
-                // Enviar correo de cancelación
-                Mail::to($appointment->client_email)
-                    ->send(new AppointmentCancelled($appointment, $companyData));
+                AppointmentCancelled::notifyParties($appointment, $companyData);
             }
 
             Log::info("Appointment {$status} email sent successfully", ['appointment_id' => $appointment->id]);

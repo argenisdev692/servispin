@@ -19,7 +19,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
 
@@ -204,22 +203,17 @@ class AppointmentCalendarController extends Controller
 
                         if (! $companyData) {
                             // Si no hay datos de la empresa, registramos el error pero igualmente actualizamos el estado
-                            \Log::error('No company data found for sending rescheduling email notification');
+                            Log::error('No company data found for sending rescheduling email notification');
 
                             return;
                         }
 
-                        // Cargar las relaciones necesarias
-                        $updatedAppointment->load(['service', 'brand']);
-
-                        // Enviar correo de reagendamiento
-                        Mail::to($updatedAppointment->client_email)
-                            ->send(new AppointmentRescheduled($updatedAppointment, $companyData));
+                        AppointmentRescheduled::notifyParties($updatedAppointment, $companyData);
 
                         Log::info('Rescheduling email sent for appointment', ['id' => $updatedAppointment->id]);
                     } catch (\Exception $e) {
                         // Log the error but don't fail the response
-                        \Log::error('Error sending rescheduling email notification: '.$e->getMessage());
+                        Log::error('Error sending rescheduling email notification: '.$e->getMessage());
                     }
                 }
             );
@@ -315,38 +309,34 @@ class AppointmentCalendarController extends Controller
         $appointment->save();
 
         // Send email notification based on the new status
+        $message = 'Estado actualizado correctamente.';
+
         try {
             // Obtener los datos de la empresa
             $companyData = CompanyData::first();
 
             if (! $companyData) {
                 // Si no hay datos de la empresa, registramos el error pero igualmente actualizamos el estado
-                \Log::error('No company data found for sending email notification');
+                Log::error('No company data found for sending email notification');
                 $message = 'Estado actualizado, pero no se pudo enviar el correo por falta de datos de la empresa.';
-            } else {
-                // Cargar las relaciones necesarias
-                $appointment->load(['service', 'brand']);
-
-                if ($request->status === 'Confirmed') {
-                    Mail::to($appointment->client_email)->send(new AppointmentConfirmed($appointment, $companyData));
-                    $message = 'Cita confirmada exitosamente. Se ha enviado un correo de confirmación al cliente.';
-                } elseif ($request->status === 'Cancelled') {
-                    // Una cancelación remota lleva su propio email: menciona el
-                    // reembolso si lo hay y no habla de un técnico que iba a ir.
-                    if ($appointment->isRemote()) {
-                        Mail::to($appointment->client_email)
-                            ->send(new RemoteAssistanceCancelled($appointment, $companyData, $refundPending));
-                    } else {
-                        Mail::to($appointment->client_email)->send(new AppointmentCancelled($appointment, $companyData));
-                    }
-                    $message = $refundPending
-                        ? 'Cita cancelada. Queda registrado un reembolso pendiente de tramitar en SumUp.'
-                        : 'Cita cancelada. Se ha enviado un correo de notificación al cliente.';
+            } elseif ($request->status === 'Confirmed') {
+                AppointmentConfirmed::notifyParties($appointment, $companyData);
+                $message = 'Cita confirmada exitosamente. Se ha enviado un correo de confirmación al cliente.';
+            } elseif ($request->status === 'Cancelled') {
+                // Una cancelación remota lleva su propio email: menciona el
+                // reembolso si lo hay y no habla de un técnico que iba a ir.
+                if ($appointment->isRemote()) {
+                    RemoteAssistanceCancelled::notifyParties($appointment, $companyData, $refundPending);
+                } else {
+                    AppointmentCancelled::notifyParties($appointment, $companyData);
                 }
+                $message = $refundPending
+                    ? 'Cita cancelada. Queda registrado un reembolso pendiente de tramitar en SumUp.'
+                    : 'Cita cancelada. Se ha enviado un correo de notificación al cliente.';
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the response
-            \Log::error('Error sending email notification: '.$e->getMessage());
+            Log::error('Error sending email notification: '.$e->getMessage());
             $message = 'Estado actualizado, pero hubo un problema al enviar el correo de notificación.';
         }
 

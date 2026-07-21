@@ -16,7 +16,6 @@ use App\Services\SchedulingService;
 use App\Services\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -206,16 +205,7 @@ class RemoteAssistanceController extends Controller
                 return;
             }
 
-            $appointment->load(['service', 'brand']);
-
-            Mail::to($appointment->client_email)
-                ->send(new RemoteAssistanceRequested($appointment, $companyData));
-
-            // Aviso a Servispin: hay un pago que cotejar en SumUp.
-            if ($companyData->email) {
-                Mail::to($companyData->email)
-                    ->send(new RemoteAssistanceRequested($appointment, $companyData, true));
-            }
+            RemoteAssistanceRequested::notifyParties($appointment, $companyData);
         } catch (Throwable $e) {
             Log::error('Error enviando el email de solicitud remota', [
                 'appointment_id' => $appointment->id,

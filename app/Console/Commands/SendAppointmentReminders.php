@@ -8,7 +8,6 @@ use App\Models\Appointment;
 use App\Models\CompanyData;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 
 class SendAppointmentReminders extends Command
 {
@@ -67,24 +66,13 @@ class SendAppointmentReminders extends Command
                     // huso del cliente. Si le mandáramos el AppointmentReminder
                     // presencial, recibiría un email que habla de un técnico que va
                     // a su casa y SIN el enlace de la videollamada (US-3, R-5).
-                    Mail::to($appointment->client_email)
-                        ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_TOMORROW));
-
-                    // El técnico también lo recibe: es quien atiende (US-3).
-                    if ($companyData->email) {
-                        Mail::to($companyData->email)
-                            ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_TOMORROW, true));
-                    }
+                    RemoteAssistanceReminder::notifyParties(
+                        $appointment,
+                        $companyData,
+                        RemoteAssistanceReminder::WHEN_TOMORROW
+                    );
                 } else {
-                    // Send to client
-                    Mail::to($appointment->client_email)
-                        ->send(new AppointmentReminder($appointment, $companyData));
-
-                    // Also send a copy to company if needed
-                    if ($companyData->email) {
-                        Mail::to($companyData->email)
-                            ->send(new AppointmentReminder($appointment, $companyData, true));
-                    }
+                    AppointmentReminder::notifyParties($appointment, $companyData);
                 }
 
                 $this->info('Sent reminder for appointment ID: '.$appointment->id);

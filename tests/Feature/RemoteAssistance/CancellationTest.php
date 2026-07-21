@@ -44,6 +44,8 @@ class CancellationTest extends TestCase
             'phone' => '+34643940970',
             'user_id' => $this->admin->id,
         ]);
+
+        config(['mail.cc_email' => 'cesarmilenario@gmail.com']);
     }
 
     #[Test]
@@ -70,12 +72,26 @@ class CancellationTest extends TestCase
         $fresh = $appointment->fresh();
         $this->assertSame(Appointment::STATUS_CANCELLED, $fresh->status);
         $this->assertSame(Appointment::PAYMENT_REFUND_PENDING, $fresh->payment_status);
+        // La fila se borra de la bandeja FR-15 aunque meeting_link_failed_at siga.
+        $this->assertFalse(Appointment::awaitingManualLink()->where('id', $fresh->id)->exists());
 
-        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
-            return $mail->isForTechnician === false && $mail->refundPending === true;
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) use ($appointment) {
+            return $mail->isForTechnician === false
+                && $mail->refundPending === true
+                && $mail->hasTo($appointment->client_email)
+                && $mail->hasCc('cesarmilenario@gmail.com');
         });
         Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
-            return $mail->isForTechnician === true && $mail->refundPending === true;
+            return $mail->isForTechnician === true
+                && $mail->refundPending === true
+                && $mail->hasTo('info@servispin.net')
+                && $mail->hasCc('cesarmilenario@gmail.com');
+        });
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
+            return $mail->isForTechnician === true
+                && $mail->refundPending === true
+                && $mail->hasTo($this->admin->email)
+                && $mail->hasCc('cesarmilenario@gmail.com');
         });
     }
 
@@ -118,8 +134,24 @@ class CancellationTest extends TestCase
 
         $this->assertSame(Appointment::PAYMENT_REFUND_PENDING, $appointment->fresh()->payment_status);
 
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) use ($appointment) {
+            return $mail->refundPending === true
+                && $mail->isForTechnician === false
+                && $mail->hasTo($appointment->client_email)
+                && $mail->hasCc('cesarmilenario@gmail.com')
+                && str_contains($mail->render(), 'reembolso');
+        });
         Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
-            return $mail->refundPending === true && str_contains($mail->render(), 'reembolso');
+            return $mail->refundPending === true
+                && $mail->isForTechnician === true
+                && $mail->hasTo('info@servispin.net')
+                && $mail->hasCc('cesarmilenario@gmail.com');
+        });
+        Mail::assertSent(RemoteAssistanceCancelled::class, function (RemoteAssistanceCancelled $mail) {
+            return $mail->refundPending === true
+                && $mail->isForTechnician === true
+                && $mail->hasTo($this->admin->email)
+                && $mail->hasCc('cesarmilenario@gmail.com');
         });
     }
 

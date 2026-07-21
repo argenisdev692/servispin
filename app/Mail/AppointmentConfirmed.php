@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\NotifiesAppointmentParties;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
@@ -13,52 +14,42 @@ use Illuminate\Queue\SerializesModels;
 
 class AppointmentConfirmed extends Mailable
 {
+    use NotifiesAppointmentParties;
     use Queueable, SerializesModels;
 
-    /**
-     * The appointment instance.
-     *
-     * @var Appointment
-     */
     public $appointment;
 
-    /**
-     * The company data instance.
-     *
-     * @var CompanyData
-     */
     public $companyData;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct(Appointment $appointment, CompanyData $companyData)
+    public $isForCompany;
+
+    public function __construct(Appointment $appointment, CompanyData $companyData, bool $isForCompany = false)
     {
         $this->appointment = $appointment;
         $this->companyData = $companyData;
+        $this->isForCompany = $isForCompany;
     }
 
-    /**
-     * Get the message envelope.
-     *
-     * @return Envelope
-     */
+    public static function notifyParties(Appointment $appointment, CompanyData $companyData): void
+    {
+        static::dispatchToParties(
+            $appointment,
+            $companyData,
+            fn (bool $isForCompany) => new static($appointment, $companyData, $isForCompany)
+        );
+    }
+
     public function envelope()
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
-            cc: $this->companyData->adminEmail() ? [new Address($this->companyData->adminEmail())] : [],
-            subject: '¡Su cita ha sido confirmada! - '.$this->companyData->company_name,
+            cc: $this->operationalCc(),
+            subject: $this->isForCompany
+                ? 'Cita confirmada: '.$this->appointment->client_first_name.' '.$this->appointment->client_last_name
+                : '¡Su cita ha sido confirmada! - '.$this->companyData->company_name,
         );
     }
 
-    /**
-     * Get the message content definition.
-     *
-     * @return Content
-     */
     public function content()
     {
         return new Content(
@@ -66,11 +57,6 @@ class AppointmentConfirmed extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array
-     */
     public function attachments()
     {
         return [];

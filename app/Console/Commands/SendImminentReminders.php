@@ -7,7 +7,6 @@ use App\Models\Appointment;
 use App\Models\CompanyData;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Recordatorio de 30 minutos antes, solo para citas remotas (US-3, T039).
@@ -53,13 +52,11 @@ class SendImminentReminders extends Command
 
         foreach ($appointments as $appointment) {
             try {
-                Mail::to($appointment->client_email)
-                    ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_IMMINENT));
-
-                if ($companyData->email) {
-                    Mail::to($companyData->email)
-                        ->send(new RemoteAssistanceReminder($appointment, $companyData, RemoteAssistanceReminder::WHEN_IMMINENT, true));
-                }
+                RemoteAssistanceReminder::notifyParties(
+                    $appointment,
+                    $companyData,
+                    RemoteAssistanceReminder::WHEN_IMMINENT
+                );
 
                 // Se marca DESPUÉS de enviar: si el envío falla, se reintenta en la
                 // siguiente pasada en vez de quedarse marcada sin haber avisado.

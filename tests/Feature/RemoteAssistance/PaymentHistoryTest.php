@@ -136,7 +136,7 @@ class PaymentHistoryTest extends TestCase
             ->postJson(route('admin.appointments.resend-confirmation', $appointment->id))
             ->assertStatus(200);
 
-        Mail::assertSent(RemoteAssistanceConfirmed::class, 2);
+        Mail::assertSent(RemoteAssistanceConfirmed::class, 3);
 
         $this->assertDatabaseHas('appointment_payment_events', [
             'appointment_id' => $appointment->id,

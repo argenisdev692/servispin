@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\NotifiesAppointmentParties;
 use App\Models\Appointment;
 use App\Models\CompanyData;
 use Illuminate\Bus\Queueable;
@@ -16,12 +17,10 @@ use Illuminate\Queue\SerializesModels;
  *
  * Este es el ÚNICO email del módulo que puede llevar el enlace, y solo se envía
  * después de que un administrador haya cotejado el pago en SumUp (FR-3).
- *
- * El enlace es un secreto de facto (plan §8): viaja por email al cliente y al
- * técnico, y no aparece en ninguna respuesta de un endpoint público.
  */
 class RemoteAssistanceConfirmed extends Mailable
 {
+    use NotifiesAppointmentParties;
     use Queueable, SerializesModels;
 
     public $appointment;
@@ -37,10 +36,20 @@ class RemoteAssistanceConfirmed extends Mailable
         $this->isForTechnician = $isForTechnician;
     }
 
+    public static function notifyParties(Appointment $appointment, CompanyData $companyData): void
+    {
+        static::dispatchToParties(
+            $appointment,
+            $companyData,
+            fn (bool $isForCompany) => new static($appointment, $companyData, $isForCompany)
+        );
+    }
+
     public function envelope()
     {
         return new Envelope(
             from: new Address($this->companyData->email, $this->companyData->company_name),
+            cc: $this->operationalCc(),
             subject: $this->isForTechnician
                 ? 'Videollamada confirmada: '.$this->appointment->client_first_name.' '.$this->appointment->client_last_name
                 : 'Tu cita está confirmada — enlace de la videollamada',

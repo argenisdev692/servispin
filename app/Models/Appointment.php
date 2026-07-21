@@ -168,10 +168,14 @@ class Appointment extends Model
     /**
      * Citas confirmadas que se quedaron sin enlace porque el provider automático
      * falló. Cesar tiene que pegarlo a mano (FR-15).
+     *
+     * Solo citas aún confirmadas: una cancelada deja de pertenecer a esta bandeja
+     * aunque conserve meeting_link_failed_at y meeting_url null.
      */
     public function scopeAwaitingManualLink($query)
     {
         return $query->where('modality', self::MODALITY_REMOTE)
+            ->where('status', self::STATUS_CONFIRMED)
             ->whereNotNull('meeting_link_failed_at')
             ->whereNull('meeting_url');
     }

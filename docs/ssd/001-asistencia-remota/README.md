@@ -4,7 +4,7 @@ Permite a un cliente de cualquier parte del mundo contratar una sesión de
 asistencia técnica por videollamada, pagando por adelantado con el QR de SumUp.
 
 - **Spec / plan / research / tasks:** ver los ficheros de esta carpeta.
-- **Puesta en marcha de Google Meet:** `README-google-meet.md`.
+- **Puesta en marcha de Google Meet (Spatie + OAuth):** [`README-google-meet.md`](README-google-meet.md).
 
 ## El flujo, de un vistazo
 
@@ -27,6 +27,47 @@ Cliente                          Cesar (admin)                 Sistema
   ├─ recordatorio 30 min antes (con enlace)
   └─ entra a la videollamada
 ```
+
+## Flujo Google Calendar API + Spatie (Meet)
+
+Al confirmar el pago, el sistema intenta generar el enlace automáticamente:
+
+```
+verify-payment (decision=verify)
+        │
+        ▼
+ MeetingLinkProvider  ←── REMOTE_ASSISTANCE_MEETING_PROVIDER
+        │                    (manual | google_meet)
+        ▼
+ GoogleMeetLinkProvider
+        │
+        ├─ spatie/laravel-google-calendar
+        │     Event::create(...) + addMeetLink()
+        │     auth: GOOGLE_CALENDAR_AUTH_PROFILE=oauth
+        │
+        ├─ OK  → meeting_url = hangoutLink
+        │        google_event_id / google_calendar_id guardados
+        │        invita al cliente (sendUpdates=all)
+        │        email de confirmación CON enlace
+        │
+        └─ FAIL → MeetingLinkException (FR-15)
+                  cita se confirma IGUAL
+                  meeting_link_failed_at marcado
+                  bandeja admin: pegar Meet a mano
+```
+
+| Pieza | Ruta / config |
+|-------|----------------|
+| Config Spatie | `config/google-calendar.php` |
+| Provider Meet | `app/Services/MeetingLink/GoogleMeetLinkProvider.php` |
+| Interfaz | `app/Services/MeetingLink/MeetingLinkProvider.php` |
+| OAuth connect | `/admin/google-calendar/oauth/connect` |
+| Credenciales | `storage/app/google-calendar/oauth-*.json` (fuera de Git) |
+| Provider del módulo | `REMOTE_ASSISTANCE_MEETING_PROVIDER` en `config/remote_assistance.php` |
+
+**Importante:** en Gmail personal, Meet solo funciona con perfil **OAuth** (cuenta
+del técnico). Service Account crea eventos pero suele fallar con
+`Invalid conference type value`. Guía paso a paso: [`README-google-meet.md`](README-google-meet.md).
 
 ## Por qué la verificación del pago es MANUAL
 
