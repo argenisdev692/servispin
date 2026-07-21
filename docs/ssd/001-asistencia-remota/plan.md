@@ -393,7 +393,7 @@ que alguien reciba una videollamada sin pagar.
   Cesar**, con el riesgo R-8 explícitamente aceptado. Desbloquea T011b.
 - ~~**D-2** Campos del formulario de pago~~ **RESUELTA (17/07/2026):** se implementa la propuesta del
   spec — `payment_reference` + `payment_amount` + `payer_name`. Nada de tarjeta (FR-4).
-- ~~**D-3** Precio y duración~~ **RESUELTA (17/07/2026):** **45 minutos, 30 €** (decisión de Argenis).
+- ~~**D-3** Precio y duración~~ **ACTUALIZADA (21/07/2026):** **20 minutos, 30 €** (decisión de Argenis).
   En `config/remote_assistance.php` y sembrado vía `updateOrCreate`; Cesar los edita desde el CRUD de
   servicios que ya existe (`Admin/ServiceController`).
 - **D-4** Plazo de liberación del hueco sin verificar (FR-12). Propuesta: 24 h o 2 h antes de la

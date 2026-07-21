@@ -29,7 +29,7 @@ return [
     |
     */
     'default_price' => env('REMOTE_ASSISTANCE_PRICE', 30.00),
-    'default_duration' => env('REMOTE_ASSISTANCE_DURATION', 45), // minutos (decisión Argenis 17/07)
+    'default_duration' => env('REMOTE_ASSISTANCE_DURATION', 20), // minutos
 
     /*
     |--------------------------------------------------------------------------

@@ -72,7 +72,7 @@ class ServiceSeeder extends Seeder
                 'uuid' => Str::uuid(),
                 'description' => 'Sesión de asistencia técnica por videollamada. Un técnico te guía '
                     .'paso a paso para diagnosticar o reparar tu electrodoméstico desde donde estés.',
-                'duration' => config('remote_assistance.default_duration', 30),
+                'duration' => config('remote_assistance.default_duration', 20),
                 'price' => config('remote_assistance.default_price', 30.00),
                 'active' => true,
                 'is_remote' => true,
