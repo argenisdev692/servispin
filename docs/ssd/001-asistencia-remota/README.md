@@ -107,7 +107,7 @@ Esto tiene dos consecuencias que no se deben "optimizar" sin entenderlas:
 | Clave | `.env` | Por defecto | Para qué |
 |---|---|---|---|
 | `meeting_provider` | `REMOTE_ASSISTANCE_MEETING_PROVIDER` | `manual` | `manual` o `google_meet` |
-| `default_price` | `REMOTE_ASSISTANCE_PRICE` | `30.00` | Precio del seeder |
+| `default_price` | `REMOTE_ASSISTANCE_PRICE` | `20.00` | Precio del seeder |
 | `default_duration` | `REMOTE_ASSISTANCE_DURATION` | `20` | Duración en min |
 | `sumup_qr_url` | `REMOTE_ASSISTANCE_SUMUP_QR_URL` | (URL de SumUp) | QR del formulario |
 | `buffer.mixed_minutes` | `REMOTE_ASSISTANCE_BUFFER_MIXED` | `60` | Margen entre presencial y remota |
