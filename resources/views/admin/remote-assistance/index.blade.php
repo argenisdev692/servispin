@@ -243,10 +243,12 @@
 
                     try {
                         const res = await fetch('/admin/appointments/' + id + '/verify-payment', {
-                            method: 'PATCH',
+                            // POST + override: el WAF del hosting bloquea PATCH con 403.
+                            method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json',
+                                'X-HTTP-Method-Override': 'PATCH',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             },
                             body: JSON.stringify(payload)
@@ -288,10 +290,12 @@
 
                 try {
                     const res = await fetch('/admin/appointments/' + id + '/meeting-link', {
-                        method: 'PATCH',
+                        // POST + override: el WAF del hosting bloquea PATCH con 403.
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
+                            'X-HTTP-Method-Override': 'PATCH',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
                         body: JSON.stringify({ meeting_url: meetingUrl, resend_email: true })
@@ -346,10 +350,12 @@
 
                 try {
                     const res = await fetch('/admin/appointments/' + id + '/cancel-awaiting-link', {
-                        method: 'PATCH',
+                        // POST + override: el WAF del hosting bloquea PATCH con 403.
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
+                            'X-HTTP-Method-Override': 'PATCH',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                         },
                         body: JSON.stringify({ reason: result.value || null })

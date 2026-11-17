@@ -394,7 +394,9 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             url: self.formatRoute(self.routes.destroy, { id: id }),
-                            type: 'DELETE',
+                            // POST + method spoofing: el WAF del hosting bloquea DELETE con 403.
+                            type: 'POST',
+                            data: { _method: 'DELETE' },
                             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                             success: function(response) {
                                 if (response.success) {

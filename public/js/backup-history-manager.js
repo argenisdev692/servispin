@@ -70,7 +70,9 @@
     function deleteBackup(destroyUrl, csrfToken) {
         return $.ajax({
             url: destroyUrl,
-            method: 'DELETE',
+            // POST + method spoofing: el WAF del hosting bloquea DELETE con 403.
+            method: 'POST',
+            data: { _method: 'DELETE' },
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 Accept: 'application/json',

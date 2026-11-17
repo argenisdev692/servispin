@@ -492,13 +492,17 @@
                     );
 
                 // Send request
+                // POST + method spoofing: el WAF del hosting (ModSecurity/CRS 911100)
+                // bloquea PUT/PATCH/DELETE con 403.
+                const updateData = isEdit ? Object.assign({ _method: "PUT" }, formData) : formData;
+
                 $.ajax({
                     url: isEdit ?
                         self.formatRoute(self.routes.update, {
                             id: entityId
                         }) : self.routes.store,
-                    type: isEdit ? "PUT" : "POST",
-                    data: formData,
+                    type: "POST",
+                    data: updateData,
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
                     },

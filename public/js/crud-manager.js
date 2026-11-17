@@ -550,12 +550,16 @@ class CrudManager {
             );
 
         // Send request
+        // POST + method spoofing: el WAF del hosting (ModSecurity/CRS 911100)
+        // bloquea PUT/PATCH/DELETE con 403.
+        const updateData = isEdit ? Object.assign({ _method: "PUT" }, formData) : formData;
+
         $.ajax({
             url: isEdit
                 ? self.formatRoute(self.routes.update, { id: entityId })
                 : self.routes.store,
-            type: isEdit ? "PUT" : "POST",
-            data: formData,
+            type: "POST",
+            data: updateData,
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
             },
@@ -701,7 +705,9 @@ class CrudManager {
             if (result.isConfirmed) {
                 $.ajax({
                     url: self.formatRoute(self.routes.destroy, { id: id }),
-                    type: "DELETE",
+                    // POST + method spoofing: el WAF del hosting bloquea DELETE con 403.
+                    type: "POST",
+                    data: { _method: "DELETE" },
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
                             "content"
@@ -769,7 +775,9 @@ class CrudManager {
             if (result.isConfirmed) {
                 $.ajax({
                     url: self.formatRoute(self.routes.restore, { id: id }),
-                    type: "PATCH",
+                    // POST + method spoofing: el WAF del hosting bloquea PATCH con 403.
+                    type: "POST",
+                    data: { _method: "PATCH" },
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
                             "content"

@@ -1149,8 +1149,10 @@
                                 // Send AJAX request to update backend
                                 $.ajax({
                                     url: `{{ url('admin/appointment-calendar/events') }}/${event.id}`,
-                                    type: 'PATCH',
+                                    // POST + method spoofing: el WAF del hosting bloquea PATCH con 403.
+                                    type: 'POST',
                                     data: {
+                                        _method: 'PATCH',
                                         start: newStart,
                                         end: newEnd
                                     },
@@ -1406,11 +1408,14 @@
                 }
 
                 async function patchJson(url, payload) {
+                    // El hosting (ModSecurity/CRS 911100) responde 403 a los PATCH.
+                    // Se envía POST + X-HTTP-Method-Override, que Laravel trata como PATCH.
                     const res = await fetch(url, {
-                        method: 'PATCH',
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
+                            'X-HTTP-Method-Override': 'PATCH',
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                         },
                         body: JSON.stringify(payload),
@@ -1599,8 +1604,10 @@
                             // Send AJAX request to update appointment status
                             $.ajax({
                                 url: `{{ url('admin/appointment-calendar/status') }}/${appointmentId}`,
-                                type: 'PATCH',
+                                // POST + method spoofing: el WAF del hosting bloquea PATCH con 403.
+                                type: 'POST',
                                 data: {
+                                    _method: 'PATCH',
                                     status: 'Confirmed'
                                 },
                                 success: function(response) {
@@ -1667,8 +1674,10 @@
                             // Send AJAX request to update appointment status
                             $.ajax({
                                 url: `{{ url('admin/appointment-calendar/status') }}/${appointmentId}`,
-                                type: 'PATCH',
+                                // POST + method spoofing: el WAF del hosting bloquea PATCH con 403.
+                                type: 'POST',
                                 data: {
+                                    _method: 'PATCH',
                                     status: 'Cancelled'
                                 },
                                 success: function(response) {

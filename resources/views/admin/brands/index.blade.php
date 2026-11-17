@@ -299,7 +299,11 @@
                         if (result.isConfirmed) {
                             $.ajax({
                                 url: `/brands/${uuid}`,
-                                type: 'DELETE',
+                                // POST + method spoofing: el WAF del hosting bloquea DELETE con 403.
+                                type: 'POST',
+                                data: {
+                                    _method: 'DELETE'
+                                },
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
                                         'content')
@@ -367,7 +371,11 @@
                         if (result.isConfirmed) {
                             $.ajax({
                                 url: `/brands/${uuid}/restore`,
-                                type: 'PATCH',
+                                // POST + method spoofing: el WAF del hosting bloquea PATCH con 403.
+                                type: 'POST',
+                                data: {
+                                    _method: 'PATCH'
+                                },
                                 headers: {
                                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
                                         'content')
